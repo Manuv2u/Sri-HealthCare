@@ -1,117 +1,174 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatSelectModule } from '@angular/material/select';
+import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
-import { UserApiService } from '../../../core/api/services/user-api.service';
-import { User } from '../../../core/api/api.types';
-import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner.component';
-import { ErrorBannerComponent } from '../../../shared/components/error-banner.component';
+import { AuthStateService } from '../../../core/auth/auth-state.service';
+
+interface Tile {
+  icon: string;
+  label: string;
+  route?: string;
+  action?: () => void;
+  color: string;
+  bg: string;
+}
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [
-    CommonModule, ReactiveFormsModule,
-    MatFormFieldModule, MatInputModule, MatButtonModule, MatSelectModule, MatIconModule,
-    LoadingSpinnerComponent, ErrorBannerComponent,
-  ],
+  imports: [CommonModule, MatIconModule],
   template: `
-    <div class="page-container" style="max-width:600px">
-      <div class="page-header">
-        <h1>My Profile</h1>
-        <p>Manage your personal information</p>
+    <div class="profile-page">
+      <!-- Header -->
+      <div class="profile-header">
+        <div class="avatar">
+          <mat-icon>person</mat-icon>
+        </div>
+        <div class="user-info">
+          <h2>{{ userName() }}</h2>
+          <p>{{ userPhone() }}</p>
+        </div>
       </div>
 
-      <app-loading-spinner *ngIf="loading()" />
-      <app-error-banner *ngIf="error()" [message]="error()!" [retryLabel]="'Retry'" (retry)="load()" />
+      <!-- Tile Grid -->
+      <div class="tile-grid">
+        @for (tile of tiles; track tile.label) {
+          <button class="tile" (click)="handleTile(tile)">
+            <div class="tile-icon" [style.background]="tile.bg" [style.color]="tile.color">
+              <mat-icon>{{ tile.icon }}</mat-icon>
+            </div>
+            <span class="tile-label">{{ tile.label }}</span>
+          </button>
+        }
+      </div>
 
-      @if (!loading() && !error()) {
-        <div class="form-container">
-          <form [formGroup]="form" (ngSubmit)="save()">
-            <mat-form-field appearance="outline">
-              <mat-label>Full Name</mat-label>
-              <mat-icon matPrefix>person</mat-icon>
-              <input matInput formControlName="name" />
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>Email</mat-label>
-              <mat-icon matPrefix>email</mat-icon>
-              <input matInput formControlName="email" type="email" />
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>Date of Birth</mat-label>
-              <mat-icon matPrefix>cake</mat-icon>
-              <input matInput formControlName="date_of_birth" type="date" />
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>Gender</mat-label>
-              <mat-icon matPrefix>wc</mat-icon>
-              <mat-select formControlName="gender">
-                <mat-option value="male">Male</mat-option>
-                <mat-option value="female">Female</mat-option>
-                <mat-option value="other">Other</mat-option>
-              </mat-select>
-            </mat-form-field>
-
-            @if (saved()) {
-              <div class="alert-success">
-                <mat-icon>check_circle</mat-icon>
-                Profile updated successfully.
-              </div>
-            }
-
-            <button mat-flat-button color="primary" type="submit" [disabled]="saving()" class="save-btn">
-              {{ saving() ? 'Saving…' : 'Save Changes' }}
-            </button>
-          </form>
-        </div>
-      }
+      <!-- Logout -->
+      <div class="logout-wrap">
+        <button class="btn-logout" (click)="logout()">
+          <mat-icon>logout</mat-icon>
+          Log Out
+        </button>
+      </div>
     </div>
   `,
   styles: [`
-    .alert-success {
-      display: flex; align-items: center; gap: .5rem;
-      padding: .75rem 1rem; border-radius: 8px; font-size: .875rem;
-      background: #c6f6d5; color: #276749;
+    .profile-page {
+      min-height: 100vh;
+      background: #f7fafc;
+      padding-bottom: 2rem;
     }
-    .save-btn { height: 44px; font-size: 1rem; font-weight: 600; }
+    .profile-header {
+      background: linear-gradient(135deg, #00796b, #004d40);
+      color: #fff;
+      padding: 2rem 1.5rem 2.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .avatar {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.2);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      mat-icon { font-size: 2rem; width: 2rem; height: 2rem; color: #fff; }
+    }
+    .user-info {
+      h2 { font-size: 1.25rem; font-weight: 700; margin: 0 0 .25rem; }
+      p { font-size: .875rem; opacity: .8; margin: 0; }
+    }
+    .tile-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      padding: 1.5rem;
+      margin-top: -1rem;
+      background: #fff;
+      border-radius: 20px 20px 0 0;
+    }
+    .tile {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: .6rem;
+      padding: 1.25rem .5rem;
+      background: #fff;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: box-shadow .15s, transform .1s;
+      &:hover { box-shadow: 0 4px 16px rgba(0,0,0,.08); transform: translateY(-2px); }
+      &:active { transform: translateY(0); }
+    }
+    .tile-icon {
+      width: 52px; height: 52px;
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      mat-icon { font-size: 1.5rem; width: 1.5rem; height: 1.5rem; }
+    }
+    .tile-label {
+      font-size: .75rem;
+      font-weight: 600;
+      color: #4a5568;
+      text-align: center;
+      line-height: 1.3;
+    }
+    .logout-wrap {
+      padding: 0 1.5rem;
+      margin-top: 1rem;
+    }
+    .btn-logout {
+      width: 100%;
+      display: flex; align-items: center; justify-content: center; gap: .5rem;
+      padding: .9rem;
+      background: #fff;
+      border: 1.5px solid #fed7d7;
+      border-radius: 14px;
+      color: #e53e3e;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .15s;
+      mat-icon { font-size: 1.2rem; width: 1.2rem; height: 1.2rem; }
+      &:hover { background: #fff5f5; }
+    }
   `],
 })
 export class ProfileComponent implements OnInit {
-  form = this.fb.group({
-    name: [''],
-    email: [''],
-    date_of_birth: [''],
-    gender: [''],
-  });
-  loading = signal(true);
-  error = signal<string | null>(null);
-  saving = signal(false);
-  saved = signal(false);
+  userName = signal('');
+  userPhone = signal('');
 
-  constructor(private fb: FormBuilder, private userApi: UserApiService) {}
+  tiles: Tile[] = [
+    { icon: 'person', label: 'My Profile', route: '/profile/edit', color: '#00796b', bg: '#e0f2f1' },
+    { icon: 'group', label: 'Manage Members', route: '/profile/members', color: '#5c6bc0', bg: '#e8eaf6' },
+    { icon: 'location_on', label: 'Address Book', route: '/profile/addresses', color: '#ef6c00', bg: '#fff3e0' },
+    { icon: 'download', label: 'Download Reports', route: '/dashboard', color: '#2e7d32', bg: '#e8f5e9' },
+    { icon: 'receipt_long', label: 'My Orders', route: '/dashboard', color: '#1565c0', bg: '#e3f2fd' },
+    { icon: 'info', label: 'About', route: '/about', color: '#6d4c41', bg: '#efebe9' },
+    { icon: 'science', label: 'Lab Locator', route: '/labs', color: '#00838f', bg: '#e0f7fa' },
+    { icon: 'favorite', label: 'Wellness Watch', route: '/wellness', color: '#c62828', bg: '#ffebee' },
+    { icon: 'help_outline', label: 'Help', route: '/help', color: '#7b1fa2', bg: '#f3e5f5' },
+    { icon: 'support_agent', label: 'Contact Us', route: '/contact', color: '#0277bd', bg: '#e1f5fe' },
+  ];
 
-  ngOnInit(): void { this.load(); }
+  constructor(
+    private router: Router,
+    private authState: AuthStateService,
+  ) {}
 
-  load(): void {
-    this.loading.set(true);
-    this.error.set(null);
-    this.userApi.getProfile().subscribe({
-      next: (user) => { this.form.patchValue(user); this.loading.set(false); },
-      error: () => { this.error.set('Failed to load profile.'); this.loading.set(false); },
-    });
+  ngOnInit(): void {
+    const user = this.authState.currentUser();
+    this.userName.set(user?.name ?? 'User');
+    this.userPhone.set(user?.phone ?? '');
   }
 
-  save(): void {
-    this.saving.set(true);
-    this.saved.set(false);
-    this.userApi.updateProfile(this.form.value as Partial<User>).subscribe({
-      next: () => { this.saving.set(false); this.saved.set(true); },
-      error: () => { this.saving.set(false); },
-    });
+  handleTile(tile: Tile): void {
+    if (tile.action) { tile.action(); return; }
+    if (tile.route) this.router.navigate([tile.route]);
+  }
+
+  logout(): void {
+    this.authState.clearSession();
+    this.router.navigate(['/auth/login']);
   }
 }

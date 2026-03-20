@@ -106,7 +106,9 @@ export class OtpVerifyComponent implements OnInit, OnDestroy {
           const payload = JSON.parse(atob(tokens.access_token.split('.')[1]));
           this.authState.setUser({ id: payload.sub, name: payload.name ?? this.name ?? 'User', role: payload.role });
         } catch { /* ignore */ }
-        this.router.navigate(['/dashboard']);
+        const role = this.authState.role();
+        const dest = role === 'admin' ? '/admin' : role === 'technician' ? '/dashboard' : '/profile';
+        this.router.navigate([dest]);
       },
       error: (err) => {
         this.loading.set(false);

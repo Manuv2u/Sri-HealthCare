@@ -55,6 +55,17 @@ class AuthService:
         logging.getLogger("sri.auth").info("OTP for %s: %s", phone, otp)
         return {"message": "OTP sent"}
 
+    async def login_otp(self, phone: str) -> dict:
+        """Send OTP to any existing user (user/admin/technician) for login."""
+        user = await self.user_repo.get_by_phone(phone)
+        if user is None or not user.is_active:
+            # Return same message to avoid phone enumeration
+            return {"message": "OTP sent if account exists"}
+        otp = otp_service.generate_otp(phone)
+        import logging
+        logging.getLogger("sri.auth").info("Login OTP for %s: %s", phone, otp)
+        return {"message": "OTP sent"}
+
     async def verify_otp(
         self,
         phone: str,

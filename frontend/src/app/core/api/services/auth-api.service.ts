@@ -7,6 +7,10 @@ import { AuthTokens } from '../api.types';
 export class AuthApiService {
   constructor(private http: HttpClient) {}
 
+  loginOtp(phone: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>('/auth/login-otp', { phone });
+  }
+
   register(phone: string, name: string): Observable<{ message: string }> {
     return this.http.post<{ message: string }>('/auth/register', { phone, name });
   }

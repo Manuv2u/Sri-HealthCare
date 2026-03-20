@@ -10,6 +10,7 @@ from app.database import get_db_session
 from app.middleware.auth import get_current_user
 from app.schemas.auth import (
     AccessTokenResponse,
+    LoginOTPRequest,
     LoginRequest,
     MessageResponse,
     RefreshRequest,
@@ -55,6 +56,17 @@ async def verify_otp(
         ip_address=ip,
     )
     return TokenResponse(**tokens)
+
+
+@router.post("/login-otp", response_model=MessageResponse)
+async def login_otp(
+    body: LoginOTPRequest,
+    db: AsyncSession = Depends(get_db_session),
+) -> MessageResponse:
+    """Send OTP to an existing user (any role) for passwordless login."""
+    svc = AuthService(db)
+    result = await svc.login_otp(phone=body.phone)
+    return MessageResponse(**result)
 
 
 @router.post("/login", response_model=TokenResponse)
