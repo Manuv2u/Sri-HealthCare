@@ -18,6 +18,11 @@ export const refreshInterceptor: HttpInterceptorFn = (req, next) => {
           return http.post<{ access_token: string }>('/auth/refresh', { refresh_token: refreshToken }).pipe(
             switchMap((res) => {
               auth.setTokens(res.access_token, refreshToken);
+              // Also restore user from new token
+              try {
+                const payload = JSON.parse(atob(res.access_token.split('.')[1]));
+                auth.setUser({ id: payload.sub, name: payload.name ?? '', role: payload.role });
+              } catch { /* ignore */ }
               return next(req.clone({
                 setHeaders: { Authorization: `Bearer ${res.access_token}` },
               }));
