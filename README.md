@@ -119,3 +119,10 @@ The system runs an automated restore validation job on the 1st of every month at
 6. Drops the temporary database
 
 Check the application logs for entries prefixed with `restore_validation_result:` to review past validation outcomes.
+
+
+
+git remote set-url origin git@github.com:Sri-HealthCare/Sri-HealthCare.git
+
+
+git push origin main
