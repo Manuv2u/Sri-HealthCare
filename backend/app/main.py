@@ -18,6 +18,12 @@ async def lifespan(app: FastAPI):  # type: ignore[type-arg]
         await svc.seed_defaults()
         await db.commit()
 
+    # Startup — ensure admin user exists
+    from app.services.admin_seed_service import seed_admin_user
+    async with AsyncSessionFactory() as db:
+        await seed_admin_user(db)
+        await db.commit()
+
     # Start APScheduler
     from apscheduler.schedulers.asyncio import AsyncIOScheduler
     from apscheduler.triggers.cron import CronTrigger
@@ -55,11 +61,20 @@ app = FastAPI(
 
 # ── Middleware ────────────────────────────────────────────────────────────────
 
+from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
 from app.middleware.rate_limit import RateLimitMiddleware  # noqa: E402
 from app.middleware.audit import AuditMiddleware  # noqa: E402
 from app.middleware.logging import RequestLoggingMiddleware  # noqa: E402
 from app.middleware.security import SecurityHeadersMiddleware  # noqa: E402
 
+# CORS must be added first so OPTIONS preflight is handled before other middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.CORS_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 app.add_middleware(SecurityHeadersMiddleware)
 app.add_middleware(AuditMiddleware)
 app.add_middleware(RateLimitMiddleware)

@@ -1,9 +1,12 @@
 """OTP service with in-process dict storage."""
 from __future__ import annotations
 
+import logging
 import random
 import string
 from datetime import datetime, timedelta, timezone
+
+logger = logging.getLogger(__name__)
 
 
 class OTPService:
@@ -16,6 +19,8 @@ class OTPService:
         otp = "".join(random.choices(string.digits, k=6))
         expires_at = datetime.now(timezone.utc) + timedelta(minutes=10)
         self._store[phone] = (otp, expires_at)
+        # ── DEV: print OTP to logs so local testing doesn't need SMS ──
+        logger.warning("🔑 OTP for %s → %s (expires in 10 min)", phone, otp)
         return otp
 
     def verify_otp(self, phone: str, otp: str) -> bool:

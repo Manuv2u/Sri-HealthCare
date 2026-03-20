@@ -17,12 +17,13 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_HOURS = 24
 
 
-def create_access_token(user_id: str, role: str) -> str:
+def create_access_token(user_id: str, role: str, name: str = "") -> str:
     """Create a signed HS256 JWT with 24-hour expiry."""
     now = datetime.now(timezone.utc)
     payload = {
         "sub": user_id,
         "role": role,
+        "name": name,
         "jti": str(uuid.uuid4()),
         "exp": now + timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS),
         "iat": now,

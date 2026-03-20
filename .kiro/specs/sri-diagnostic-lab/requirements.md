@@ -76,6 +76,9 @@ SRI DIAGNOSTIC LABORATORY & HEALTH CARE is a full-stack diagnostic laboratory an
 9. WHEN a User requests to view active sessions, THE System SHALL return a list of all current sessions with device identifier, IP address, and last-seen timestamp.
 10. WHEN a User revokes an individual session, THE Auth_Service SHALL invalidate that session's refresh token immediately.
 11. WHEN a User selects "logout from all devices", THE Auth_Service SHALL invalidate all active refresh tokens for that User simultaneously.
+12. THE System SHALL allow unauthenticated users to browse the test catalog and package listings without requiring login.
+13. THE System SHALL require login only for protected actions: creating a booking, viewing reports, accessing profile/family members, and making payments.
+14. WHEN an unauthenticated user attempts to access a protected route, THE System SHALL redirect them to the login page with a `returnUrl` query parameter preserving their intended destination, and SHALL redirect them back to that destination after successful login.
 
 ---
 

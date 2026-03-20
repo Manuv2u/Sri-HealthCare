@@ -7,7 +7,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Protocol
 
-import jwt
+from jose import jwt as jose_jwt
 
 from app.config import settings
 
@@ -52,7 +52,7 @@ class LocalStorage:
             "key": key,
             "exp": datetime.now(timezone.utc) + timedelta(hours=24),
         }
-        token = jwt.encode(payload, settings.jwt_secret, algorithm=settings.jwt_algorithm)
+        token = jose_jwt.encode(payload, settings.jwt_secret, algorithm=settings.jwt_algorithm)
         return f"/api/v1/files/download/{token}"
 
     async def delete(self, key: str) -> None:

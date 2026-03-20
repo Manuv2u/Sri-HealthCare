@@ -39,7 +39,7 @@ class AuditLogRepository:
                 entity_id=entity_id,
                 outcome=outcome,
                 source_ip=source_ip,
-                metadata=metadata,
+                extra_data=metadata,
             )
             self.db.add(log)
             await self.db.flush()

@@ -45,5 +45,18 @@ class Settings(BaseSettings):
     # Environment
     env_profile: str = "local"
 
+    # CORS
+    cors_origins: list[str] = ["http://localhost:4200", "http://localhost:3000"]
+
+    # Admin seed (auto-created on startup)
+    admin_phone: str = "9999999999"
+    admin_email: str = "admin@sri.local"
+    admin_name: str = "Admin"
+    admin_password: str = "Admin@123"
+
+    @property
+    def CORS_ORIGINS(self) -> list[str]:
+        return self.cors_origins
+
 
 settings = Settings()

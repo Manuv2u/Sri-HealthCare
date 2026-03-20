@@ -9,8 +9,12 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
+import os as _os
+
+# Relax limits in local/dev so testing isn't blocked
+_IS_LOCAL = _os.getenv("ENV_PROFILE", "local") in ("local", "dev")
 _WINDOW_MINUTES = 15
-_MAX_ATTEMPTS = 5
+_MAX_ATTEMPTS = 200 if _IS_LOCAL else 5
 _AUTH_PREFIX = "/api/v1/auth/"
 
 

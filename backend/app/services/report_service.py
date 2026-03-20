@@ -4,7 +4,8 @@ from __future__ import annotations
 import logging
 import uuid
 
-import jwt
+from jose import ExpiredSignatureError, JWTError
+from jose import jwt as jose_jwt
 from fastapi import HTTPException, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -129,16 +130,16 @@ class ReportService:
     def validate_download_token(self, token: str) -> dict:
         """Validate JWT download token for local storage; return payload."""
         try:
-            payload = jwt.decode(
+            payload = jose_jwt.decode(
                 token, settings.jwt_secret, algorithms=[settings.jwt_algorithm]
             )
             return payload
-        except jwt.ExpiredSignatureError:
+        except ExpiredSignatureError:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail={"error_code": "TOKEN_EXPIRED", "message": "Download link has expired"},
             )
-        except jwt.InvalidTokenError:
+        except JWTError:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail={"error_code": "INVALID_TOKEN", "message": "Invalid download token"},

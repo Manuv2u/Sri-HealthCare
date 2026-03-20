@@ -76,7 +76,14 @@ alembic upgrade head
 **7. Restart the application**
 
 ```bash
-docker compose up -d
+# local
+ENV_FILE=.env.local docker compose up --build
+
+# staging
+ENV_FILE=.env.staging docker compose up --build
+
+# production
+ENV_FILE=.env.production docker compose up -d --build
 ```
 
 ### Verifying the Restore

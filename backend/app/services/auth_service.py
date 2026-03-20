@@ -4,8 +4,8 @@ from __future__ import annotations
 import uuid
 from datetime import datetime, timedelta, timezone
 
+import bcrypt as _bcrypt
 from fastapi import HTTPException, status
-from passlib.context import CryptContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
@@ -18,7 +18,15 @@ from app.utils.jwt import (
     verify_refresh_token,
 )
 
-_pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__rounds=12)
+# passlib + bcrypt>=4.0 incompatibility: use bcrypt directly
+def _hash_password(password: str) -> str:
+    return _bcrypt.hashpw(password.encode()[:72], _bcrypt.gensalt(rounds=12)).decode()
+
+def _verify_password(password: str, hashed: str) -> bool:
+    try:
+        return _bcrypt.checkpw(password.encode()[:72], hashed.encode())
+    except Exception:
+        return False
 
 _INVALID_CREDENTIALS = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED,
@@ -65,7 +73,7 @@ class AuthService:
         user = await self.user_repo.get_by_phone(phone)
         if user is None:
             resolved_name = name or "User"
-            empty_pw_hash = _pwd_context.hash("")
+            empty_pw_hash = _hash_password("")
             user = await self.user_repo.create_user(
                 name=resolved_name,
                 phone=phone,
@@ -89,7 +97,7 @@ class AuthService:
         if user is None:
             user = await self.user_repo.get_by_email(phone_or_email)
         # Use identical error for wrong password vs unknown user (timing-safe)
-        if user is None or not _pwd_context.verify(password, user.password_hash):
+        if user is None or not _verify_password(password, user.password_hash):
             await audit(
                 self.db,
                 action_type="USER_LOGIN_FAILURE",
@@ -144,7 +152,7 @@ class AuthService:
                 detail={"error_code": "USER_NOT_FOUND", "message": "User not found"},
             )
         await self.session_repo.update_last_seen(session.id)
-        access_token = create_access_token(str(user.id), user.role)
+        access_token = create_access_token(str(user.id), user.role, user.name)
         return {"access_token": access_token, "token_type": "bearer"}
 
     async def logout_all(self, user_id: uuid.UUID) -> None:
@@ -169,7 +177,7 @@ class AuthService:
             ip_address=ip_address,
             expires_at=expires_at,
         )
-        access_token = create_access_token(str(user.id), user.role)
+        access_token = create_access_token(str(user.id), user.role, user.name)
         return {
             "access_token": access_token,
             "refresh_token": refresh_token,

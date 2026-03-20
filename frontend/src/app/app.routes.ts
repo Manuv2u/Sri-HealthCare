@@ -1,20 +1,18 @@
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
+  // Public landing — redirect to test catalog
   {
     path: '',
-    redirectTo: 'dashboard',
+    redirectTo: 'tests',
     pathMatch: 'full',
   },
+
+  // ── Public routes (no login required) ──────────────────────────────────────
   {
     path: 'auth',
     loadChildren: () =>
       import('./features/auth/auth.routes').then((m) => m.AUTH_ROUTES),
-  },
-  {
-    path: 'dashboard',
-    loadChildren: () =>
-      import('./features/dashboard/dashboard.routes').then((m) => m.DASHBOARD_ROUTES),
   },
   {
     path: 'tests',
@@ -25,6 +23,13 @@ export const routes: Routes = [
     path: 'packages',
     loadChildren: () =>
       import('./features/packages/packages.routes').then((m) => m.PACKAGES_ROUTES),
+  },
+
+  // ── Protected routes (login required) ──────────────────────────────────────
+  {
+    path: 'dashboard',
+    loadChildren: () =>
+      import('./features/dashboard/dashboard.routes').then((m) => m.DASHBOARD_ROUTES),
   },
   {
     path: 'booking',
@@ -46,13 +51,16 @@ export const routes: Routes = [
     loadChildren: () =>
       import('./features/payments/payments.routes').then((m) => m.PAYMENTS_ROUTES),
   },
+
+  // ── Admin only ──────────────────────────────────────────────────────────────
   {
     path: 'admin',
     loadChildren: () =>
       import('./features/admin/admin.routes').then((m) => m.ADMIN_ROUTES),
   },
+
   {
     path: '**',
-    redirectTo: 'dashboard',
+    redirectTo: 'tests',
   },
 ];

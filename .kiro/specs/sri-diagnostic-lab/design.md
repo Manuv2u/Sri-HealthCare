@@ -137,7 +137,7 @@ One repository per aggregate root: `UserRepository`, `BookingRepository`, `TestR
 ```
 src/app/
 ├── core/                    # Singleton services, interceptors, guards
-│   ├── auth/                # AuthService, JwtInterceptor, AuthGuard, RoleGuard
+│   ├── auth/                # AuthService, JwtInterceptor, AuthGuard, RoleGuard, redirectIfAuthenticated
 │   ├── api/                 # ApiService (base HTTP), typed API clients
 │   └── store/               # Signal-based state (SignalStore pattern)
 ├── shared/                  # Reusable UI components
@@ -147,16 +147,34 @@ src/app/
 │   └── pagination/
 ├── features/
 │   ├── auth/                # Login, Register, OTP verification pages
-│   ├── dashboard/           # User dashboard, booking list
-│   ├── tests/               # Test catalog, search, detail
-│   ├── packages/            # Package listing
-│   ├── booking/             # Booking wizard (multi-step)
-│   ├── reports/             # Report list, download
-│   ├── profile/             # User profile, family members
-│   ├── payments/            # Payment flow, invoice download
-│   └── admin/               # Admin dashboard, analytics, management pages
+│   ├── dashboard/           # User dashboard, booking list  [protected]
+│   ├── tests/               # Test catalog, search, detail  [public]
+│   ├── packages/            # Package listing               [public]
+│   ├── booking/             # Booking wizard (multi-step)   [protected]
+│   ├── reports/             # Report list, download         [protected]
+│   ├── profile/             # User profile, family members  [protected]
+│   ├── payments/            # Payment flow, invoice download [protected]
+│   └── admin/               # Admin dashboard, analytics, management pages [admin only]
 └── app.routes.ts            # Lazy-loaded route definitions
 ```
+
+#### Route Access Model (Public-First)
+
+The app defaults to public browsing. Login is only required for transactional actions.
+
+| Route | Guard | Notes |
+|-------|-------|-------|
+| `/tests`, `/tests/:id` | none | Public catalog |
+| `/packages` | none | Public catalog |
+| `/auth/login`, `/auth/register` | `redirectIfAuthenticated` | Bounce logged-in users to `/tests` |
+| `/booking` | `authGuard` | Redirects to `/auth/login?returnUrl=/booking` |
+| `/dashboard` | `authGuard` | User's booking history |
+| `/reports` | `authGuard` | User's reports |
+| `/profile`, `/profile/family` | `authGuard` | User profile |
+| `/payments` | `authGuard` | Payment flow |
+| `/admin/*` | `authGuard` + `roleGuard(['admin'])` | Admin only |
+
+After login, users are redirected to the `returnUrl` query param (the page they originally tried to visit), falling back to `/dashboard`.
 
 #### Key Angular Services
 

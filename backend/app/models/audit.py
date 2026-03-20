@@ -24,7 +24,7 @@ class AuditLog(Base):
     entity_id: Mapped[str] = mapped_column(String(255), nullable=False)
     outcome: Mapped[str] = mapped_column(String(20), nullable=False)
     source_ip: Mapped[str | None] = mapped_column(INET, nullable=True)
-    metadata: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    extra_data: Mapped[dict | None] = mapped_column("metadata", JSONB, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=text("now()")
     )

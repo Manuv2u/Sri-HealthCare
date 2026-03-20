@@ -5,6 +5,7 @@ from sqlalchemy import (
     Boolean,
     DateTime,
     ForeignKey,
+    Index,
     Integer,
     String,
     Text,
@@ -44,10 +45,11 @@ class ServiceArea(Base):
 class ServiceRequest(Base):
     __tablename__ = "service_requests"
     __table_args__ = (
-        UniqueConstraint(
+        Index(
+            "uq_service_request_user_pincode_unnotified",
             "user_id",
             "pincode",
-            name="uq_service_request_user_pincode_unnotified",
+            unique=True,
             postgresql_where=text("notified_at IS NULL"),
         ),
     )
