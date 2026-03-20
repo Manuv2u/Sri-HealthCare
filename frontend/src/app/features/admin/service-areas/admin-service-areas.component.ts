@@ -61,8 +61,8 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state.comp
                 </mat-form-field>
 
                 <mat-form-field>
-                  <mat-label>State</mat-label>
-                  <input matInput [(ngModel)]="editingArea()!.state" required>
+                  <mat-label>District</mat-label>
+                  <input matInput [(ngModel)]="editingArea()!.district" required>
                 </mat-form-field>
               </div>
 
@@ -88,9 +88,9 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state.comp
               <td mat-cell *matCellDef="let a">{{ a.city }}</td>
             </ng-container>
 
-            <ng-container matColumnDef="state">
-              <th mat-header-cell *matHeaderCellDef>State</th>
-              <td mat-cell *matCellDef="let a">{{ a.state }}</td>
+            <ng-container matColumnDef="district">
+              <th mat-header-cell *matHeaderCellDef>District</th>
+              <td mat-cell *matCellDef="let a">{{ a.district }}</td>
             </ng-container>
 
             <ng-container matColumnDef="is_active">
@@ -174,7 +174,7 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state.comp
   `],
 })
 export class AdminServiceAreasComponent implements OnInit {
-  displayedColumns = ['pincode', 'city', 'state', 'is_active', 'actions'];
+  displayedColumns = ['pincode', 'city', 'district', 'is_active', 'actions'];
 
   loading = signal(false);
   error = signal<string | null>(null);
@@ -221,7 +221,7 @@ export class AdminServiceAreasComponent implements OnInit {
   }
 
   startCreate() {
-    this.editingArea.set({ pincode: '', city: '', state: '', is_active: true });
+    this.editingArea.set({ pincode: '', city: '', district: '', is_active: true });
     this.editMode.set(true);
   }
 

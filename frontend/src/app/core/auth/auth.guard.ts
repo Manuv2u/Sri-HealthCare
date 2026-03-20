@@ -19,9 +19,13 @@ export const authGuard: CanActivateFn = (
   });
 };
 
-export const roleGuard = (allowedRoles: string[]): CanActivateFn => () => {
+export const roleGuard = (allowedRoles: string[]): CanActivateFn => (_route, state) => {
   const auth = inject(AuthStateService);
   const router = inject(Router);
+
+  if (!auth.isAuthenticated()) {
+    return router.createUrlTree(['/auth/login'], { queryParams: { returnUrl: state.url } });
+  }
 
   const role = auth.role();
   if (role && allowedRoles.includes(role)) {

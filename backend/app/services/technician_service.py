@@ -49,7 +49,7 @@ class TechnicianService:
 
     async def create_technician(
         self,
-        user_id: uuid.UUID,
+        user_id: uuid.UUID | None,
         name: str,
         phone: str,
         email: str,

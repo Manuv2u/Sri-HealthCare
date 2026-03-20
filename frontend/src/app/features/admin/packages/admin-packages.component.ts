@@ -35,12 +35,12 @@ import { ErrorBannerComponent } from '../../../shared/components/error-banner.co
                 <input [(ngModel)]="form().name" placeholder="e.g. Full Body Checkup" />
               </div>
               <div class="field">
-                <label>Price (₹) *</label>
-                <input type="number" [(ngModel)]="form().price" placeholder="999" />
+                <label>Original Price (₹) *</label>
+                <input type="number" [(ngModel)]="form().original_price" placeholder="999" />
               </div>
               <div class="field">
-                <label>Discount %</label>
-                <input type="number" [(ngModel)]="form().discount_percent" placeholder="0" />
+                <label>Discounted Price (₹) *</label>
+                <input type="number" [(ngModel)]="form().discounted_price" placeholder="799" />
               </div>
               <div class="field">
                 <label>Status</label>
@@ -83,9 +83,9 @@ import { ErrorBannerComponent } from '../../../shared/components/error-banner.co
                 <p class="pkg-desc">{{ pkg.description }}</p>
               }
               <div class="pkg-price">
-                <span class="price-main">₹{{ pkg.price }}</span>
-                @if (pkg.discount_percent > 0) {
-                  <span class="discount-badge">{{ pkg.discount_percent }}% off</span>
+                <span class="price-main">₹{{ pkg.discounted_price }}</span>
+                @if (pkg.original_price > pkg.discounted_price) {
+                  <span class="discount-badge" style="text-decoration:line-through;font-size:.8rem;color:#718096">₹{{ pkg.original_price }}</span>
                 }
               </div>
               @if (pkg.tests?.length) {
@@ -208,13 +208,13 @@ export class AdminPackagesComponent implements OnInit {
     });
   }
 
-  startCreate() { this.form.set({ name: '', price: 0, discount_percent: 0, is_active: true, description: '' }); this.editMode.set(true); }
+  startCreate() { this.form.set({ name: '', original_price: 0, discounted_price: 0, is_active: true, description: '', test_ids: [] }); this.editMode.set(true); }
   startEdit(p: Package) { this.form.set({ ...p }); this.editMode.set(true); }
   cancelEdit() { this.editMode.set(false); this.form.set({}); }
 
   save() {
     const f = this.form();
-    if (!f.name || f.price == null) return;
+    if (!f.name || f.original_price == null) return;
     this.saving.set(true);
     const obs = f.id ? this.pkgApi.update(f.id, f) : this.pkgApi.create(f);
     obs.subscribe({

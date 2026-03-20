@@ -1,10 +1,10 @@
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
-  // Public landing — redirect to test catalog
+  // Public landing — home page
   {
     path: '',
-    redirectTo: 'tests',
+    loadComponent: () => import('./features/home/home.component').then((m) => m.HomeComponent),
     pathMatch: 'full',
   },
 

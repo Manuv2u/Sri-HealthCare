@@ -1,5 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
+import { RouterOutlet, RouterLink, RouterLinkActive, RouterLinkWithHref, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
@@ -28,6 +28,7 @@ import { AuthStateService } from './core/auth/auth-state.service';
 
           <!-- Center links -->
           <nav class="nav-links">
+            <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Home</a>
             <a routerLink="/tests" routerLinkActive="active">Tests</a>
             <a routerLink="/packages" routerLinkActive="active">Packages</a>
             @if (isAuth()) {
@@ -79,15 +80,17 @@ import { AuthStateService } from './core/auth/auth-state.service';
       </main>
 
       <!-- ── Footer ── -->
-      <footer class="app-footer">
-        <div class="footer-inner">
-          <span>© 2026 SRI Diagnostic Laboratory & Health Care</span>
-          <span class="footer-links">
-            <a routerLink="/tests">Tests</a>
-            <a routerLink="/packages">Packages</a>
-          </span>
-        </div>
-      </footer>
+      @if (!isHome()) {
+        <footer class="app-footer">
+          <div class="footer-inner">
+            <span>© 2026 SRI Diagnostic Laboratory & Health Care</span>
+            <span class="footer-links">
+              <a routerLink="/tests">Tests</a>
+              <a routerLink="/packages">Packages</a>
+            </span>
+          </div>
+        </footer>
+      }
     </div>
   `,
   styles: [`
@@ -183,6 +186,7 @@ export class AppComponent {
     const name = this.userName();
     return name ? name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) : 'U';
   });
+  isHome = computed(() => this.router.url === '/');
 
   logout(): void {
     this.auth.clearSession();

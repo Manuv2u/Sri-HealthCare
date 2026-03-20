@@ -106,12 +106,12 @@ import { ErrorBannerComponent } from '../../../shared/components/error-banner.co
                   <td>
                     <div class="price-cell">
                       <span class="price-main">₹{{ t.price }}</span>
-                      @if (t.discount_percent > 0) {
+                      @if (t.discount_percentage > 0) {
                         <span class="price-eff">₹{{ t.effective_price }}</span>
                       }
                     </div>
                   </td>
-                  <td>{{ t.discount_percent > 0 ? t.discount_percent + '%' : '—' }}</td>
+                  <td>{{ t.discount_percentage > 0 ? t.discount_percentage + '%' : '—' }}</td>
                   <td>{{ t.turnaround_hours }}h</td>
                   <td>
                     <span class="badge" [class]="t.is_active ? 'badge-success' : 'badge-danger'">
@@ -270,7 +270,7 @@ export class AdminTestsComponent implements OnInit {
   }
 
   startEdit(t: Test) {
-    this.form.set({ ...t, discount_percentage: (t as any).discount_percent ?? 0 });
+    this.form.set({ ...t });
     this.editMode.set(true);
   }
 

@@ -1,112 +1,320 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
 import { Booking } from '../../../core/api/api.types';
 import { BookingApiService } from '../../../core/api/services/booking-api.service';
+import { AuthStateService } from '../../../core/auth/auth-state.service';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner.component';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner.component';
-import { EmptyStateComponent } from '../../../shared/components/empty-state.component';
-import { PaginationComponent } from '../../../shared/components/pagination.component';
-
-const STATUS_BADGE: Record<string, string> = {
-  pending: 'badge-warn',
-  confirmed: 'badge-info',
-  completed: 'badge-success',
-  cancelled: 'badge-danger',
-};
 
 @Component({
   selector: 'app-booking-history',
   standalone: true,
-  imports: [
-    CommonModule, RouterLink, MatIconModule, MatButtonModule,
-    LoadingSpinnerComponent, ErrorBannerComponent, EmptyStateComponent, PaginationComponent,
-  ],
+  imports: [CommonModule, RouterLink, MatIconModule, LoadingSpinnerComponent, ErrorBannerComponent],
   template: `
-    <div class="page-container">
-      <div class="page-header">
-        <h1>My Bookings</h1>
-        <p>Track your lab test appointments and collection status</p>
-      </div>
+    <div class="dashboard-layout">
+      <!-- Sidebar -->
+      <aside class="dash-sidebar">
+        <div class="dash-brand">
+          <strong>SRI Diagnostics</strong>
+          <span>CLINICAL PRECISION</span>
+        </div>
+        <nav class="dash-nav">
+          <a routerLink="/dashboard" class="dash-nav-item active">
+            <mat-icon>dashboard</mat-icon> Dashboard
+          </a>
+          <a routerLink="/dashboard" class="dash-nav-item">
+            <mat-icon>calendar_today</mat-icon> My Bookings
+          </a>
+          <a routerLink="/profile" class="dash-nav-item">
+            <mat-icon>people</mat-icon> Family Members
+          </a>
+          <a routerLink="/tests" class="dash-nav-item">
+            <mat-icon>location_on</mat-icon> Lab Locations
+          </a>
+          <a routerLink="/profile" class="dash-nav-item">
+            <mat-icon>settings</mat-icon> Settings
+          </a>
+        </nav>
+        <div class="dash-user-card">
+          <div class="dash-avatar">{{ initials() }}</div>
+          <div>
+            <div class="dash-user-name">{{ userName() }}</div>
+            <div class="dash-user-id">Patient ID: #{{ shortId() }}</div>
+          </div>
+        </div>
+      </aside>
 
-      <app-loading-spinner *ngIf="loading()" />
-      <app-error-banner *ngIf="error()" [message]="error()!" [retryLabel]="'Retry'" (retry)="load()" />
-      <app-empty-state *ngIf="!loading() && !error() && bookings().length === 0"
-        message="No bookings yet. Browse our tests and book your first one." />
+      <!-- Main -->
+      <main class="dash-main">
+        <div class="dash-header">
+          <div>
+            <h1>{{ greeting() }}, {{ firstName() }}</h1>
+            <p>Welcome back to your health dashboard. All your clinical data is up to date.</p>
+          </div>
+          <a routerLink="/tests" class="btn-book-new">
+            <mat-icon>add</mat-icon> Book New Test
+          </a>
+        </div>
 
-      <div class="booking-list">
-        @for (b of bookings(); track b.id) {
-          <div class="sri-card booking-card">
-            <div class="booking-main">
-              <div class="booking-ref">
-                <mat-icon class="ref-icon">receipt_long</mat-icon>
-                <div>
-                  <div class="ref-number">{{ b.reference_number }}</div>
-                  <div class="ref-date">{{ b.booking_date | date:'mediumDate' }}</div>
-                </div>
-              </div>
-              <div class="booking-meta">
-                <span class="meta-chip">
-                  <mat-icon>{{ b.collection_type === 'home' ? 'home' : 'local_hospital' }}</mat-icon>
-                  {{ b.collection_type === 'home' ? 'Home Collection' : 'Walk-in' }}
-                </span>
-              </div>
-            </div>
-            <div class="booking-footer">
-              <div class="booking-status">
-                <span class="badge" [ngClass]="statusBadge(b.status)">{{ b.status }}</span>
-                <span class="badge" [ngClass]="paymentBadge(b.payment_status)">{{ b.payment_status }}</span>
-              </div>
-              <div class="booking-amount">₹{{ b.total_amount }}</div>
+        <!-- KPI cards -->
+        <div class="kpi-row">
+          <div class="kpi-card">
+            <div class="kpi-icon blue"><mat-icon>calendar_today</mat-icon></div>
+            <div class="kpi-info">
+              <div class="kpi-badge blue">Next: Today</div>
+              <div class="kpi-label">Active Bookings</div>
+              <div class="kpi-value">{{ activeBookings() }}</div>
             </div>
           </div>
-        }
-      </div>
+          <div class="kpi-card">
+            <div class="kpi-icon teal"><mat-icon>description</mat-icon></div>
+            <div class="kpi-info">
+              <div class="kpi-badge teal">New</div>
+              <div class="kpi-label">Reports Ready</div>
+              <div class="kpi-value">{{ total() }}</div>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon gray"><mat-icon>people</mat-icon></div>
+            <div class="kpi-info">
+              <div class="kpi-badge gray">&nbsp;</div>
+              <div class="kpi-label">Family Members</div>
+              <div class="kpi-value">—</div>
+            </div>
+          </div>
+        </div>
 
-      <app-pagination
-        *ngIf="total() > pageSize"
-        [page]="page()"
-        [total]="total()"
-        [pageSize]="pageSize"
-        (pageChange)="onPageChange($event)"
-      />
+        <div class="dash-content-grid">
+          <!-- Recent Bookings -->
+          <div class="bookings-section">
+            <div class="section-header">
+              <h2>Recent Bookings</h2>
+              <a routerLink="/dashboard" class="view-all">View All →</a>
+            </div>
+
+            <app-loading-spinner *ngIf="loading()" />
+            <app-error-banner *ngIf="error()" [message]="error()!" [retryLabel]="'Retry'" (retry)="load()" />
+
+            @if (!loading() && !error()) {
+              <table class="bookings-table">
+                <thead>
+                  <tr>
+                    <th>BOOKING ID</th>
+                    <th>TEST NAME</th>
+                    <th>DATE</th>
+                    <th>STATUS</th>
+                    <th>ACTIONS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @if (bookings().length === 0) {
+                    <tr><td colspan="5" class="empty-row">No bookings yet. <a routerLink="/tests">Book your first test</a></td></tr>
+                  }
+                  @for (b of bookings(); track b.id) {
+                    <tr>
+                      <td class="ref-cell">{{ b.reference_number }}</td>
+                      <td>
+                        <div class="test-name-cell">{{ b.collection_type === 'home' ? 'Home Collection' : 'Lab Visit' }}</div>
+                        <div class="test-sub">{{ b.collection_type === 'home' ? 'Home Collection' : 'Lab Visit' }}</div>
+                      </td>
+                      <td>{{ b.booking_date | date:'MMM d, y' }}</td>
+                      <td><span class="status-badge" [class]="statusClass(b.status)">{{ b.status | titlecase }}</span></td>
+                      <td><button class="action-link">View</button></td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            }
+          </div>
+
+          <!-- Right panel -->
+          <div class="right-panel">
+            <!-- Latest Reports -->
+            <div class="reports-section">
+              <h2>Latest Reports</h2>
+              <div class="report-list">
+                <div class="report-item">
+                  <div class="report-icon red"><mat-icon>picture_as_pdf</mat-icon></div>
+                  <div class="report-info">
+                    <div class="report-name">Lipid Profile</div>
+                    <div class="report-date">Uploaded 2h ago</div>
+                  </div>
+                  <button class="report-dl"><mat-icon>download</mat-icon></button>
+                </div>
+                <div class="report-item">
+                  <div class="report-icon green"><mat-icon>picture_as_pdf</mat-icon></div>
+                  <div class="report-info">
+                    <div class="report-name">Blood Glucose (F)</div>
+                    <div class="report-date">Oct 20, 2023</div>
+                  </div>
+                  <button class="report-dl"><mat-icon>download</mat-icon></button>
+                </div>
+                <div class="report-item">
+                  <div class="report-icon blue"><mat-icon>picture_as_pdf</mat-icon></div>
+                  <div class="report-info">
+                    <div class="report-name">Vitamin B12 / D3</div>
+                    <div class="report-date">Oct 18, 2023</div>
+                  </div>
+                  <button class="report-dl"><mat-icon>download</mat-icon></button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Promo card -->
+            <div class="promo-card">
+              <div class="promo-tag">SEASONAL HEALTH</div>
+              <h3>Full Body Wellness Checkup</h3>
+              <p>Early detection saves lives. Get a comprehensive screening for 80+ parameters.</p>
+              <div class="promo-price">
+                <span class="promo-eff">₹149</span>
+                <span class="promo-orig">₹299</span>
+              </div>
+              <a routerLink="/packages" class="btn-promo">Book Special Offer</a>
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
   `,
   styles: [`
-    .booking-list { display: flex; flex-direction: column; gap: 1rem; }
-    .booking-card { padding: 1.25rem; }
-    .booking-main {
-      display: flex; justify-content: space-between; align-items: flex-start;
-      margin-bottom: 1rem; flex-wrap: wrap; gap: .75rem;
+    .dashboard-layout { display:grid; grid-template-columns:220px 1fr; min-height:calc(100vh - 64px); }
+
+    /* Sidebar */
+    .dash-sidebar { background:#fff; border-right:1px solid #e2e8f0; padding:1.5rem 1rem; display:flex; flex-direction:column; gap:1.5rem; }
+    .dash-brand { padding:.5rem .5rem 1rem; border-bottom:1px solid #f0f4f8;
+      strong { display:block; font-size:1rem; font-weight:800; color:#1a202c; }
+      span { font-size:.65rem; font-weight:600; color:#718096; letter-spacing:.1em; }
     }
-    .booking-ref { display: flex; align-items: center; gap: .75rem;
-      .ref-icon { color: var(--color-primary); }
-      .ref-number { font-weight: 700; font-size: 1rem; }
-      .ref-date { font-size: .8rem; color: var(--color-muted); margin-top: .1rem; }
+    .dash-nav { display:flex; flex-direction:column; gap:.25rem; flex:1; }
+    .dash-nav-item { display:flex; align-items:center; gap:.75rem; padding:.6rem .75rem; border-radius:10px; font-size:.875rem; font-weight:500; color:#718096; text-decoration:none; transition:all .15s;
+      mat-icon { font-size:1.1rem; width:1.1rem; height:1.1rem; }
+      &:hover { background:#f7fafc; color:#2d3748; }
+      &.active { background:#e0f2f1; color:#00796b; font-weight:600; }
     }
-    .meta-chip {
-      display: inline-flex; align-items: center; gap: .3rem;
-      font-size: .8rem; color: var(--color-muted);
-      background: var(--color-bg); padding: .25rem .6rem; border-radius: 6px;
-      mat-icon { font-size: .95rem; width: .95rem; height: .95rem; }
+    .dash-user-card { display:flex; align-items:center; gap:.75rem; padding:.75rem; background:#f7fafc; border-radius:10px; }
+    .dash-avatar { width:36px; height:36px; border-radius:50%; background:#00796b; color:#fff; display:flex; align-items:center; justify-content:center; font-size:.85rem; font-weight:700; flex-shrink:0; }
+    .dash-user-name { font-size:.85rem; font-weight:600; color:#1a202c; }
+    .dash-user-id { font-size:.75rem; color:#718096; }
+
+    /* Main */
+    .dash-main { padding:2rem; background:#f7fafc; display:flex; flex-direction:column; gap:1.5rem; }
+    .dash-header { display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;
+      h1 { font-size:1.75rem; font-weight:800; color:#1a202c; }
+      p { font-size:.875rem; color:#718096; margin-top:.25rem; }
     }
-    .booking-footer {
-      display: flex; justify-content: space-between; align-items: center;
-      padding-top: .75rem; border-top: 1px solid var(--color-border);
+    .btn-book-new { display:inline-flex; align-items:center; gap:.4rem; background:#1a56db; color:#fff; border:none; border-radius:10px; padding:.6rem 1.25rem; font-size:.875rem; font-weight:600; text-decoration:none; cursor:pointer; transition:background .15s;
+      mat-icon { font-size:1rem; width:1rem; height:1rem; }
+      &:hover { background:#1e429f; }
     }
-    .booking-status { display: flex; gap: .5rem; }
-    .booking-amount { font-size: 1.1rem; font-weight: 700; color: var(--color-primary); }
+
+    /* KPI */
+    .kpi-row { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
+    .kpi-card { background:#fff; border-radius:14px; border:1px solid #e2e8f0; padding:1.25rem; display:flex; align-items:center; gap:1rem; box-shadow:0 1px 3px rgba(0,0,0,.05); }
+    .kpi-icon { width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+      mat-icon { font-size:1.4rem; width:1.4rem; height:1.4rem; }
+      &.blue { background:#ebf8ff; mat-icon{color:#3182ce;} }
+      &.teal { background:#e0f2f1; mat-icon{color:#00796b;} }
+      &.gray { background:#f7fafc; mat-icon{color:#718096;} }
+    }
+    .kpi-info { display:flex; flex-direction:column; gap:.2rem; }
+    .kpi-badge { font-size:.65rem; font-weight:700; padding:.1rem .5rem; border-radius:999px; width:fit-content;
+      &.blue { background:#ebf8ff; color:#3182ce; }
+      &.teal { background:#c6f6d5; color:#276749; }
+      &.gray { background:transparent; color:transparent; }
+    }
+    .kpi-label { font-size:.8rem; color:#718096; }
+    .kpi-value { font-size:1.75rem; font-weight:800; color:#1a202c; line-height:1; }
+
+    /* Content grid */
+    .dash-content-grid { display:grid; grid-template-columns:1fr 320px; gap:1.5rem; align-items:start; }
+
+    /* Bookings */
+    .bookings-section { background:#fff; border-radius:14px; border:1px solid #e2e8f0; padding:1.5rem; }
+    .section-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;
+      h2 { font-size:1.1rem; font-weight:700; color:#1a202c; }
+    }
+    .view-all { font-size:.875rem; color:#1a56db; font-weight:600; text-decoration:none; &:hover{text-decoration:underline;} }
+    .bookings-table { width:100%; border-collapse:collapse;
+      th { font-size:.7rem; font-weight:700; color:#718096; text-transform:uppercase; letter-spacing:.06em; padding:.6rem .75rem; text-align:left; border-bottom:1px solid #f0f4f8; }
+      td { padding:.75rem; border-bottom:1px solid #f7fafc; font-size:.875rem; color:#2d3748; }
+      tr:last-child td { border-bottom:none; }
+    }
+    .ref-cell { font-weight:700; color:#1a56db; font-size:.85rem; }
+    .test-name-cell { font-weight:600; }
+    .test-sub { font-size:.75rem; color:#718096; }
+    .status-badge { display:inline-flex; padding:.2rem .65rem; border-radius:999px; font-size:.75rem; font-weight:600;
+      &.confirmed { background:#c6f6d5; color:#276749; }
+      &.pending { background:#fefcbf; color:#744210; }
+      &.processing { background:#bee3f8; color:#2a4365; }
+      &.completed { background:#c6f6d5; color:#276749; }
+      &.cancelled { background:#fed7d7; color:#9b2c2c; }
+    }
+    .action-link { background:none; border:none; color:#1a56db; font-size:.8rem; font-weight:600; cursor:pointer; &:hover{text-decoration:underline;} }
+    .empty-row { text-align:center; color:#a0aec0; padding:2rem !important; a{color:#00796b;} }
+
+    /* Right panel */
+    .right-panel { display:flex; flex-direction:column; gap:1.25rem; }
+    .reports-section { background:#fff; border-radius:14px; border:1px solid #e2e8f0; padding:1.25rem;
+      h2 { font-size:1rem; font-weight:700; color:#1a202c; margin-bottom:1rem; }
+    }
+    .report-list { display:flex; flex-direction:column; gap:.75rem; }
+    .report-item { display:flex; align-items:center; gap:.75rem; }
+    .report-icon { width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+      mat-icon { font-size:1.1rem; width:1.1rem; height:1.1rem; }
+      &.red { background:#fed7d7; mat-icon{color:#e53e3e;} }
+      &.green { background:#c6f6d5; mat-icon{color:#276749;} }
+      &.blue { background:#bee3f8; mat-icon{color:#2a4365;} }
+    }
+    .report-info { flex:1; }
+    .report-name { font-size:.875rem; font-weight:600; color:#1a202c; }
+    .report-date { font-size:.75rem; color:#718096; }
+    .report-dl { background:#f7fafc; border:1px solid #e2e8f0; border-radius:8px; width:32px; height:32px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:#718096;
+      mat-icon { font-size:1rem; width:1rem; height:1rem; }
+      &:hover { background:#e2e8f0; color:#2d3748; }
+    }
+
+    /* Promo */
+    .promo-card { background:linear-gradient(135deg,#1a56db,#1e429f); border-radius:14px; padding:1.5rem; color:#fff;
+      .promo-tag { font-size:.65rem; font-weight:700; letter-spacing:.1em; opacity:.8; margin-bottom:.5rem; }
+      h3 { font-size:1.1rem; font-weight:800; margin-bottom:.5rem; }
+      p { font-size:.85rem; opacity:.85; line-height:1.6; margin-bottom:1rem; }
+    }
+    .promo-price { display:flex; align-items:baseline; gap:.5rem; margin-bottom:1rem; }
+    .promo-eff { font-size:1.5rem; font-weight:800; }
+    .promo-orig { font-size:.9rem; opacity:.6; text-decoration:line-through; }
+    .btn-promo { display:block; background:#fff; color:#1a56db; border:none; border-radius:8px; padding:.6rem 1rem; font-size:.875rem; font-weight:700; text-align:center; text-decoration:none; cursor:pointer; &:hover{background:#ebf8ff;} }
+
+    @media(max-width:900px){.dashboard-layout{grid-template-columns:1fr;}.dash-sidebar{display:none;}.dash-content-grid{grid-template-columns:1fr;}.kpi-row{grid-template-columns:1fr 1fr;}}
   `],
 })
 export class BookingHistoryComponent implements OnInit {
+  private auth = inject(AuthStateService);
   bookings = signal<Booking[]>([]);
   loading = signal(true);
   error = signal<string | null>(null);
-  page = signal(1);
   total = signal(0);
-  pageSize = 10;
+  pageSize = 5;
+
+  userName = computed(() => this.auth.currentUser()?.name ?? '');
+  firstName = computed(() => this.userName().split(' ')[0] || 'there');
+  initials = computed(() => {
+    const n = this.userName();
+    return n ? n.split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2) : 'U';
+  });
+  shortId = computed(() => {
+    const id = this.auth.currentUser()?.id ?? '';
+    return id.slice(-4).toUpperCase() || '0000';
+  });
+  activeBookings = computed(() => this.bookings().filter(b => b.status === 'confirmed' || b.status === 'pending').length);
+
+  greeting = computed(() => {
+    const h = new Date().getHours();
+    if (h < 12) return 'Good Morning';
+    if (h < 17) return 'Good Afternoon';
+    return 'Good Evening';
+  });
 
   constructor(private bookingApi: BookingApiService) {}
 
@@ -114,16 +322,11 @@ export class BookingHistoryComponent implements OnInit {
 
   load(): void {
     this.loading.set(true);
-    this.bookingApi.list({ page: this.page(), page_size: this.pageSize }).subscribe({
+    this.bookingApi.list({ page: 1, page_size: this.pageSize }).subscribe({
       next: (res) => { this.bookings.set(res.items); this.total.set(res.total); this.loading.set(false); },
       error: () => { this.error.set('Failed to load bookings.'); this.loading.set(false); },
     });
   }
 
-  onPageChange(p: number): void { this.page.set(p); this.load(); }
-
-  statusBadge(status: string): string { return STATUS_BADGE[status] ?? 'badge-default'; }
-  paymentBadge(status: string): string {
-    return status === 'paid' ? 'badge-success' : status === 'failed' ? 'badge-danger' : 'badge-warn';
-  }
+  statusClass(status: string): string { return status.toLowerCase(); }
 }

@@ -9,7 +9,7 @@ from pydantic import BaseModel
 
 
 class TechnicianCreate(BaseModel):
-    user_id: uuid.UUID
+    user_id: uuid.UUID | None = None
     name: str
     phone: str
     email: str
@@ -24,7 +24,7 @@ class TechnicianUpdate(BaseModel):
 
 class TechnicianOut(BaseModel):
     id: uuid.UUID
-    user_id: uuid.UUID
+    user_id: uuid.UUID | None = None
     name: str
     phone: str
     email: str

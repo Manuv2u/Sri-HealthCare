@@ -58,7 +58,7 @@ async def list_tests(
     q: str | None = Query(default=None),
     category: str | None = Query(default=None),
     page: int = Query(default=1, ge=1),
-    page_size: int = Query(default=20, ge=1, le=100),
+    page_size: int = Query(default=20, ge=1, le=500),
     include_deleted: bool = Query(default=False),
     db: AsyncSession = Depends(get_db_session),
     current_user: dict | None = Depends(_optional_current_user),

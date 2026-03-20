@@ -28,8 +28,8 @@ import { ErrorBannerComponent } from '../../../shared/components/error-banner.co
               <span class="category-tag">{{ test()!.category }}</span>
               <h1 class="detail-title">{{ test()!.name }}</h1>
             </div>
-            @if (test()!.discount_percent > 0) {
-              <span class="badge badge-success discount-badge">{{ test()!.discount_percent }}% off</span>
+            @if (test()!.discount_percentage > 0) {
+              <span class="badge badge-success discount-badge">{{ test()!.discount_percentage }}% off</span>
             }
           </div>
 
@@ -56,7 +56,7 @@ import { ErrorBannerComponent } from '../../../shared/components/error-banner.co
 
           <div class="detail-footer">
             <div class="price-row">
-              @if (test()!.discount_percent > 0) {
+              @if (test()!.discount_percentage > 0) {
                 <span class="price-original">₹{{ test()!.price }}</span>
               }
               <span class="price-effective">₹{{ test()!.effective_price }}</span>

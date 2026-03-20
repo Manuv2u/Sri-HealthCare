@@ -110,7 +110,7 @@ export class AdminFeatureFlagsComponent implements OnInit {
   }
 
   toggleFlag(flag: FeatureFlag, enabled: boolean) {
-    this.adminApi.updateFeatureFlag(flag.id, { is_enabled: enabled }).subscribe({
+    this.adminApi.updateFeatureFlag(flag.id, { key: flag.key, is_enabled: enabled, description: flag.description }).subscribe({
       next: () => {
         this.flags.update((flags: FeatureFlag[]) =>
           flags.map((f: FeatureFlag) => (f.id === flag.id ? { ...f, is_enabled: enabled } : f))

@@ -35,9 +35,9 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state.comp
               <mat-chip *ngFor="let t of p.tests">{{ t.name }}</mat-chip>
             </div>
             <div class="price">
-              <span *ngIf="p.discount_percent > 0" class="original">₹{{ p.price }}</span>
-              <span class="effective">₹{{ discountedPrice(p) }}</span>
-              <span *ngIf="p.discount_percent > 0" class="discount">{{ p.discount_percent }}% off</span>
+              <span *ngIf="p.original_price > p.discounted_price" class="original">₹{{ p.original_price }}</span>
+              <span class="effective">₹{{ p.discounted_price }}</span>
+              <span *ngIf="p.original_price > p.discounted_price" class="discount">{{ discountPct(p) }}% off</span>
             </div>
           </mat-card-content>
           <mat-card-actions>
@@ -74,8 +74,9 @@ export class PackagesListComponent implements OnInit {
     });
   }
 
-  discountedPrice(p: Package): number {
-    return Math.round(p.price * (1 - p.discount_percent / 100));
+  discountPct(p: Package): number {
+    if (!p.original_price) return 0;
+    return Math.round((1 - p.discounted_price / p.original_price) * 100);
   }
 
   book(p: Package): void {

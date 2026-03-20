@@ -16,6 +16,7 @@ export interface User {
   gender?: string;
   role: string;
   is_active: boolean;
+  created_at: string;
 }
 
 export interface FamilyMember {
@@ -33,7 +34,7 @@ export interface Test {
   category: string;
   description?: string;
   price: number;
-  discount_percent: number;
+  discount_percentage: number;   // backend field name
   effective_price: number;
   turnaround_hours: number;
   is_active: boolean;
@@ -43,8 +44,8 @@ export interface Package {
   id: string;
   name: string;
   description?: string;
-  price: number;
-  discount_percent: number;
+  original_price: number;        // backend field name
+  discounted_price: number;      // backend field name
   is_active: boolean;
   tests: Test[];
 }
@@ -62,10 +63,11 @@ export interface TimeSlot {
 
 export interface ServiceArea {
   id: string;
-  pincode: string;
+  district: string;              // backend field name (not "state")
   city: string;
-  state: string;
+  pincode: string;
   is_active: boolean;
+  created_at: string;
 }
 
 export interface LabBranch {
@@ -110,10 +112,12 @@ export interface Payment {
 
 export interface Technician {
   id: string;
+  user_id?: string;              // optional — technicians can exist without a linked user account
   name: string;
   phone: string;
   email: string;
   is_active: boolean;
+  created_at: string;
 }
 
 export interface FeatureFlag {
@@ -121,6 +125,8 @@ export interface FeatureFlag {
   key: string;
   is_enabled: boolean;
   description?: string;
+  updated_at: string;
+  created_at: string;
 }
 
 export interface AuthTokens {
