@@ -1,0 +1,92 @@
+"""Lab branches router."""
+from __future__ import annotations
+
+import uuid
+
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.database import get_db_session
+from app.middleware.auth import require_roles
+from app.repositories.lab_branch_repository import LabBranchRepository
+from app.schemas.lab_branches import (
+    LabBranchCreate,
+    LabBranchListResponse,
+    LabBranchOut,
+    LabBranchUpdate,
+)
+
+router = APIRouter(prefix="/lab-branches", tags=["lab-branches"])
+
+
+@router.post("", response_model=LabBranchOut, status_code=201)
+async def create_lab_branch(
+    body: LabBranchCreate,
+    current_user: dict = Depends(require_roles("admin")),
+    db: AsyncSession = Depends(get_db_session),
+) -> LabBranchOut:
+    repo = LabBranchRepository(db)
+    branch = await repo.create(
+        name=body.name,
+        address=body.address,
+        city=body.city,
+        pincode=body.pincode,
+        phone=body.phone,
+        operating_hours=body.operating_hours,
+    )
+    return LabBranchOut.model_validate(branch)
+
+
+@router.get("", response_model=LabBranchListResponse)
+async def list_lab_branches(
+    page: int = 1,
+    page_size: int = 20,
+    db: AsyncSession = Depends(get_db_session),
+) -> LabBranchListResponse:
+    repo = LabBranchRepository(db)
+    items, total = await repo.list(active_only=True, page=page, page_size=page_size)
+    return LabBranchListResponse(
+        items=[LabBranchOut.model_validate(b) for b in items],
+        total=total,
+        page=page,
+        page_size=page_size,
+    )
+
+
+@router.get("/{branch_id}", response_model=LabBranchOut)
+async def get_lab_branch(
+    branch_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db_session),
+) -> LabBranchOut:
+    repo = LabBranchRepository(db)
+    branch = await repo.get_by_id(branch_id)
+    if not branch:
+        raise HTTPException(status_code=404, detail={"error_code": "NOT_FOUND", "message": "Lab branch not found"})
+    return LabBranchOut.model_validate(branch)
+
+
+@router.put("/{branch_id}", response_model=LabBranchOut)
+async def update_lab_branch(
+    branch_id: uuid.UUID,
+    body: LabBranchUpdate,
+    current_user: dict = Depends(require_roles("admin")),
+    db: AsyncSession = Depends(get_db_session),
+) -> LabBranchOut:
+    repo = LabBranchRepository(db)
+    branch = await repo.update(branch_id, **body.model_dump(exclude_none=True))
+    if not branch:
+        raise HTTPException(status_code=404, detail={"error_code": "NOT_FOUND", "message": "Lab branch not found"})
+    return LabBranchOut.model_validate(branch)
+
+
+@router.delete("/{branch_id}", status_code=204)
+async def delete_lab_branch(
+    branch_id: uuid.UUID,
+    current_user: dict = Depends(require_roles("admin")),
+    db: AsyncSession = Depends(get_db_session),
+) -> None:
+    repo = LabBranchRepository(db)
+    branch = await repo.get_by_id(branch_id)
+    if not branch:
+        raise HTTPException(status_code=404, detail={"error_code": "NOT_FOUND", "message": "Lab branch not found"})
+    await repo.delete(branch_id)

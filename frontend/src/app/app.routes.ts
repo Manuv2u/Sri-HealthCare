@@ -1,0 +1,58 @@
+import { Routes } from '@angular/router';
+
+export const routes: Routes = [
+  {
+    path: '',
+    redirectTo: 'dashboard',
+    pathMatch: 'full',
+  },
+  {
+    path: 'auth',
+    loadChildren: () =>
+      import('./features/auth/auth.routes').then((m) => m.AUTH_ROUTES),
+  },
+  {
+    path: 'dashboard',
+    loadChildren: () =>
+      import('./features/dashboard/dashboard.routes').then((m) => m.DASHBOARD_ROUTES),
+  },
+  {
+    path: 'tests',
+    loadChildren: () =>
+      import('./features/tests/tests.routes').then((m) => m.TESTS_ROUTES),
+  },
+  {
+    path: 'packages',
+    loadChildren: () =>
+      import('./features/packages/packages.routes').then((m) => m.PACKAGES_ROUTES),
+  },
+  {
+    path: 'booking',
+    loadChildren: () =>
+      import('./features/booking/booking.routes').then((m) => m.BOOKING_ROUTES),
+  },
+  {
+    path: 'reports',
+    loadChildren: () =>
+      import('./features/reports/reports.routes').then((m) => m.REPORTS_ROUTES),
+  },
+  {
+    path: 'profile',
+    loadChildren: () =>
+      import('./features/profile/profile.routes').then((m) => m.PROFILE_ROUTES),
+  },
+  {
+    path: 'payments',
+    loadChildren: () =>
+      import('./features/payments/payments.routes').then((m) => m.PAYMENTS_ROUTES),
+  },
+  {
+    path: 'admin',
+    loadChildren: () =>
+      import('./features/admin/admin.routes').then((m) => m.ADMIN_ROUTES),
+  },
+  {
+    path: '**',
+    redirectTo: 'dashboard',
+  },
+];

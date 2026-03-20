@@ -1,0 +1,23 @@
+# Local development override — HTTP only, no TLS, migrations run on startup
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.local.yml up --build
+#
+# Access:
+#   http://localhost/api/v1/health   → backend health check
+#   http://localhost/api/v1/docs     → Swagger UI
+#   http://localhost/                → Angular frontend
+
+version: "3.9"
+
+services:
+  backend:
+    entrypoint: >
+      sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+
+  nginx:
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.local.conf:/etc/nginx/nginx.conf:ro
+    # No certs volume needed for local HTTP-only config

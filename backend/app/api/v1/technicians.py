@@ -1,0 +1,112 @@
+"""Technicians router."""
+from __future__ import annotations
+
+import uuid
+from datetime import date
+
+from fastapi import APIRouter, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.database import get_db_session
+from app.middleware.auth import require_roles
+from app.schemas.technicians import (
+    AssignRequest,
+    TechnicianCreate,
+    TechnicianListResponse,
+    TechnicianOut,
+    TechnicianUpdate,
+    WorkloadItem,
+)
+from app.services.technician_service import TechnicianService
+
+router = APIRouter(prefix="/technicians", tags=["technicians"])
+
+
+@router.post("", response_model=TechnicianOut, status_code=201)
+async def create_technician(
+    body: TechnicianCreate,
+    current_user: dict = Depends(require_roles("admin")),
+    db: AsyncSession = Depends(get_db_session),
+) -> TechnicianOut:
+    svc = TechnicianService(db)
+    result = await svc.create_technician(
+        user_id=body.user_id,
+        name=body.name,
+        phone=body.phone,
+        email=body.email,
+    )
+    return TechnicianOut.model_validate(result)
+
+
+# NOTE: /workload must be declared BEFORE /{technician_id} to avoid path conflict
+@router.get("/workload", response_model=list[WorkloadItem])
+async def get_workload(
+    date: date,
+    current_user: dict = Depends(require_roles("admin")),
+    db: AsyncSession = Depends(get_db_session),
+) -> list[WorkloadItem]:
+    svc = TechnicianService(db)
+    items = await svc.get_workload(date)
+    return [WorkloadItem.model_validate(item) for item in items]
+
+
+@router.get("", response_model=TechnicianListResponse)
+async def list_technicians(
+    page: int = 1,
+    page_size: int = 20,
+    current_user: dict = Depends(require_roles("admin")),
+    db: AsyncSession = Depends(get_db_session),
+) -> TechnicianListResponse:
+    svc = TechnicianService(db)
+    result = await svc.list_technicians(page=page, page_size=page_size)
+    return TechnicianListResponse.model_validate(result)
+
+
+@router.get("/{technician_id}", response_model=TechnicianOut)
+async def get_technician(
+    technician_id: uuid.UUID,
+    current_user: dict = Depends(require_roles("admin")),
+    db: AsyncSession = Depends(get_db_session),
+) -> TechnicianOut:
+    svc = TechnicianService(db)
+    result = await svc.get_technician(technician_id)
+    return TechnicianOut.model_validate(result)
+
+
+@router.put("/{technician_id}", response_model=TechnicianOut)
+async def update_technician(
+    technician_id: uuid.UUID,
+    body: TechnicianUpdate,
+    current_user: dict = Depends(require_roles("admin")),
+    db: AsyncSession = Depends(get_db_session),
+) -> TechnicianOut:
+    svc = TechnicianService(db)
+    result = await svc.update_technician(
+        technician_id, **body.model_dump(exclude_none=True)
+    )
+    return TechnicianOut.model_validate(result)
+
+
+@router.delete("/{technician_id}", status_code=204)
+async def delete_technician(
+    technician_id: uuid.UUID,
+    current_user: dict = Depends(require_roles("admin")),
+    db: AsyncSession = Depends(get_db_session),
+) -> None:
+    svc = TechnicianService(db)
+    await svc.delete_technician(technician_id)
+
+
+@router.post("/{technician_id}/assign", status_code=201)
+async def assign_technician(
+    technician_id: uuid.UUID,
+    body: AssignRequest,
+    current_user: dict = Depends(require_roles("admin")),
+    db: AsyncSession = Depends(get_db_session),
+) -> dict:
+    svc = TechnicianService(db)
+    return await svc.assign_to_booking(
+        technician_id=technician_id,
+        booking_id=body.booking_id,
+        assigned_by_id=uuid.UUID(current_user["user_id"]),
+    )

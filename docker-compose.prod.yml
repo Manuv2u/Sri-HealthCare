@@ -1,0 +1,66 @@
+# ══════════════════════════════════════════════════════════════════════════════
+# SRI Diagnostic Lab — Production Docker Compose Override
+# ══════════════════════════════════════════════════════════════════════════════
+#
+# HOW TO START:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+#
+# HOW TO VERIFY:
+#   curl http://localhost/api/v1/health   # should return HTTP 200
+#
+# HOW TO CHECK MIGRATIONS:
+#   docker compose exec backend alembic current
+#
+# ══════════════════════════════════════════════════════════════════════════════
+
+version: "3.9"
+
+services:
+  postgres:
+    restart: unless-stopped
+    env_file:
+      - .env.production
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+          cpus: "1.0"
+        reservations:
+          memory: 256m
+
+  backend:
+    restart: unless-stopped
+    env_file:
+      - .env.production
+    entrypoint: >
+      sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+          cpus: "1.0"
+        reservations:
+          memory: 256m
+
+  frontend:
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+          cpus: "0.5"
+        reservations:
+          memory: 64m
+
+  nginx:
+    restart: unless-stopped
+    volumes:
+      - ./nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+    deploy:
+      resources:
+        limits:
+          memory: 128m
+          cpus: "0.5"
+        reservations:
+          memory: 32m
