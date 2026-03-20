@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Package, PaginatedResponse } from '../api.types';
 
@@ -7,8 +7,12 @@ import { Package, PaginatedResponse } from '../api.types';
 export class PackageApiService {
   constructor(private http: HttpClient) {}
 
-  list(): Observable<PaginatedResponse<Package>> {
-    return this.http.get<PaginatedResponse<Package>>('/packages');
+  list(params: { include_inactive?: boolean; page?: number; page_size?: number } = {}): Observable<PaginatedResponse<Package>> {
+    let p = new HttpParams();
+    if (params.include_inactive) p = p.set('include_inactive', 'true');
+    if (params.page) p = p.set('page', params.page);
+    if (params.page_size) p = p.set('page_size', params.page_size);
+    return this.http.get<PaginatedResponse<Package>>('/packages', { params: p });
   }
 
   get(id: string): Observable<Package> {

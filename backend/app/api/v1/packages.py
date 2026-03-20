@@ -4,6 +4,7 @@ from __future__ import annotations
 import uuid
 
 from fastapi import APIRouter, Depends, Query
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -11,8 +12,27 @@ from app.database import get_db_session
 from app.middleware.auth import require_roles
 from app.schemas.packages import PackageCreate, PackageListResponse, PackageOut, PackageUpdate
 from app.services.package_service import PackageService
+from app.utils.jwt import decode_access_token
 
 router = APIRouter(prefix="/packages", tags=["packages"])
+
+_optional_bearer = HTTPBearer(auto_error=False)
+
+
+async def _optional_current_user(
+    credentials: HTTPAuthorizationCredentials | None = Depends(_optional_bearer),
+) -> dict | None:
+    if credentials is None:
+        return None
+    try:
+        payload = decode_access_token(credentials.credentials)
+        user_id = payload.get("sub")
+        role = payload.get("role")
+        if user_id and role:
+            return {"user_id": user_id, "role": role}
+    except Exception:
+        pass
+    return None
 
 
 class _TestIdsBody(BaseModel):
@@ -40,10 +60,15 @@ async def create_package(
 async def list_packages(
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=20, ge=1, le=100),
+    include_inactive: bool = Query(default=False),
     db: AsyncSession = Depends(get_db_session),
+    current_user: dict | None = Depends(_optional_current_user),
 ) -> PackageListResponse:
     svc = PackageService(db)
-    result = await svc.list_packages(page=page, page_size=page_size)
+    requester_role = current_user["role"] if current_user else "user"
+    # Only admins can request inactive packages
+    active_only = not (include_inactive and requester_role == "admin")
+    result = await svc.list_packages(page=page, page_size=page_size, active_only=active_only)
     return PackageListResponse(
         items=[PackageOut.model_validate(i) for i in result["items"]],
         total=result["total"],

@@ -57,6 +57,9 @@ class PackageRepository:
         if active_only:
             base_query = base_query.where(Package.deleted_at.is_(None), Package.is_active.is_(True))
             count_query = count_query.where(Package.deleted_at.is_(None), Package.is_active.is_(True))
+        else:
+            base_query = base_query.where(Package.deleted_at.is_(None))
+            count_query = count_query.where(Package.deleted_at.is_(None))
 
         base_query = base_query.order_by(Package.created_at.desc())
         offset = (page - 1) * page_size

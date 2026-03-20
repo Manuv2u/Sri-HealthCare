@@ -52,6 +52,7 @@ class TestRepository:
         page: int = 1,
         page_size: int = 20,
         include_deleted: bool = False,
+        active_only: bool = False,
     ) -> tuple[list[Test], int]:
         base_query = select(Test)
         count_query = select(func.count()).select_from(Test)
@@ -59,6 +60,9 @@ class TestRepository:
         filters = []
         if not include_deleted:
             filters.append(Test.deleted_at.is_(None))
+        # Non-admin users only see active tests
+        if active_only:
+            filters.append(Test.is_active.is_(True))
         if category:
             filters.append(Test.category == category)
 

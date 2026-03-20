@@ -202,7 +202,7 @@ export class AdminPackagesComponent implements OnInit {
 
   load() {
     this.loading.set(true);
-    this.pkgApi.list().subscribe({
+    this.pkgApi.list({ include_inactive: true, page_size: 100 }).subscribe({
       next: (res) => { this.packages.set(res.items); this.loading.set(false); },
       error: (err) => { this.error.set(err.error?.message || 'Failed to load'); this.loading.set(false); },
     });

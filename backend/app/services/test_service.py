@@ -76,12 +76,16 @@ class TestService:
         if include_deleted and requester_role != "admin":
             include_deleted = False
 
+        # Non-admins only see active tests
+        active_only = requester_role != "admin"
+
         items, total = await self.repo.list(
             q=q,
             category=category,
             page=page,
             page_size=page_size,
             include_deleted=include_deleted,
+            active_only=active_only,
         )
         return {
             "items": [_test_to_dict(t) for t in items],

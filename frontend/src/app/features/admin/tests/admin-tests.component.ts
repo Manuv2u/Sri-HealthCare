@@ -122,6 +122,9 @@ import { Test } from '../../../core/api/api.types';
                   <td>
                     <div class="row-actions">
                       <button class="action-btn" (click)="startEdit(t)" title="Edit"><mat-icon>edit</mat-icon></button>
+                      <button class="action-btn" (click)="toggleActive(t)" [title]="t.is_active ? 'Deactivate' : 'Activate'">
+                        <mat-icon>{{ t.is_active ? 'visibility_off' : 'visibility' }}</mat-icon>
+                      </button>
                       <button class="action-btn danger" (click)="remove(t)" title="Delete"><mat-icon>delete</mat-icon></button>
                     </div>
                   </td>
@@ -311,6 +314,13 @@ export class AdminTestsComponent implements OnInit {
     this.testApi.delete(t.id).subscribe({
       next: () => this.load(),
       error: (err) => this.error.set(err.error?.detail?.message || 'Failed to delete'),
+    });
+  }
+
+  toggleActive(t: Test) {
+    this.testApi.update(t.id, { is_active: !t.is_active }).subscribe({
+      next: () => this.load(),
+      error: (err) => this.error.set(err.error?.detail?.message || 'Failed to update status'),
     });
   }
 }

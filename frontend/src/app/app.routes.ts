@@ -1,11 +1,21 @@
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
-  // Public landing — home page
+  // ── Public landing — home page
   {
     path: '',
     loadComponent: () => import('./features/home/home.component').then((m) => m.HomeComponent),
     pathMatch: 'full',
+  },
+
+  // ── Info pages ──────────────────────────────────────────────────────────────
+  {
+    path: 'about',
+    loadComponent: () => import('./features/about/about.component').then((m) => m.AboutComponent),
+  },
+  {
+    path: 'contact',
+    loadComponent: () => import('./features/contact/contact.component').then((m) => m.ContactComponent),
   },
 
   // ── Public routes (no login required) ──────────────────────────────────────

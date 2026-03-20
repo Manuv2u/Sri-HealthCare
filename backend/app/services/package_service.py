@@ -57,8 +57,8 @@ class PackageService:
         tests = await self.repo.get_active_tests(package_id)
         return _package_to_dict(pkg, tests)
 
-    async def list_packages(self, page: int, page_size: int) -> dict:
-        items, total = await self.repo.list(active_only=True, page=page, page_size=page_size)
+    async def list_packages(self, page: int, page_size: int, active_only: bool = True) -> dict:
+        items, total = await self.repo.list(active_only=active_only, page=page, page_size=page_size)
         result_items = []
         for pkg in items:
             tests = await self.repo.get_active_tests(pkg.id)
