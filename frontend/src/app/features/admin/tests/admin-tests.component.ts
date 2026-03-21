@@ -247,7 +247,7 @@ export class AdminTestsComponent implements OnInit {
   load() {
     this.loading.set(true);
     this.error.set(null);
-    this.testApi.list({ page_size: 500 }).subscribe({
+    this.testApi.list({ page_size: 500, include_inactive: true }).subscribe({
       next: (res) => { this.tests.set(res.items); this.applyFilter(); this.loading.set(false); },
       error: (err) => { this.error.set(err.error?.detail?.message || err.error?.message || 'Failed to load tests'); this.loading.set(false); },
     });

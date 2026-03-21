@@ -258,7 +258,13 @@ export class TestCatalogComponent implements OnInit {
     this.loading.set(true);
     this.error.set(null);
     this.testApi.list({ page_size: 500 }).subscribe({
-      next: (res) => { this.allTests.set(res.items); this.total.set(res.total); this.loading.set(false); },
+      next: (res) => {
+        // Always show only active tests in the public catalog (even if admin is browsing)
+        const activeOnly = res.items.filter((t: any) => t.is_active);
+        this.allTests.set(activeOnly);
+        this.total.set(activeOnly.length);
+        this.loading.set(false);
+      },
       error: () => { this.error.set('Failed to load tests. Please try again.'); this.loading.set(false); },
     });
   }

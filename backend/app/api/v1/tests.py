@@ -60,18 +60,24 @@ async def list_tests(
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=20, ge=1, le=500),
     include_deleted: bool = Query(default=False),
+    include_inactive: bool = Query(default=False),
     db: AsyncSession = Depends(get_db_session),
     current_user: dict | None = Depends(_optional_current_user),
 ) -> TestListResponse:
     svc = TestService(db)
     requester_role = current_user["role"] if current_user else "user"
+    # include_inactive=true only works for admins (e.g. admin panel)
+    if include_inactive and requester_role == "admin":
+        effective_role = "admin"
+    else:
+        effective_role = "user"  # force active_only for public catalog
     result = await svc.list_tests(
         q=q,
         category=category,
         page=page,
         page_size=page_size,
         include_deleted=include_deleted,
-        requester_role=requester_role,
+        requester_role=effective_role,
     )
     return TestListResponse(
         items=[TestOut.model_validate(i) for i in result["items"]],
