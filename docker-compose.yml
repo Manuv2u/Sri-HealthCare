@@ -39,6 +39,19 @@ services:
       - "8000:8000"
     networks:
       - sri_net
+    develop:
+      watch:
+        # sync Python source changes directly into the container (uvicorn --reload picks them up)
+        - action: sync
+          path: ./backend
+          target: /app
+          ignore:
+            - __pycache__/
+            - "*.pyc"
+            - .pytest_cache/
+        # rebuild if dependencies change
+        - action: rebuild
+          path: ./backend/pyproject.toml
 
   frontend:
     build:
@@ -49,6 +62,13 @@ services:
       - "4200:4200"
     networks:
       - sri_net
+    develop:
+      watch:
+        # rebuild the nginx image whenever frontend source changes
+        - action: rebuild
+          path: ./frontend/src
+        - action: rebuild
+          path: ./frontend/package.json
 
 volumes:
   pgdata:

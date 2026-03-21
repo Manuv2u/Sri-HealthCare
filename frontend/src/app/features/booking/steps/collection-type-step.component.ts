@@ -2,10 +2,11 @@ import { Component, inject, OnInit, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
+import { LabBranchApiService } from '../../../core/api/services/lab-branch-api.service';
 import { ServiceAreaApiService } from '../../../core/api/services/service-area-api.service';
+import { UserApiService } from '../../../core/api/services/user-api.service';
 import { BookingWizardStore } from '../../../core/store/booking-wizard.store';
-import { FeatureFlag, LabBranch, ServiceArea } from '../../../core/api/api.types';
+import { LabBranch, ServiceArea, UserAddress, UserAddressListResponse } from '../../../core/api/api.types';
 
 @Component({
   selector: 'app-collection-type-step',
@@ -19,24 +20,23 @@ import { FeatureFlag, LabBranch, ServiceArea } from '../../../core/api/api.types
       </div>
 
       <div class="collection-cards">
-        <label class="collection-card" [class.selected]="collectionType === 'home'" [class.disabled]="!homeCollectionEnabled()">
-          <input type="radio" name="collection" value="home" [(ngModel)]="collectionType" [disabled]="!homeCollectionEnabled()" />
+        <label class="collection-card" [class.selected]="collectionType === 'home'">
+          <input type="radio" name="collection" value="home" [(ngModel)]="collectionType"
+            (ngModelChange)="onCollectionTypeChange($event)" />
           <div class="cc-icon teal"><mat-icon>home</mat-icon></div>
           <div class="cc-body">
             <div class="cc-title">Home Collection</div>
-            <div class="cc-desc">
-              @if (homeCollectionEnabled()) { Certified phlebotomist visits your home }
-              @else { Not available in your area }
-            </div>
+            <div class="cc-desc">We come to you — sample collected at your doorstep</div>
           </div>
           <div class="cc-check" [class.visible]="collectionType === 'home'"><mat-icon>check_circle</mat-icon></div>
         </label>
 
         <label class="collection-card" [class.selected]="collectionType === 'lab'">
-          <input type="radio" name="collection" value="lab" [(ngModel)]="collectionType" />
+          <input type="radio" name="collection" value="lab" [(ngModel)]="collectionType"
+            (ngModelChange)="onCollectionTypeChange($event)" />
           <div class="cc-icon blue"><mat-icon>local_hospital</mat-icon></div>
           <div class="cc-body">
-            <div class="cc-title">Lab Visit</div>
+            <div class="cc-title">Visit Lab</div>
             <div class="cc-desc">Visit one of our collection centres</div>
           </div>
           <div class="cc-check" [class.visible]="collectionType === 'lab'"><mat-icon>check_circle</mat-icon></div>
@@ -44,22 +44,60 @@ import { FeatureFlag, LabBranch, ServiceArea } from '../../../core/api/api.types
       </div>
 
       @if (collectionType === 'home') {
-        <div class="pincode-section">
-          <label class="field-label">Enter your pincode</label>
-          <div class="pincode-row">
-            <div class="pincode-input" [class.valid]="pincodeValid()" [class.invalid]="!!pincodeError()">
-              <mat-icon>location_on</mat-icon>
-              <input [(ngModel)]="pincode" maxlength="6" placeholder="e.g. 600001" inputmode="numeric" />
+        <div class="address-section">
+          @if (loadingAddresses()) {
+            <div class="skeleton-row"></div>
+          } @else if (savedAddresses().length > 0 && !useManualEntry()) {
+            <div class="saved-addresses">
+              <label class="field-label">Select a delivery address</label>
+              <div class="address-list">
+                @for (addr of savedAddresses(); track addr.id) {
+                  <label class="address-option" [class.selected]="selectedAddressId === addr.id">
+                    <input type="radio" name="savedAddress" [value]="addr.id" [(ngModel)]="selectedAddressId"
+                      (ngModelChange)="onAddressSelect($event)" />
+                    <div class="addr-icon"><mat-icon>location_on</mat-icon></div>
+                    <div class="addr-info">
+                      <div class="addr-label">
+                        {{ addr.label }}
+                        @if (addr.is_default) { <span class="default-badge">Default</span> }
+                      </div>
+                      <div class="addr-line">{{ addr.address_line1 }}{{ addr.address_line2 ? ', ' + addr.address_line2 : '' }}</div>
+                      <div class="addr-line">{{ addr.city }}, {{ addr.state }} – {{ addr.pincode }}</div>
+                    </div>
+                    <div class="addr-check" [class.visible]="selectedAddressId === addr.id">
+                      <mat-icon>check_circle</mat-icon>
+                    </div>
+                  </label>
+                }
+                <button class="btn-manual" (click)="useManualEntry.set(true)">
+                  <mat-icon>edit_location</mat-icon> Enter a different address
+                </button>
+              </div>
             </div>
-            <button class="btn-check" [disabled]="pincode.length !== 6 || checking()" (click)="validatePincode()">
-              @if (checking()) { <span class="spinner"></span> } @else { Check }
-            </button>
-          </div>
-          @if (pincodeError()) {
-            <div class="field-msg error"><mat-icon>cancel</mat-icon> {{ pincodeError() }}</div>
-          }
-          @if (pincodeValid()) {
-            <div class="field-msg success"><mat-icon>check_circle</mat-icon> Home collection available at this pincode</div>
+          } @else {
+            <div class="pincode-section">
+              @if (savedAddresses().length > 0) {
+                <button class="btn-back-saved" (click)="switchToSaved()">
+                  <mat-icon>arrow_back</mat-icon> Use a saved address
+                </button>
+              }
+              <label class="field-label">Enter your pincode to check availability</label>
+              <div class="pincode-row">
+                <div class="pincode-input" [class.valid]="pincodeValid()" [class.invalid]="!!pincodeError()">
+                  <mat-icon>location_on</mat-icon>
+                  <input [(ngModel)]="pincode" maxlength="6" placeholder="e.g. 600001" inputmode="numeric" />
+                </div>
+                <button class="btn-check" [disabled]="pincode.length !== 6 || checking()" (click)="validatePincode()">
+                  @if (checking()) { <span class="spinner"></span> } @else { Check }
+                </button>
+              </div>
+              @if (pincodeError()) {
+                <div class="field-msg error"><mat-icon>cancel</mat-icon> {{ pincodeError() }}</div>
+              }
+              @if (pincodeValid()) {
+                <div class="field-msg success"><mat-icon>check_circle</mat-icon> Home collection available at this pincode</div>
+              }
+            </div>
           }
         </div>
       }
@@ -71,6 +109,8 @@ import { FeatureFlag, LabBranch, ServiceArea } from '../../../core/api/api.types
             <div class="branch-list">
               @for (i of [1,2,3]; track i) { <div class="skeleton-row"></div> }
             </div>
+          } @else if (branches().length === 0) {
+            <div class="empty-branches">No active branches found. Please contact us.</div>
           } @else {
             <div class="branch-list">
               @for (branch of branches(); track branch.id) {
@@ -85,9 +125,6 @@ import { FeatureFlag, LabBranch, ServiceArea } from '../../../core/api/api.types
                     <mat-icon>check_circle</mat-icon>
                   </div>
                 </label>
-              }
-              @if (branches().length === 0) {
-                <div class="empty-branches">No active branches found</div>
               }
             </div>
           }
@@ -114,9 +151,8 @@ import { FeatureFlag, LabBranch, ServiceArea } from '../../../core/api/api.types
       padding: 1rem 1.25rem; border-radius: 12px; border: 2px solid #e2e8f0;
       cursor: pointer; transition: all .15s; background: #fff;
       input[type=radio] { display: none; }
-      &:hover:not(.disabled) { border-color: #00796b; background: #f0fdf9; }
+      &:hover { border-color: #00796b; background: #f0fdf9; }
       &.selected { border-color: #00796b; background: #f0fdf9; }
-      &.disabled { opacity: .5; cursor: not-allowed; }
     }
     .cc-icon {
       width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
@@ -131,6 +167,42 @@ import { FeatureFlag, LabBranch, ServiceArea } from '../../../core/api/api.types
     .cc-check { color: #00796b; opacity: 0; transition: opacity .15s;
       mat-icon { font-size: 1.2rem; width: 1.2rem; height: 1.2rem; }
       &.visible { opacity: 1; }
+    }
+    .address-section { display: flex; flex-direction: column; gap: .5rem; }
+    .saved-addresses { display: flex; flex-direction: column; gap: .5rem; }
+    .address-list { display: flex; flex-direction: column; gap: .5rem; }
+    .address-option {
+      display: flex; align-items: flex-start; gap: .75rem;
+      padding: .85rem 1rem; border-radius: 10px; border: 2px solid #e2e8f0;
+      cursor: pointer; transition: all .15s; background: #fff;
+      input[type=radio] { display: none; }
+      &:hover { border-color: #00796b; background: #f0fdf9; }
+      &.selected { border-color: #00796b; background: #f0fdf9; }
+    }
+    .addr-icon { color: #718096; padding-top: .1rem; mat-icon { font-size: 1.1rem; width: 1.1rem; height: 1.1rem; } }
+    .addr-info { flex: 1; }
+    .addr-label { font-size: .875rem; font-weight: 700; color: #1a202c; display: flex; align-items: center; gap: .4rem; }
+    .addr-line { font-size: .78rem; color: #718096; margin-top: .1rem; }
+    .default-badge {
+      font-size: .65rem; font-weight: 700; background: #00796b; color: #fff;
+      padding: .1rem .4rem; border-radius: 4px; text-transform: uppercase; letter-spacing: .04em;
+    }
+    .addr-check { color: #00796b; opacity: 0; transition: opacity .15s; padding-top: .1rem;
+      mat-icon { font-size: 1.1rem; width: 1.1rem; height: 1.1rem; }
+      &.visible { opacity: 1; }
+    }
+    .btn-manual {
+      display: flex; align-items: center; gap: .4rem;
+      background: none; border: 1.5px dashed #cbd5e0; border-radius: 10px;
+      padding: .7rem 1rem; font-size: .85rem; font-weight: 600; color: #4a5568; cursor: pointer; transition: all .15s;
+      mat-icon { font-size: 1rem; width: 1rem; height: 1rem; }
+      &:hover { border-color: #00796b; color: #00796b; }
+    }
+    .btn-back-saved {
+      display: inline-flex; align-items: center; gap: .3rem;
+      background: none; border: none; color: #00796b; font-size: .85rem; font-weight: 600; cursor: pointer; padding: 0; margin-bottom: .25rem;
+      mat-icon { font-size: .95rem; width: .95rem; height: .95rem; }
+      &:hover { text-decoration: underline; }
     }
     .pincode-section { display: flex; flex-direction: column; gap: .5rem; }
     .field-label { font-size: .85rem; font-weight: 600; color: #4a5568; }
@@ -200,40 +272,92 @@ export class CollectionTypeStepComponent implements OnInit {
   next = output<void>();
   back = output<void>();
 
-  private http = inject(HttpClient);
+  private labBranchApi = inject(LabBranchApiService);
   private serviceAreaApi = inject(ServiceAreaApiService);
+  private userApi = inject(UserApiService);
   readonly store = inject(BookingWizardStore);
 
   loadingBranches = signal(true);
+  loadingAddresses = signal(false);
   checking = signal(false);
-  homeCollectionEnabled = signal(true);
   branches = signal<LabBranch[]>([]);
+  savedAddresses = signal<UserAddress[]>([]);
   pincodeError = signal<string | null>(null);
   pincodeValid = signal(false);
+  useManualEntry = signal(false);
 
-  collectionType = this.store.collectionType() ?? 'lab';
+  collectionType: 'home' | 'lab' = (this.store.collectionType() as 'home' | 'lab') ?? 'lab';
   pincode = this.store.pincode() ?? '';
   selectedBranchId = this.store.labBranchId() ?? '';
+  selectedAddressId = this.store.selectedAddressId() ?? '';
 
   ngOnInit(): void {
-    this.http.get<FeatureFlag[]>('/feature-flags').subscribe({
-      next: (flags: FeatureFlag[]) => {
-        const flag = flags.find((f: FeatureFlag) => f.key === 'home_collection');
-        this.homeCollectionEnabled.set(flag?.is_enabled ?? true);
-        if (!this.homeCollectionEnabled() && this.collectionType === 'home') {
-          this.collectionType = 'lab';
-        }
-      },
-      error: () => {},
-    });
-
-    this.http.get<LabBranch[]>('/lab-branches').subscribe({
-      next: (b: LabBranch[]) => {
-        this.branches.set(b.filter((br: LabBranch) => br.is_active));
+    this.labBranchApi.list().subscribe({
+      next: (branches: LabBranch[]) => {
+        this.branches.set(branches.filter((b: LabBranch) => b.is_active));
         this.loadingBranches.set(false);
+        // Auto-select first branch if none selected
+        if (!this.selectedBranchId && this.branches().length > 0) {
+          this.selectedBranchId = this.branches()[0].id;
+        }
       },
       error: () => this.loadingBranches.set(false),
     });
+
+    if (this.collectionType === 'home') {
+      this.loadSavedAddresses();
+    }
+  }
+
+  onCollectionTypeChange(type: string): void {
+    if (type === 'home') {
+      this.loadSavedAddresses();
+    }
+  }
+
+  loadSavedAddresses(): void {
+    this.loadingAddresses.set(true);
+    this.userApi.getAddresses().subscribe({
+      next: (res: UserAddressListResponse) => {
+        const addresses = res.items;
+        this.savedAddresses.set(addresses);
+        this.loadingAddresses.set(false);
+        if (addresses.length === 0) {
+          this.useManualEntry.set(true);
+        } else {
+          const defaultAddr = addresses.find((a: UserAddress) => a.is_default) ?? addresses[0];
+          this.selectedAddressId = defaultAddr.id;
+          this.pincode = defaultAddr.pincode;
+          this.pincodeValid.set(true);
+        }
+      },
+      error: () => {
+        this.loadingAddresses.set(false);
+        this.useManualEntry.set(true);
+      },
+    });
+  }
+
+  onAddressSelect(addressId: string): void {
+    const addr = this.savedAddresses().find((a: UserAddress) => a.id === addressId);
+    if (addr) {
+      this.pincode = addr.pincode;
+      this.pincodeValid.set(true);
+      this.pincodeError.set(null);
+    }
+  }
+
+  switchToSaved(): void {
+    this.useManualEntry.set(false);
+    this.pincodeValid.set(false);
+    this.pincodeError.set(null);
+    this.pincode = '';
+    const defaultAddr = this.savedAddresses().find((a: UserAddress) => a.is_default) ?? this.savedAddresses()[0];
+    if (defaultAddr) {
+      this.selectedAddressId = defaultAddr.id;
+      this.pincode = defaultAddr.pincode;
+      this.pincodeValid.set(true);
+    }
   }
 
   validatePincode(): void {
@@ -258,15 +382,22 @@ export class CollectionTypeStepComponent implements OnInit {
   }
 
   canProceed(): boolean {
-    if (this.collectionType === 'home') return this.pincodeValid();
+    if (this.collectionType === 'home') {
+      if (!this.useManualEntry() && this.savedAddresses().length > 0) {
+        return !!this.selectedAddressId;
+      }
+      return this.pincodeValid();
+    }
     return !!this.selectedBranchId;
   }
 
   onNext(): void {
-    (this.store as any).patchState({
-      collectionType: this.collectionType as 'home' | 'lab',
+    const usingSaved = this.collectionType === 'home' && !this.useManualEntry() && this.savedAddresses().length > 0;
+    this.store.patch({
+      collectionType: this.collectionType,
       pincode: this.collectionType === 'home' ? this.pincode : null,
       labBranchId: this.collectionType === 'lab' ? this.selectedBranchId : null,
+      selectedAddressId: usingSaved ? this.selectedAddressId : null,
     });
     this.next.emit();
   }

@@ -8,10 +8,10 @@ export class PaymentApiService {
   constructor(private http: HttpClient) {}
 
   initiate(booking_id: string, method: string): Observable<Payment> {
-    return this.http.post<Payment>('/payments/initiate', { booking_id, method });
+    return this.http.post<Payment>('/api/v1/payments/initiate', { booking_id, method });
   }
 
   getInvoice(paymentId: string): Observable<Blob> {
-    return this.http.get(`/payments/${paymentId}/invoice`, { responseType: 'blob' });
+    return this.http.get(`/api/v1/payments/${paymentId}/invoice`, { responseType: 'blob' });
   }
 }

@@ -141,7 +141,10 @@ export class PatientStepComponent implements OnInit {
       next: (user: User) => {
         this.profile.set(user);
         this.userApi.getFamilyMembers().subscribe({
-          next: (members: FamilyMember[]) => { this.familyMembers.set(members); this.loading.set(false); },
+          next: (members: FamilyMember[]) => {
+            this.familyMembers.set(members.filter((m: FamilyMember) => m.is_active && !m.deleted_at));
+            this.loading.set(false);
+          },
           error: () => this.loading.set(false),
         });
       },
@@ -151,11 +154,11 @@ export class PatientStepComponent implements OnInit {
 
   onNext(): void {
     const isSelf = this.selectedId === 'self';
-    const patientId = isSelf ? (this.profile()?.id ?? null) : this.selectedId;
+    const patientId = isSelf ? null : this.selectedId;
     const patientName = isSelf
       ? (this.profile()?.name ?? null)
       : (this.familyMembers().find((m: FamilyMember) => m.id === this.selectedId)?.name ?? null);
-    (this.store as any).patchState({ patientId, patientName });
+    this.store.patch({ patientId, patientName });
     this.next.emit();
   }
 }

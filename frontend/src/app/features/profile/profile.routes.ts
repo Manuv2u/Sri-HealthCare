@@ -12,4 +12,9 @@ export const PROFILE_ROUTES: Routes = [
     loadComponent: () => import('./family-members/family-members.component').then((m) => m.FamilyMembersComponent),
     canActivate: [authGuard],
   },
+  {
+    path: 'addresses',
+    loadComponent: () => import('./address-book/address-book.component').then((m) => m.AddressBookComponent),
+    canActivate: [authGuard],
+  },
 ];

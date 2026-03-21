@@ -53,7 +53,7 @@ import { ErrorBannerComponent } from '../../../shared/components/error-banner.co
             <h1>{{ greeting() }}, {{ firstName() }}</h1>
             <p>Welcome back to your health dashboard. All your clinical data is up to date.</p>
           </div>
-          <a routerLink="/tests" class="btn-book-new">
+          <a routerLink="/booking" class="btn-book-new">
             <mat-icon>add</mat-icon> Book New Test
           </a>
         </div>
@@ -116,7 +116,7 @@ import { ErrorBannerComponent } from '../../../shared/components/error-banner.co
                     <tr>
                       <td class="ref-cell">{{ b.reference_number }}</td>
                       <td>
-                        <div class="test-name-cell">{{ b.collection_type === 'home' ? 'Home Collection' : 'Lab Visit' }}</div>
+                        <div class="test-name-cell">{{ bookingLabel(b) }}</div>
                         <div class="test-sub">{{ b.collection_type === 'home' ? 'Home Collection' : 'Lab Visit' }}</div>
                       </td>
                       <td>{{ b.booking_date | date:'MMM d, y' }}</td>
@@ -329,4 +329,8 @@ export class BookingHistoryComponent implements OnInit {
   }
 
   statusClass(status: string): string { return status.toLowerCase(); }
+
+  bookingLabel(b: Booking): string {
+    return b.collection_type === 'home' ? 'Home Collection' : 'Lab Visit';
+  }
 }

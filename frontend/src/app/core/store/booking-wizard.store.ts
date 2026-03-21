@@ -1,4 +1,4 @@
-import { signalStore, withState, withMethods } from '@ngrx/signals';
+import { signalStore, withState, withMethods, patchState } from '@ngrx/signals';
 
 export interface BookingWizardState {
   patientId: string | null;
@@ -10,6 +10,7 @@ export interface BookingWizardState {
   collectionType: 'home' | 'lab' | null;
   pincode: string | null;
   labBranchId: string | null;
+  selectedAddressId: string | null;
   paymentMethod: string | null;
   currentStep: number;
 }
@@ -24,6 +25,7 @@ const initialState: BookingWizardState = {
   collectionType: null,
   pincode: null,
   labBranchId: null,
+  selectedAddressId: null,
   paymentMethod: null,
   currentStep: 0,
 };
@@ -33,13 +35,10 @@ export const BookingWizardStore = signalStore(
   withState(initialState),
   withMethods((store) => ({
     reset(): void {
-      Object.assign(store, initialState);
+      patchState(store, initialState);
     },
-    nextStep(): void {
-      (store as any).patchState?.({ currentStep: store.currentStep() + 1 });
-    },
-    prevStep(): void {
-      (store as any).patchState?.({ currentStep: Math.max(0, store.currentStep() - 1) });
+    patch(partial: Partial<BookingWizardState>): void {
+      patchState(store, partial);
     },
   })),
 );

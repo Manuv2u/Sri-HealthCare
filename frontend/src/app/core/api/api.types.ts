@@ -26,6 +26,8 @@ export interface FamilyMember {
   relationship: string;
   date_of_birth?: string;
   gender?: string;
+  is_active: boolean;
+  deleted_at?: string;
 }
 
 export interface Test {
@@ -133,4 +135,24 @@ export interface AuthTokens {
   access_token: string;
   refresh_token: string;
   token_type: string;
+}
+
+export interface UserAddress {
+  id: string;
+  user_id: string;
+  label: string;
+  address_line1: string;
+  address_line2?: string;
+  city: string;
+  state: string;
+  pincode: string;
+  is_default: boolean;
+  created_at: string;
+}
+
+export interface UserAddressListResponse {
+  items: UserAddress[];
+  total: number;
+  page: number;
+  page_size: number;
 }

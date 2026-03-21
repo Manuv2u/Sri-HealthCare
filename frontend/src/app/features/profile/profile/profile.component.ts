@@ -140,13 +140,10 @@ export class ProfileComponent implements OnInit {
 
   tiles: Tile[] = [
     { icon: 'person', label: 'My Profile', route: '/profile/edit', color: '#00796b', bg: '#e0f2f1' },
-    { icon: 'group', label: 'Manage Members', route: '/profile/members', color: '#5c6bc0', bg: '#e8eaf6' },
+    { icon: 'group', label: 'Manage Members', route: '/profile/family', color: '#5c6bc0', bg: '#e8eaf6' },
     { icon: 'location_on', label: 'Address Book', route: '/profile/addresses', color: '#ef6c00', bg: '#fff3e0' },
     { icon: 'download', label: 'Download Reports', route: '/dashboard', color: '#2e7d32', bg: '#e8f5e9' },
     { icon: 'receipt_long', label: 'My Orders', route: '/dashboard', color: '#1565c0', bg: '#e3f2fd' },
-    { icon: 'info', label: 'About', route: '/about', color: '#6d4c41', bg: '#efebe9' },
-    { icon: 'science', label: 'Lab Locator', route: '/labs', color: '#00838f', bg: '#e0f7fa' },
-    { icon: 'favorite', label: 'Wellness Watch', route: '/wellness', color: '#c62828', bg: '#ffebee' },
     { icon: 'help_outline', label: 'Help', route: '/help', color: '#7b1fa2', bg: '#f3e5f5' },
     { icon: 'support_agent', label: 'Contact Us', route: '/contact', color: '#0277bd', bg: '#e1f5fe' },
   ];

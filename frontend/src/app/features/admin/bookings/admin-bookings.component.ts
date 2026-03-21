@@ -191,6 +191,7 @@ export class AdminBookingsComponent implements OnInit {
       params = params.set('status', this.statusFilter);
     }
 
+    // Admin role sees all bookings via the shared /bookings endpoint
     this.http.get<any>('/bookings', { params }).subscribe({
       next: (res: any) => {
         this.bookings.set(res.items ?? res);
@@ -219,7 +220,7 @@ export class AdminBookingsComponent implements OnInit {
   }
 
   updateStatus(booking: Booking, status: string) {
-    this.http.put(`/bookings/${booking.id}`, { status }).subscribe({
+    this.http.put(`/bookings/${booking.id}/status`, { status }).subscribe({
       next: (_res: any) => this.loadBookings(),
       error: (err: any) => {
         this.error.set(err.message || 'Failed to update booking status');

@@ -52,8 +52,8 @@ class PaymentService:
                 detail={"error_code": "ALREADY_PAID", "message": "Booking is already paid"},
             )
 
-        # Calculate amounts
-        subtotal = float(booking.total_amount)
+        # Calculate amounts from booking items
+        subtotal = sum(float(item.unit_price) for item in booking.items)
         gst = round(subtotal * settings.gst_rate, 2)
         total = round(subtotal + gst, 2)
         amount_paise = int(total * 100)
@@ -74,6 +74,14 @@ class PaymentService:
             )
         else:
             payment = existing
+            # Update method and recalculated amounts
+            from sqlalchemy import update as sa_update
+            from app.models.payment import Payment as PaymentModel
+            await self.db.execute(
+                sa_update(PaymentModel)
+                .where(PaymentModel.id == payment.id)
+                .values(method=method, amount=total, gst_amount=gst)
+            )
 
         await self.repo.update_status(
             payment.id,

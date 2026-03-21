@@ -82,13 +82,8 @@ class BookingRepository:
     ) -> Booking:
         """
         Atomically create a booking with slot capacity enforcement.
-        Uses REPEATABLE READ isolation + SELECT FOR UPDATE on booking_slot_counts.
+        Uses SELECT FOR UPDATE on booking_slot_counts.
         """
-        # Set isolation level for this transaction
-        await self.db.execute(
-            text("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ")
-        )
-
         # Lock the slot count row (or create it)
         result = await self.db.execute(
             text(
@@ -349,11 +344,6 @@ class BookingRepository:
         old_slot = await self._get_slot(booking.time_slot_id)
         if old_slot:
             await self._check_cancellation_window(booking, old_slot)
-
-        # Set isolation level
-        await self.db.execute(
-            text("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ")
-        )
 
         # Lock new slot count
         result = await self.db.execute(

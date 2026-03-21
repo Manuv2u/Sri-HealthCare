@@ -33,6 +33,7 @@ class User(TimestampMixin, Base):
     family_members: Mapped[list["FamilyMember"]] = relationship(
         "FamilyMember", back_populates="user"
     )
+    addresses: Mapped[list["UserAddress"]] = relationship("UserAddress", back_populates="user")
 
 
 class Session(Base):
@@ -77,6 +78,7 @@ class FamilyMember(Base):
     date_of_birth: Mapped[date | None] = mapped_column(Date, nullable=True)
     gender: Mapped[str | None] = mapped_column(String(10), nullable=True)
     relationship_type: Mapped[str] = mapped_column("relationship", String(50), nullable=False)
+    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="true")
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=text("now()")
@@ -84,3 +86,31 @@ class FamilyMember(Base):
 
     # Relationships
     user: Mapped["User"] = relationship("User", back_populates="family_members")
+
+
+class UserAddress(Base):
+    __tablename__ = "user_addresses"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        server_default=text("gen_random_uuid()"),
+    )
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False
+    )
+    label: Mapped[str] = mapped_column(String(100), nullable=False)
+    address_line1: Mapped[str] = mapped_column(String(255), nullable=False)
+    address_line2: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    city: Mapped[str] = mapped_column(String(100), nullable=False)
+    state: Mapped[str] = mapped_column(String(100), nullable=False)
+    pincode: Mapped[str] = mapped_column(String(10), nullable=False)
+    is_default: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="false")
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=text("now()")
+    )
+
+    # Relationships
+    user: Mapped["User"] = relationship("User", back_populates="addresses")

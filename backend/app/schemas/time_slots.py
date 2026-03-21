@@ -39,9 +39,11 @@ class TimeSlotOut(BaseModel):
 
 class AvailableSlotOut(BaseModel):
     id: uuid.UUID
+    label: str
     start_time: time
     end_time: time
     collection_type: str
     slot_capacity: int
     confirmed_count: int
-    remaining: int
+    remaining_capacity: int
+    is_enabled: bool = True

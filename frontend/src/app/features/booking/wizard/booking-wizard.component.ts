@@ -1,6 +1,7 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
+import { ActivatedRoute } from '@angular/router';
 import { BookingWizardStore } from '../../../core/store/booking-wizard.store';
 import { PatientStepComponent } from '../steps/patient-step.component';
 import { TestSelectionStepComponent } from '../steps/test-selection-step.component';
@@ -9,11 +10,11 @@ import { CollectionTypeStepComponent } from '../steps/collection-type-step.compo
 import { PaymentStepComponent } from '../steps/payment-step.component';
 
 const STEPS = [
-  { label: 'Patient', icon: 'person' },
-  { label: 'Tests', icon: 'biotech' },
-  { label: 'Slot', icon: 'schedule' },
+  { label: 'Patient',    icon: 'person' },
+  { label: 'Tests',      icon: 'biotech' },
   { label: 'Collection', icon: 'home' },
-  { label: 'Payment', icon: 'payment' },
+  { label: 'Slot',       icon: 'schedule' },
+  { label: 'Payment',    icon: 'payment' },
 ];
 
 @Component({
@@ -49,9 +50,14 @@ const STEPS = [
         <div class="wizard-card">
           @switch (currentStep()) {
             @case (0) { <app-patient-step (next)="next()" /> }
-            @case (1) { <app-test-selection-step (next)="next()" (back)="prev()" /> }
-            @case (2) { <app-slot-selection-step (next)="next()" (back)="prev()" /> }
-            @case (3) { <app-collection-type-step (next)="next()" (back)="prev()" /> }
+            @case (1) {
+              <app-test-selection-step
+                [preselectedPackageId]="preselectedPackageId()"
+                [preselectedTestId]="preselectedTestId()"
+                (next)="next()" (back)="prev()" />
+            }
+            @case (2) { <app-collection-type-step (next)="next()" (back)="prev()" /> }
+            @case (3) { <app-slot-selection-step (next)="next()" (back)="prev()" /> }
             @case (4) { <app-payment-step (back)="prev()" /> }
           }
         </div>
@@ -94,10 +100,25 @@ const STEPS = [
     }
   `],
 })
-export class BookingWizardComponent {
+export class BookingWizardComponent implements OnInit {
   readonly store = inject(BookingWizardStore);
+  private route = inject(ActivatedRoute);
+
   readonly steps = STEPS;
   currentStep = signal(0);
+  preselectedPackageId = signal<string | null>(null);
+  preselectedTestId = signal<string | null>(null);
+
+  ngOnInit(): void {
+    // Reset wizard state on fresh load
+    this.store.reset();
+
+    // Read package_id / test_id from query params
+    const pkgId = this.route.snapshot.queryParamMap.get('package_id');
+    if (pkgId) this.preselectedPackageId.set(pkgId);
+    const testId = this.route.snapshot.queryParamMap.get('test_id');
+    if (testId) this.preselectedTestId.set(testId);
+  }
 
   next(): void { if (this.currentStep() < STEPS.length - 1) this.currentStep.update(s => s + 1); }
   prev(): void { if (this.currentStep() > 0) this.currentStep.update(s => s - 1); }

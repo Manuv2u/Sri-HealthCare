@@ -110,15 +110,29 @@ class TimeSlotRepository:
         for row in rows:
             remaining = row.slot_capacity - row.confirmed_count
             if remaining > 0:
+                # Format label e.g. "7:00 AM – 8:00 AM"
+                def fmt(t: object) -> str:
+                    from datetime import time as dtime
+                    if isinstance(t, dtime):
+                        h, m = t.hour, t.minute
+                    else:
+                        h, m = int(str(t).split(":")[0]), int(str(t).split(":")[1])
+                    suffix = "AM" if h < 12 else "PM"
+                    h12 = h % 12 or 12
+                    return f"{h12}:{m:02d} {suffix}"
+
+                label = f"{fmt(row.start_time)} – {fmt(row.end_time)}"
                 available.append(
                     {
                         "id": row.id,
+                        "label": label,
                         "start_time": row.start_time,
                         "end_time": row.end_time,
                         "collection_type": row.collection_type,
                         "slot_capacity": row.slot_capacity,
                         "confirmed_count": row.confirmed_count,
-                        "remaining": remaining,
+                        "remaining_capacity": remaining,
+                        "is_enabled": True,
                     }
                 )
         return available

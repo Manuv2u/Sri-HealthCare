@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { FamilyMember, User } from '../api.types';
+import { FamilyMember, User, UserAddress, UserAddressListResponse } from '../api.types';
 
 @Injectable({ providedIn: 'root' })
 export class UserApiService {
@@ -29,6 +29,22 @@ export class UserApiService {
 
   deleteFamilyMember(id: string): Observable<void> {
     return this.http.delete<void>(`/users/me/family-members/${id}`);
+  }
+
+  getAddresses(): Observable<UserAddressListResponse> {
+    return this.http.get<UserAddressListResponse>('/users/me/addresses');
+  }
+
+  addAddress(data: Partial<UserAddress>): Observable<UserAddress> {
+    return this.http.post<UserAddress>('/users/me/addresses', data);
+  }
+
+  updateAddress(id: string, data: Partial<UserAddress>): Observable<UserAddress> {
+    return this.http.put<UserAddress>(`/users/me/addresses/${id}`, data);
+  }
+
+  deleteAddress(id: string): Observable<void> {
+    return this.http.delete<void>(`/users/me/addresses/${id}`);
   }
 
   requestAccountDeletion(): Observable<{ message: string }> {

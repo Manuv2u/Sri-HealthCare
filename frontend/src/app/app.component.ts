@@ -32,6 +32,7 @@ import { AuthStateService } from './core/auth/auth-state.service';
             <a routerLink="/tests" routerLinkActive="active">Tests</a>
             <a routerLink="/packages" routerLinkActive="active">Packages</a>
             @if (isAuth()) {
+              <a routerLink="/booking" routerLinkActive="active">Book Test</a>
               <a routerLink="/dashboard" routerLinkActive="active">My Bookings</a>
               <a routerLink="/reports" routerLinkActive="active">Reports</a>
             }

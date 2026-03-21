@@ -166,7 +166,7 @@ class FamilyMemberRepository:
             id=uuid.uuid4(),
             user_id=user_id,
             name=name,
-            relationship=relationship,
+            relationship_type=relationship,
             date_of_birth=date_of_birth,
             gender=gender,
         )
@@ -213,3 +213,17 @@ class FamilyMemberRepository:
             .values(deleted_at=datetime.now(timezone.utc))
         )
         await self.db.flush()
+
+    async def find_by_name_and_dob(
+        self, user_id: uuid.UUID, name: str, date_of_birth: object
+    ) -> FamilyMember | None:
+        from sqlalchemy import func
+        result = await self.db.execute(
+            select(FamilyMember).where(
+                FamilyMember.user_id == user_id,
+                func.lower(FamilyMember.name) == func.lower(name),
+                FamilyMember.date_of_birth == date_of_birth,
+                FamilyMember.deleted_at.is_(None),
+            )
+        )
+        return result.scalar_one_or_none()
