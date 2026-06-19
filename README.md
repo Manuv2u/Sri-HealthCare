@@ -122,11 +122,6 @@ Check the application logs for entries prefixed with `restore_validation_result:
 
 
 
-git remote set-url origin git@github.com:Sri-HealthCare/Sri-HealthCare.git
 
 
 git push origin main
-
-
-
-docker exec sri-healthcare-backend-1 python -m app.scripts.seed_tests --reset
