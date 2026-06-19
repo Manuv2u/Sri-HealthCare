@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -73,9 +73,39 @@ import { AuthStateService } from './core/auth/auth-state.service';
                 </button>
               </mat-menu>
             }
+            <!-- Hamburger (mobile only) -->
+            <button class="hamburger-btn" (click)="mobileOpen.set(!mobileOpen())" aria-label="Toggle menu">
+              <mat-icon>{{ mobileOpen() ? 'close' : 'menu' }}</mat-icon>
+            </button>
           </div>
         </div>
       </header>
+
+      <!-- ── Mobile nav overlay ── -->
+      @if (mobileOpen()) {
+        <div class="mobile-backdrop" (click)="mobileOpen.set(false)"></div>
+        <nav class="mobile-nav">
+          <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" (click)="mobileOpen.set(false)">Home</a>
+          <a routerLink="/tests" routerLinkActive="active" (click)="mobileOpen.set(false)">Tests</a>
+          <a routerLink="/packages" routerLinkActive="active" (click)="mobileOpen.set(false)">Packages</a>
+          @if (isAuth()) {
+            <a routerLink="/booking" routerLinkActive="active" (click)="mobileOpen.set(false)">Book Test</a>
+            <a routerLink="/dashboard" routerLinkActive="active" (click)="mobileOpen.set(false)">My Bookings</a>
+            <a routerLink="/reports" routerLinkActive="active" (click)="mobileOpen.set(false)">Reports</a>
+          }
+          <a routerLink="/about" routerLinkActive="active" (click)="mobileOpen.set(false)">About Us</a>
+          <a routerLink="/contact" routerLinkActive="active" (click)="mobileOpen.set(false)">Contact Us</a>
+          @if (isAdmin()) {
+            <a routerLink="/admin" routerLinkActive="active" class="admin-link" (click)="mobileOpen.set(false)">Admin</a>
+          }
+          @if (!isAuth()) {
+            <div class="mobile-auth">
+              <a routerLink="/auth/login" (click)="mobileOpen.set(false)" class="mobile-auth-btn">Sign In</a>
+              <a routerLink="/auth/register" (click)="mobileOpen.set(false)" class="mobile-auth-btn primary">Get Started</a>
+            </div>
+          }
+        </nav>
+      }
 
       <!-- ── Page content ── -->
       <main class="main-content">
@@ -192,9 +222,56 @@ import { AuthStateService } from './core/auth/auth-state.service';
       }
     }
 
-    @media (max-width: 640px) {
+    /* ── Hamburger ── */
+    .hamburger-btn {
+      display: none;
+      background: none; border: none; cursor: pointer; padding: .3rem;
+      border-radius: 8px; color: var(--color-muted);
+      align-items: center; justify-content: center;
+      &:hover { background: var(--color-primary-lt); color: var(--color-primary); }
+      mat-icon { font-size: 1.4rem; width: 1.4rem; height: 1.4rem; }
+    }
+
+    /* ── Mobile nav overlay ── */
+    .mobile-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,.45);
+      z-index: 98;
+    }
+    .mobile-nav {
+      position: fixed; top: 64px; left: 0; right: 0;
+      background: #fff; z-index: 99;
+      display: flex; flex-direction: column; gap: .15rem;
+      padding: .75rem;
+      box-shadow: 0 8px 24px rgba(0,0,0,.12);
+      border-bottom: 1px solid var(--color-border);
+      max-height: calc(100vh - 64px); overflow-y: auto;
+      a {
+        display: block; padding: .8rem 1rem; border-radius: 8px;
+        font-size: 1rem; font-weight: 500; color: var(--color-text);
+        text-decoration: none; transition: background .15s;
+        &:hover { background: var(--color-primary-lt); color: var(--color-primary); }
+        &.active { background: var(--color-primary-lt); color: var(--color-primary); font-weight: 600; }
+        &.admin-link { color: var(--color-accent); }
+      }
+    }
+    .mobile-auth {
+      display: flex; gap: .75rem; padding: .75rem 1rem; margin-top: .25rem;
+      border-top: 1px solid var(--color-border); flex-wrap: wrap;
+    }
+    .mobile-auth-btn {
+      flex: 1; text-align: center; padding: .7rem 1rem; border-radius: 8px;
+      font-size: .9rem; font-weight: 600; text-decoration: none; min-height: 44px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--color-primary); border: 1.5px solid var(--color-primary);
+      &.primary { background: var(--color-primary); color: #fff; }
+    }
+
+    @media (max-width: 768px) {
       .nav-links { display: none; }
+      .hamburger-btn { display: flex; }
       .brand-name { font-size: 1rem; }
+      .login-btn, .register-btn { display: none; }
+      .nav-inner { gap: 1rem; }
     }
   `],
 })
@@ -202,13 +279,15 @@ export class AppComponent {
   private auth = inject(AuthStateService);
   private router = inject(Router);
 
+  mobileOpen = signal(false);
+
   isAuth = this.auth.isAuthenticated;
   role = computed(() => this.auth.currentUser()?.role ?? '');
   isAdmin = computed(() => this.role() === 'admin');
   userName = computed(() => this.auth.currentUser()?.name ?? '');
   initials = computed(() => {
     const name = this.userName();
-    return name ? name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) : 'U';
+    return name ? name.split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2) : 'U';
   });
   isHome = computed(() => this.router.url === '/');
 

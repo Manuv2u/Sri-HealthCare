@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, OnInit } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
@@ -24,11 +24,16 @@ const NAV_ITEMS = [
   imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, MatIconModule, MatButtonModule, MatTooltipModule],
   template: `
     <div class="admin-shell">
+      <!-- Mobile backdrop -->
+      @if (mobileOpen()) {
+        <div class="mobile-backdrop" (click)="mobileOpen.set(false)"></div>
+      }
+
       <!-- Sidebar -->
-      <aside class="sidebar" [class.collapsed]="collapsed()">
+      <aside class="sidebar" [class.collapsed]="collapsed()" [class.mobile-open]="mobileOpen()">
         <div class="sidebar-header">
           <span class="sidebar-logo">🧪</span>
-          @if (!collapsed()) {
+          @if (showLabels()) {
             <span class="sidebar-title">Admin Panel</span>
           }
           <button class="collapse-btn" (click)="collapsed.set(!collapsed())" [matTooltip]="collapsed() ? 'Expand' : 'Collapse'">
@@ -38,9 +43,11 @@ const NAV_ITEMS = [
 
         <nav class="sidebar-nav">
           @for (item of navItems; track item.path) {
-            <a [routerLink]="item.path" routerLinkActive="active" class="nav-item" [matTooltip]="collapsed() ? item.label : ''" matTooltipPosition="right">
+            <a [routerLink]="item.path" routerLinkActive="active" class="nav-item"
+               [matTooltip]="collapsed() && !mobileOpen() ? item.label : ''" matTooltipPosition="right"
+               (click)="mobileOpen.set(false)">
               <mat-icon>{{ item.icon }}</mat-icon>
-              @if (!collapsed()) {
+              @if (showLabels()) {
                 <span>{{ item.label }}</span>
               }
             </a>
@@ -48,13 +55,16 @@ const NAV_ITEMS = [
         </nav>
 
         <div class="sidebar-footer">
-          <a routerLink="/tests" class="nav-item back-link" [matTooltip]="collapsed() ? 'Back to App' : ''" matTooltipPosition="right">
+          <a routerLink="/tests" class="nav-item back-link"
+             [matTooltip]="collapsed() && !mobileOpen() ? 'Back to App' : ''" matTooltipPosition="right"
+             (click)="mobileOpen.set(false)">
             <mat-icon>arrow_back</mat-icon>
-            @if (!collapsed()) { <span>Back to App</span> }
+            @if (showLabels()) { <span>Back to App</span> }
           </a>
-          <button class="nav-item logout-btn" (click)="logout()" [matTooltip]="collapsed() ? 'Sign Out' : ''" matTooltipPosition="right">
+          <button class="nav-item logout-btn" (click)="logout()"
+                  [matTooltip]="collapsed() && !mobileOpen() ? 'Sign Out' : ''" matTooltipPosition="right">
             <mat-icon>logout</mat-icon>
-            @if (!collapsed()) { <span>Sign Out</span> }
+            @if (showLabels()) { <span>Sign Out</span> }
           </button>
         </div>
       </aside>
@@ -63,12 +73,15 @@ const NAV_ITEMS = [
       <div class="admin-main">
         <div class="admin-topbar">
           <div class="topbar-left">
+            <button class="mobile-menu-btn" (click)="mobileOpen.set(!mobileOpen())" aria-label="Menu">
+              <mat-icon>menu</mat-icon>
+            </button>
             <h2 class="page-title">{{ pageTitle() }}</h2>
           </div>
           <div class="topbar-right">
             <span class="admin-badge">
               <mat-icon>admin_panel_settings</mat-icon>
-              {{ userName() }}
+              <span class="admin-name">{{ userName() }}</span>
             </span>
           </div>
         </div>
@@ -201,16 +214,75 @@ const NAV_ITEMS = [
       padding: 1.5rem;
       overflow-y: auto;
     }
+
+    /* ── Mobile menu button (hidden on desktop) ── */
+    .mobile-menu-btn {
+      display: none;
+      background: none; border: none; cursor: pointer; padding: .3rem;
+      border-radius: 8px; color: #4a5568; align-items: center; justify-content: center;
+      margin-right: .5rem;
+      &:hover { background: #edf2f7; }
+      mat-icon { font-size: 1.4rem; width: 1.4rem; height: 1.4rem; }
+    }
+
+    /* ── Mobile backdrop ── */
+    .mobile-backdrop {
+      display: none;
+      position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 150;
+    }
+
+    /* ── Tablet: auto-collapse sidebar ── */
+    @media (max-width: 1024px) and (min-width: 769px) {
+      .sidebar { width: 64px; }
+    }
+
+    /* ── Mobile: overlay sidebar ── */
+    @media (max-width: 768px) {
+      .mobile-backdrop { display: block; }
+      .mobile-menu-btn { display: flex; }
+      .admin-name { display: none; }
+
+      .sidebar {
+        position: fixed;
+        left: 0; top: 0; bottom: 0;
+        z-index: 200;
+        width: 240px !important;
+        transform: translateX(-100%);
+        transition: transform .25s ease;
+        height: 100vh;
+        box-shadow: none;
+      }
+      .sidebar.mobile-open {
+        transform: translateX(0);
+        box-shadow: 4px 0 24px rgba(0,0,0,.25);
+      }
+      .admin-content { padding: 1rem; }
+      .admin-topbar { padding: 0 1rem; }
+    }
+
+    @media (max-width: 480px) {
+      .admin-content { padding: .75rem; }
+      .page-title { font-size: 1rem; }
+    }
   `],
 })
-export class AdminShellComponent {
+export class AdminShellComponent implements OnInit {
   private auth = inject(AuthStateService);
   private router = inject(Router);
 
   navItems = NAV_ITEMS;
   collapsed = signal(false);
+  mobileOpen = signal(false);
+
+  showLabels = computed(() => !this.collapsed() || this.mobileOpen());
 
   userName = computed(() => this.auth.currentUser()?.name ?? 'Admin');
+
+  ngOnInit() {
+    if (typeof window !== 'undefined' && window.innerWidth <= 1024) {
+      this.collapsed.set(true);
+    }
+  }
 
   pageTitle = computed(() => {
     const url = this.router.url;

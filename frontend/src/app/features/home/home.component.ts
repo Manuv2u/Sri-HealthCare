@@ -424,8 +424,22 @@ import { Package } from '../../core/api/api.types';
     @media (max-width: 768px) {
       .hero-content { grid-template-columns: 1fr; }
       .hero-visual { display: none; }
+      .hero { padding: 2.5rem 1rem 2rem; }
+      .hero-text h1 { font-size: 2rem; }
+      .section { padding: 2.5rem 1rem; }
       .quality-inner { grid-template-columns: 1fr; }
       .footer-inner { grid-template-columns: 1fr 1fr; }
+      .section-header { flex-direction: column; align-items: flex-start; }
+    }
+
+    @media (max-width: 480px) {
+      .hero-text h1 { font-size: 1.65rem; }
+      .hero-search { flex-wrap: wrap; }
+      .hero-search input { min-width: 0; width: 100%; }
+      .btn-find { width: 100%; justify-content: center; }
+      .hero-actions { flex-direction: column; }
+      .hero-action-btn { width: 100%; justify-content: center; }
+      .footer-inner { grid-template-columns: 1fr; }
     }
   `],
 })

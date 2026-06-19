@@ -138,6 +138,26 @@ a { color: var(--color-primary); text-decoration: none; }
   .auth-footer { text-align: center; margin-top: .5rem; color: var(--color-muted); font-size: .9rem; }
 }
 
+// ── Table scroll wrapper ──────────────────────────────────────────────────────
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+}
+
+// ── Responsive adjustments ────────────────────────────────────────────────────
+@media (max-width: 768px) {
+  .page-container { padding: 1rem; }
+  .page-header h1 { font-size: 1.4rem; }
+  .form-container { padding: 1.25rem; }
+  .auth-card { padding: 1.75rem 1.25rem; }
+}
+
+@media (max-width: 480px) {
+  .page-container { padding: .75rem; }
+  .card-grid { grid-template-columns: 1fr; }
+}
+
 // ── Scrollbar ────────────────────────────────────────────────────────────────
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }

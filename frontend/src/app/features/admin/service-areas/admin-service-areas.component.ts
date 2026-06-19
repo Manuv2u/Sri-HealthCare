@@ -77,6 +77,7 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state.comp
         @if (areas().length === 0) {
           <app-empty-state message="No service areas found" ctaLabel="Add Area" (ctaClick)="startCreate()" />
         } @else {
+          <div class="table-scroll">
           <table mat-table [dataSource]="areas()">
             <ng-container matColumnDef="pincode">
               <th mat-header-cell *matHeaderCellDef>Pincode</th>
@@ -110,6 +111,7 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state.comp
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
           </table>
+          </div>
         }
       }
 

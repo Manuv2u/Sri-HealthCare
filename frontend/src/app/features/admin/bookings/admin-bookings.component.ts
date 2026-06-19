@@ -64,6 +64,7 @@ const BOOKING_STATUSES = ['pending', 'confirmed', 'sample_collected', 'processin
         @if (bookings().length === 0) {
           <app-empty-state message="No bookings found" />
         } @else {
+          <div class="table-scroll">
           <table mat-table [dataSource]="bookings()">
             <ng-container matColumnDef="reference_number">
               <th mat-header-cell *matHeaderCellDef>Reference</th>
@@ -118,6 +119,7 @@ const BOOKING_STATUSES = ['pending', 'confirmed', 'sample_collected', 'processin
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
           </table>
+          </div>
 
           <app-pagination
             [page]="page()"

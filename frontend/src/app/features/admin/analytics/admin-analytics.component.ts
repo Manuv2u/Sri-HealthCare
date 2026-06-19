@@ -65,6 +65,7 @@ import { ErrorBannerComponent } from '../../../shared/components/error-banner.co
             <mat-card-title>Bookings by Status</mat-card-title>
           </mat-card-header>
           <mat-card-content>
+            <div class="table-scroll">
             <table mat-table [dataSource]="data()!.bookings_by_status || []">
               <ng-container matColumnDef="status">
                 <th mat-header-cell *matHeaderCellDef>Status</th>
@@ -77,6 +78,7 @@ import { ErrorBannerComponent } from '../../../shared/components/error-banner.co
               <tr mat-header-row *matHeaderRowDef="['status', 'count']"></tr>
               <tr mat-row *matRowDef="let row; columns: ['status', 'count']"></tr>
             </table>
+            </div>
           </mat-card-content>
         </mat-card>
 
@@ -85,6 +87,7 @@ import { ErrorBannerComponent } from '../../../shared/components/error-banner.co
             <mat-card-title>Revenue by Payment Method</mat-card-title>
           </mat-card-header>
           <mat-card-content>
+            <div class="table-scroll">
             <table mat-table [dataSource]="data()!.revenue_by_method || []">
               <ng-container matColumnDef="method">
                 <th mat-header-cell *matHeaderCellDef>Method</th>
@@ -97,6 +100,7 @@ import { ErrorBannerComponent } from '../../../shared/components/error-banner.co
               <tr mat-header-row *matHeaderRowDef="['method', 'revenue']"></tr>
               <tr mat-row *matRowDef="let row; columns: ['method', 'revenue']"></tr>
             </table>
+            </div>
           </mat-card-content>
         </mat-card>
       }
