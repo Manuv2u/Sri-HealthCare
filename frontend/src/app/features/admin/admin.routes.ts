@@ -14,9 +14,10 @@ export const ADMIN_ROUTES: Routes = [
       { path: 'packages',      loadComponent: () => import('./packages/admin-packages.component').then(m => m.AdminPackagesComponent) },
       { path: 'technicians',   loadComponent: () => import('./technicians/admin-technicians.component').then(m => m.AdminTechniciansComponent) },
       { path: 'bookings',      loadComponent: () => import('./bookings/admin-bookings.component').then(m => m.AdminBookingsComponent) },
-      { path: 'service-areas', loadComponent: () => import('./service-areas/admin-service-areas.component').then(m => m.AdminServiceAreasComponent) },
-      { path: 'analytics',     loadComponent: () => import('./analytics/admin-analytics.component').then(m => m.AdminAnalyticsComponent) },
-      { path: 'feature-flags', loadComponent: () => import('./feature-flags/admin-feature-flags.component').then(m => m.AdminFeatureFlagsComponent) },
+      { path: 'lab-branches',   loadComponent: () => import('./lab-branches/admin-lab-branches.component').then(m => m.AdminLabBranchesComponent) },
+      { path: 'analytics',      loadComponent: () => import('./analytics/admin-analytics.component').then(m => m.AdminAnalyticsComponent) },
+      { path: 'payment-config', loadComponent: () => import('./payment-config/admin-payment-config.component').then(m => m.AdminPaymentConfigComponent) },
+      { path: 'feature-flags',  loadComponent: () => import('./feature-flags/admin-feature-flags.component').then(m => m.AdminFeatureFlagsComponent) },
     ],
   },
 ];

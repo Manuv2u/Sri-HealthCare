@@ -69,6 +69,19 @@ export const routes: Routes = [
       import('./features/admin/admin.routes').then((m) => m.ADMIN_ROUTES),
   },
 
+  // ── Lab locations (public) ───────────────────────────────────────────────────
+  {
+    path: 'lab-locations',
+    loadComponent: () => import('./features/lab-locations/lab-locations.component').then((m) => m.LabLocationsComponent),
+  },
+
+  // ── Technician only ─────────────────────────────────────────────────────────
+  {
+    path: 'technician',
+    loadChildren: () =>
+      import('./features/technician/technician.routes').then((m) => m.TECHNICIAN_ROUTES),
+  },
+
   {
     path: '**',
     redirectTo: 'tests',

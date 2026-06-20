@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { Booking } from '../../../core/api/api.types';
 import { BookingApiService } from '../../../core/api/services/booking-api.service';
+import { UserApiService } from '../../../core/api/services/user-api.service';
 import { AuthStateService } from '../../../core/auth/auth-state.service';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner.component';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner.component';
@@ -30,7 +31,7 @@ import { ErrorBannerComponent } from '../../../shared/components/error-banner.co
           <a routerLink="/profile" class="dash-nav-item">
             <mat-icon>people</mat-icon> Family Members
           </a>
-          <a routerLink="/tests" class="dash-nav-item">
+          <a routerLink="/lab-locations" class="dash-nav-item">
             <mat-icon>location_on</mat-icon> Lab Locations
           </a>
           <a routerLink="/profile" class="dash-nav-item">
@@ -81,7 +82,7 @@ import { ErrorBannerComponent } from '../../../shared/components/error-banner.co
             <div class="kpi-info">
               <div class="kpi-badge gray">&nbsp;</div>
               <div class="kpi-label">Family Members</div>
-              <div class="kpi-value">—</div>
+              <div class="kpi-value">{{ familyMemberCount() }}</div>
             </div>
           </div>
         </div>
@@ -295,6 +296,7 @@ export class BookingHistoryComponent implements OnInit {
   loading = signal(true);
   error = signal<string | null>(null);
   total = signal(0);
+  familyMemberCount = signal(0);
   pageSize = 5;
 
   userName = computed(() => this.auth.currentUser()?.name ?? '');
@@ -307,7 +309,7 @@ export class BookingHistoryComponent implements OnInit {
     const id = this.auth.currentUser()?.id ?? '';
     return id.slice(-4).toUpperCase() || '0000';
   });
-  activeBookings = computed(() => this.bookings().filter(b => b.status === 'confirmed' || b.status === 'pending').length);
+  activeBookings = computed(() => this.bookings().filter((b: Booking) => b.status === 'confirmed' || b.status === 'pending').length);
 
   greeting = computed(() => {
     const h = new Date().getHours();
@@ -316,15 +318,26 @@ export class BookingHistoryComponent implements OnInit {
     return 'Good Evening';
   });
 
-  constructor(private bookingApi: BookingApiService) {}
+  constructor(private bookingApi: BookingApiService, private userApi: UserApiService) {}
 
-  ngOnInit(): void { this.load(); }
+  ngOnInit(): void { this.load(); this.loadFamilyMembers(); }
 
   load(): void {
     this.loading.set(true);
     this.bookingApi.list({ page: 1, page_size: this.pageSize }).subscribe({
-      next: (res) => { this.bookings.set(res.items); this.total.set(res.total); this.loading.set(false); },
+      next: (res: { items: Booking[]; total: number }) => {
+        this.bookings.set(res.items);
+        this.total.set(res.total);
+        this.loading.set(false);
+      },
       error: () => { this.error.set('Failed to load bookings.'); this.loading.set(false); },
+    });
+  }
+
+  loadFamilyMembers(): void {
+    this.userApi.getFamilyMembers().subscribe({
+      next: (members) => this.familyMemberCount.set(members.filter((m) => m.is_active && !m.deleted_at).length),
+      error: () => {},
     });
   }
 

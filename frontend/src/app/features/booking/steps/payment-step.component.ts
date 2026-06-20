@@ -1,11 +1,12 @@
-import { Component, inject, output, signal, computed } from '@angular/core';
+import { Component, inject, output, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
 import { BookingApiService } from '../../../core/api/services/booking-api.service';
 import { PaymentApiService } from '../../../core/api/services/payment-api.service';
+import { AdminApiService } from '../../../core/api/services/admin-api.service';
 import { BookingWizardStore } from '../../../core/store/booking-wizard.store';
-import { Booking, Payment } from '../../../core/api/api.types';
+import { Booking, Payment, FeatureFlag } from '../../../core/api/api.types';
 
 @Component({
   selector: 'app-payment-step',
@@ -38,6 +39,16 @@ import { Booking, Payment } from '../../../core/api/api.types';
             <div class="summary-row"><span>{{ p.name }}</span><span>Rs.{{ p.price }}</span></div>
           }
           <div class="summary-total"><span>Total</span><span>Rs.{{ grandTotal() }}</span></div>
+          @if (advanceEnabled() && advanceAmount() > 0) {
+            <div class="advance-notice">
+              <mat-icon>info</mat-icon>
+              <div>
+                <strong>Advance payment required:</strong>
+                Rs.{{ advanceAmount() }} ({{ advancePct() }}% of total).
+                The remaining Rs.{{ grandTotal() - advanceAmount() }} is due on visit / sample collection.
+              </div>
+            </div>
+          }
         </div>
         <div class="details-card">
           <div class="detail-row"><mat-icon>person</mat-icon><span>{{ store.patientName() ?? 'Self' }}</span></div>
@@ -68,7 +79,11 @@ import { Booking, Payment } from '../../../core/api/api.types';
           </button>
           <button class="btn-pay" [disabled]="!paymentMethod || loading()" (click)="confirmAndPay()">
             @if (loading()) { <span class="spinner"></span> Processing... }
-            @else { <mat-icon>lock</mat-icon> Confirm and Pay Rs.{{ grandTotal() }} }
+            @else if (advanceEnabled() && advanceAmount() > 0) {
+              <mat-icon>lock</mat-icon> Pay Advance Rs.{{ advanceAmount() }}
+            } @else {
+              <mat-icon>lock</mat-icon> Confirm and Pay Rs.{{ grandTotal() }}
+            }
           </button>
         </div>
       }
@@ -106,18 +121,23 @@ import { Booking, Payment } from '../../../core/api/api.types';
     .success-title { font-size: 1.25rem; font-weight: 800; color: #1a202c; }
     .success-sub { font-size: .875rem; color: #718096; }
     .btn-invoice { display: inline-flex; align-items: center; gap: .4rem; background: #00796b; color: #fff; border: none; border-radius: 10px; padding: .65rem 1.5rem; font-size: .9rem; font-weight: 700; text-decoration: none; margin-top: .5rem; }
+    .advance-notice { display: flex; align-items: flex-start; gap: .6rem; padding: .75rem .9rem; background: #fff8e1; border-radius: 8px; border-left: 3px solid #f59e0b; font-size: .82rem; color: #78350f; mat-icon { font-size: 1rem; width: 1rem; height: 1rem; flex-shrink: 0; margin-top: .15rem; color: #f59e0b; } strong { font-weight: 700; } }
   `],
 })
-export class PaymentStepComponent {
+export class PaymentStepComponent implements OnInit {
   back = output<void>();
   private bookingApi = inject(BookingApiService);
   private paymentApi = inject(PaymentApiService);
+  private adminApi = inject(AdminApiService);
   readonly store = inject(BookingWizardStore);
   paymentMethod = '';
   loading = signal(false);
   error = signal<string | null>(null);
   confirmed = signal(false);
   invoiceUrl = signal<string | null>(null);
+  advanceEnabled = signal(false);
+  advancePct = signal(20);
+  advanceMin = signal(100);
   paymentOptions = [
     { value: 'upi',  label: 'UPI',          icon: 'account_balance_wallet' },
     { value: 'card', label: 'Card',          icon: 'credit_card' },
@@ -129,6 +149,26 @@ export class PaymentStepComponent {
     const pkgSum  = s.selectedPackages().reduce((acc: number, p: { price: number }) => acc + p.price, 0);
     return testSum + pkgSum;
   });
+  advanceAmount = computed(() => {
+    if (!this.advanceEnabled()) return 0;
+    const pct = Math.round(this.grandTotal() * this.advancePct() / 100);
+    return Math.max(pct, this.advanceMin());
+  });
+
+  ngOnInit(): void {
+    this.adminApi.getFeatureFlags().subscribe({
+      next: (flags: FeatureFlag[]) => {
+        const enabled = flags.find((f) => f.key === 'advance_payment_enabled');
+        const pct = flags.find((f) => f.key === 'advance_payment_percentage');
+        const min = flags.find((f) => f.key === 'advance_payment_minimum_amount');
+        if (enabled) this.advanceEnabled.set(enabled.is_enabled);
+        if (pct?.description) this.advancePct.set(parseInt(pct.description, 10) || 20);
+        if (min?.description) this.advanceMin.set(parseInt(min.description, 10) || 100);
+      },
+      error: () => {},
+    });
+  }
+
   confirmAndPay(): void {
     this.loading.set(true);
     this.error.set(null);

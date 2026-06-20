@@ -41,6 +41,9 @@ import { AuthStateService } from './core/auth/auth-state.service';
             @if (isAdmin()) {
               <a routerLink="/admin" routerLinkActive="active" class="admin-link">Admin</a>
             }
+            @if (isTechnician()) {
+              <a routerLink="/technician" routerLinkActive="active" class="tech-link">My Portal</a>
+            }
           </nav>
 
           <!-- Right actions -->
@@ -61,12 +64,18 @@ import { AuthStateService } from './core/auth/auth-state.service';
                 <button mat-menu-item routerLink="/profile">
                   <mat-icon>person</mat-icon> Profile
                 </button>
-                <button mat-menu-item routerLink="/dashboard">
-                  <mat-icon>calendar_today</mat-icon> My Bookings
-                </button>
-                <button mat-menu-item routerLink="/reports">
-                  <mat-icon>description</mat-icon> Reports
-                </button>
+                @if (isTechnician()) {
+                  <button mat-menu-item routerLink="/technician">
+                    <mat-icon>biotech</mat-icon> Technician Portal
+                  </button>
+                } @else {
+                  <button mat-menu-item routerLink="/dashboard">
+                    <mat-icon>calendar_today</mat-icon> My Bookings
+                  </button>
+                  <button mat-menu-item routerLink="/reports">
+                    <mat-icon>description</mat-icon> Reports
+                  </button>
+                }
                 <mat-divider />
                 <button mat-menu-item (click)="logout()" class="logout-item">
                   <mat-icon>logout</mat-icon> Sign Out
@@ -97,6 +106,9 @@ import { AuthStateService } from './core/auth/auth-state.service';
           <a routerLink="/contact" routerLinkActive="active" (click)="mobileOpen.set(false)">Contact Us</a>
           @if (isAdmin()) {
             <a routerLink="/admin" routerLinkActive="active" class="admin-link" (click)="mobileOpen.set(false)">Admin</a>
+          }
+          @if (isTechnician()) {
+            <a routerLink="/technician" routerLinkActive="active" class="tech-link" (click)="mobileOpen.set(false)">My Portal</a>
           }
           @if (!isAuth()) {
             <div class="mobile-auth">
@@ -169,6 +181,7 @@ import { AuthStateService } from './core/auth/auth-state.service';
         &:hover { background: var(--color-primary-lt); color: var(--color-primary); }
         &.active { background: var(--color-primary-lt); color: var(--color-primary); font-weight: 600; }
         &.admin-link { color: var(--color-accent); }
+        &.tech-link { color: #1a237e; font-weight: 600; }
       }
     }
     .nav-actions {
@@ -284,6 +297,7 @@ export class AppComponent {
   isAuth = this.auth.isAuthenticated;
   role = computed(() => this.auth.currentUser()?.role ?? '');
   isAdmin = computed(() => this.role() === 'admin');
+  isTechnician = computed(() => this.role() === 'technician');
   userName = computed(() => this.auth.currentUser()?.name ?? '');
   initials = computed(() => {
     const name = this.userName();

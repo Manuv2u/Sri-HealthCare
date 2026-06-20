@@ -34,6 +34,10 @@ class UpdateStatusRequest(BaseModel):
     status: str
 
 
+class AddRemarksRequest(BaseModel):
+    notes: str
+
+
 class BookingItemOut(BaseModel):
     id: uuid.UUID
     booking_id: uuid.UUID
@@ -61,6 +65,7 @@ class BookingOut(BaseModel):
     processing_started_at: datetime | None
     completed_at: datetime | None
     cancelled_at: datetime | None
+    technician_notes: str | None = None
     created_at: datetime
     updated_at: datetime
     items: list[BookingItemOut] = []

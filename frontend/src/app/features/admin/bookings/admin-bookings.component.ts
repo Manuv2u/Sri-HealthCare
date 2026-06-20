@@ -9,6 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCardModule } from '@angular/material/card';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Booking, Technician } from '../../../core/api/api.types';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner.component';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner.component';
@@ -31,6 +32,7 @@ const BOOKING_STATUSES = ['pending', 'confirmed', 'sample_collected', 'processin
     MatInputModule,
     MatSelectModule,
     MatCardModule,
+    MatSnackBarModule,
     LoadingSpinnerComponent,
     ErrorBannerComponent,
     EmptyStateComponent,
@@ -171,7 +173,7 @@ export class AdminBookingsComponent implements OnInit {
   technicians = signal<Technician[]>([]);
   statusFilter = '';
 
-  constructor(private http: HttpClient, private adminApi: AdminApiService) {}
+  constructor(private http: HttpClient, private adminApi: AdminApiService, private snack: MatSnackBar) {}
 
   ngOnInit() {
     this.loadBookings();
@@ -214,18 +216,28 @@ export class AdminBookingsComponent implements OnInit {
 
   assignTechnician(booking: Booking, technicianId: string) {
     this.http.post(`/technicians/${technicianId}/assign`, { booking_id: booking.id }).subscribe({
-      next: (_res: any) => this.loadBookings(),
+      next: () => {
+        this.snack.open('Technician assigned successfully.', 'OK', { duration: 3000 });
+        this.loadBookings();
+      },
       error: (err: any) => {
-        this.error.set(err.message || 'Failed to assign technician');
+        const msg = err?.error?.detail?.message ?? err?.message ?? 'Failed to assign technician';
+        this.error.set(msg);
+        this.snack.open(msg, 'OK', { duration: 4000 });
       },
     });
   }
 
   updateStatus(booking: Booking, status: string) {
     this.http.put(`/bookings/${booking.id}/status`, { status }).subscribe({
-      next: (_res: any) => this.loadBookings(),
+      next: () => {
+        this.snack.open('Booking status updated.', 'OK', { duration: 3000 });
+        this.loadBookings();
+      },
       error: (err: any) => {
-        this.error.set(err.message || 'Failed to update booking status');
+        const msg = err?.error?.detail?.message ?? err?.message ?? 'Failed to update booking status';
+        this.error.set(msg);
+        this.snack.open(msg, 'OK', { duration: 4000 });
       },
     });
   }

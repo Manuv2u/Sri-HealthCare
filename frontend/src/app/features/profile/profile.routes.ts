@@ -8,6 +8,11 @@ export const PROFILE_ROUTES: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'edit',
+    loadComponent: () => import('./profile-edit/profile-edit.component').then((m) => m.ProfileEditComponent),
+    canActivate: [authGuard],
+  },
+  {
     path: 'family',
     loadComponent: () => import('./family-members/family-members.component').then((m) => m.FamilyMembersComponent),
     canActivate: [authGuard],

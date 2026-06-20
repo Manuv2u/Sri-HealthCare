@@ -3,10 +3,9 @@ import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
 import { LabBranchApiService } from '../../../core/api/services/lab-branch-api.service';
-import { ServiceAreaApiService } from '../../../core/api/services/service-area-api.service';
 import { UserApiService } from '../../../core/api/services/user-api.service';
 import { BookingWizardStore } from '../../../core/store/booking-wizard.store';
-import { LabBranch, ServiceArea, UserAddress, UserAddressListResponse } from '../../../core/api/api.types';
+import { LabBranch, UserAddress, UserAddressListResponse } from '../../../core/api/api.types';
 
 @Component({
   selector: 'app-collection-type-step',
@@ -273,7 +272,6 @@ export class CollectionTypeStepComponent implements OnInit {
   back = output<void>();
 
   private labBranchApi = inject(LabBranchApiService);
-  private serviceAreaApi = inject(ServiceAreaApiService);
   private userApi = inject(UserApiService);
   readonly store = inject(BookingWizardStore);
 
@@ -363,22 +361,11 @@ export class CollectionTypeStepComponent implements OnInit {
   validatePincode(): void {
     this.pincodeError.set(null);
     this.pincodeValid.set(false);
-    this.checking.set(true);
-    this.serviceAreaApi.list().subscribe({
-      next: (areas: ServiceArea[]) => {
-        this.checking.set(false);
-        const match = areas.find((a) => a.pincode === this.pincode && a.is_active);
-        if (match) {
-          this.pincodeValid.set(true);
-        } else {
-          this.pincodeError.set('Home collection is not available at this pincode.');
-        }
-      },
-      error: () => {
-        this.checking.set(false);
-        this.pincodeError.set('Could not verify pincode. Please try again.');
-      },
-    });
+    if (!/^\d{6}$/.test(this.pincode)) {
+      this.pincodeError.set('Please enter a valid 6-digit pincode.');
+      return;
+    }
+    this.pincodeValid.set(true);
   }
 
   canProceed(): boolean {

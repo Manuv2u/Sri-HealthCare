@@ -3,12 +3,18 @@ from __future__ import annotations
 
 import uuid
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.database import get_db_session
 from app.middleware.auth import get_current_user, require_roles
+from sqlalchemy import select, update
+
+from app.models.booking import Booking
+from app.models.service import Technician
 from app.schemas.bookings import (
+    AddRemarksRequest,
     BookingListResponse,
     BookingOut,
     CreateBookingRequest,
@@ -57,6 +63,56 @@ async def list_bookings(
         page_size=page_size,
     )
     return BookingListResponse.model_validate(result)
+
+
+@router.get("/my-assigned", response_model=BookingListResponse)
+async def get_my_assigned_bookings(
+    page: int = 1,
+    page_size: int = 20,
+    status: str | None = None,
+    current_user: dict = Depends(require_roles("technician")),
+    db: AsyncSession = Depends(get_db_session),
+) -> BookingListResponse:
+    """Return bookings assigned to the current technician."""
+    from app.models.service import TechnicianAssignment
+    from sqlalchemy import func
+
+    user_id = uuid.UUID(current_user["user_id"])
+    result = await db.execute(select(Technician).where(Technician.user_id == user_id))
+    tech = result.scalar_one_or_none()
+    if not tech:
+        raise HTTPException(
+            status_code=404,
+            detail={"error_code": "NOT_FOUND", "message": "Technician profile not found for this user"},
+        )
+
+    subq = select(TechnicianAssignment.booking_id).where(TechnicianAssignment.technician_id == tech.id)
+
+    count_q = select(func.count()).select_from(Booking).where(Booking.id.in_(subq))
+    if status:
+        count_q = count_q.where(Booking.status == status)
+    total_result = await db.execute(count_q)
+    total = total_result.scalar_one()
+
+    q = (
+        select(Booking)
+        .options(selectinload(Booking.items))
+        .where(Booking.id.in_(subq))
+        .order_by(Booking.booking_date.desc())
+        .offset((page - 1) * page_size)
+        .limit(page_size)
+    )
+    if status:
+        q = q.where(Booking.status == status)
+    rows = await db.execute(q)
+    bookings = list(rows.scalars().all())
+    from app.services.booking_service import _booking_to_dict
+    return BookingListResponse(
+        items=[BookingOut.model_validate(_booking_to_dict(b)) for b in bookings],
+        total=total,
+        page=page,
+        page_size=page_size,
+    )
 
 
 @router.get("/{booking_id}", response_model=BookingOut)
@@ -122,6 +178,30 @@ async def update_booking_status(
         role=current_user["role"],
     )
     return BookingOut.model_validate(result)
+
+
+@router.post("/{booking_id}/remarks", response_model=BookingOut)
+async def add_booking_remarks(
+    booking_id: uuid.UUID,
+    body: AddRemarksRequest,
+    current_user: dict = Depends(require_roles("admin", "technician")),
+    db: AsyncSession = Depends(get_db_session),
+) -> BookingOut:
+    """Technician or admin adds notes/remarks to a booking."""
+    result = await db.execute(
+        select(Booking).options(selectinload(Booking.items)).where(Booking.id == booking_id)
+    )
+    booking = result.scalar_one_or_none()
+    if not booking:
+        raise HTTPException(status_code=404, detail={"error_code": "NOT_FOUND", "message": "Booking not found"})
+
+    await db.execute(
+        update(Booking).where(Booking.id == booking_id).values(technician_notes=body.notes)
+    )
+    await db.flush()
+    await db.refresh(booking)
+    from app.services.booking_service import _booking_to_dict
+    return BookingOut.model_validate(_booking_to_dict(booking))
 
 
 @router.post("/{booking_id}/auto-assign", status_code=201)

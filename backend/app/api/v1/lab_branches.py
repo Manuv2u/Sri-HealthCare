@@ -41,10 +41,12 @@ async def create_lab_branch(
 async def list_lab_branches(
     page: int = 1,
     page_size: int = 20,
+    include_inactive: bool = False,
     db: AsyncSession = Depends(get_db_session),
 ) -> LabBranchListResponse:
     repo = LabBranchRepository(db)
-    items, total = await repo.list(active_only=True, page=page, page_size=page_size)
+    active_only = not include_inactive
+    items, total = await repo.list(active_only=active_only, page=page, page_size=page_size)
     return LabBranchListResponse(
         items=[LabBranchOut.model_validate(b) for b in items],
         total=total,

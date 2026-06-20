@@ -7,15 +7,16 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { AuthStateService } from '../../core/auth/auth-state.service';
 
 const NAV_ITEMS = [
-  { label: 'Dashboard',    icon: 'dashboard',        path: '/admin/dashboard' },
-  { label: 'Users',        icon: 'people',           path: '/admin/users' },
-  { label: 'Tests',        icon: 'biotech',          path: '/admin/tests' },
-  { label: 'Packages',     icon: 'inventory_2',      path: '/admin/packages' },
-  { label: 'Technicians',  icon: 'engineering',      path: '/admin/technicians' },
-  { label: 'Bookings',     icon: 'calendar_month',   path: '/admin/bookings' },
-  { label: 'Service Areas',icon: 'location_on',      path: '/admin/service-areas' },
-  { label: 'Analytics',    icon: 'bar_chart',        path: '/admin/analytics' },
-  { label: 'Feature Flags',icon: 'toggle_on',        path: '/admin/feature-flags' },
+  { label: 'Dashboard',     icon: 'dashboard',           path: '/admin/dashboard' },
+  { label: 'Users',         icon: 'people',              path: '/admin/users' },
+  { label: 'Tests',         icon: 'biotech',             path: '/admin/tests' },
+  { label: 'Packages',      icon: 'inventory_2',         path: '/admin/packages' },
+  { label: 'Technicians',   icon: 'engineering',         path: '/admin/technicians' },
+  { label: 'Bookings',      icon: 'calendar_month',      path: '/admin/bookings' },
+  { label: 'Lab Branches',  icon: 'location_city',       path: '/admin/lab-branches' },
+  { label: 'Analytics',     icon: 'bar_chart',           path: '/admin/analytics' },
+  { label: 'Payment Config',icon: 'payments',            path: '/admin/payment-config' },
+  { label: 'Feature Flags', icon: 'toggle_on',           path: '/admin/feature-flags' },
 ];
 
 @Component({

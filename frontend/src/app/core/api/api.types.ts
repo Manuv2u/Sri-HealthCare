@@ -76,8 +76,10 @@ export interface LabBranch {
   id: string;
   name: string;
   address: string;
+  city: string;
   pincode: string;
   phone: string;
+  operating_hours?: string;
   is_active: boolean;
 }
 
@@ -90,6 +92,7 @@ export interface Booking {
   status: string;
   payment_status: string;
   total_amount: number;
+  technician_notes?: string;
   created_at: string;
 }
 

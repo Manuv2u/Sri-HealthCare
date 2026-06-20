@@ -107,7 +107,6 @@ from app.api.v1.auth import router as auth_router  # noqa: E402
 from app.api.v1.users import router as users_router  # noqa: E402
 from app.api.v1.tests import router as tests_router  # noqa: E402
 from app.api.v1.packages import router as packages_router  # noqa: E402
-from app.api.v1.service_areas import router as service_areas_router  # noqa: E402
 from app.api.v1.lab_branches import router as lab_branches_router  # noqa: E402
 from app.api.v1.time_slots import router as time_slots_router  # noqa: E402
 from app.api.v1.admin import router as admin_router  # noqa: E402
@@ -127,7 +126,6 @@ api_v1.include_router(auth_router)
 api_v1.include_router(users_router)
 api_v1.include_router(tests_router)
 api_v1.include_router(packages_router)
-api_v1.include_router(service_areas_router)
 api_v1.include_router(lab_branches_router)
 api_v1.include_router(time_slots_router)
 api_v1.include_router(bookings_router)
