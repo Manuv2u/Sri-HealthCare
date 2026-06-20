@@ -1,0 +1,72 @@
+# =============================================================================
+# docker-compose.prod.yml — Production configuration
+#
+# Key differences from development:
+#   - No postgres service (PostgreSQL runs directly on the VM)
+#   - Backend reaches VM postgres via host.docker.internal
+#   - Frontend exposed on port 80, backend on port 8080
+#   - No source-code volume mounts (uses built images)
+#   - No --reload flag on uvicorn
+#   - Structured JSON logging
+# =============================================================================
+
+services:
+
+  # ── Backend ──────────────────────────────────────────────────────────────────
+  backend:
+    image: sri-healthcare-backend:latest
+    restart: unless-stopped
+    env_file: .env
+    entrypoint: >
+      sh -c "alembic upgrade head &&
+             uvicorn app.main:app
+               --host 0.0.0.0
+               --port 8000
+               --workers 2
+               --access-log"
+    extra_hosts:
+      # Allows the container to reach PostgreSQL running on the host VM
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "8080:8000"
+    volumes:
+      # File storage persists across deployments
+      - /opt/sri-diagnostics/file_storage:/app/file_storage
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+    networks:
+      - sri_net
+
+  # ── Frontend ─────────────────────────────────────────────────────────────────
+  frontend:
+    image: sri-healthcare-frontend:latest
+    restart: unless-stopped
+    ports:
+      # nginx inside the container listens on 4200; expose on standard HTTP port
+      - "80:4200"
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:4200"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "3"
+    networks:
+      - sri_net
+
+networks:
+  sri_net:
+    driver: bridge

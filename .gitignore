@@ -158,3 +158,9 @@ logs/
 # Uploads / local storage
 uploads/
 file_storage/
+
+# Deployment secrets (never commit)
+deploy/.deploy.conf
+deploy/.env.production
+frontend/src/environments/environment.prod.ts.bak
+frontend/src/environments/environment.prod.ts.bak2
