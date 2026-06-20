@@ -142,9 +142,9 @@ export class ProfileComponent implements OnInit {
     { icon: 'person', label: 'My Profile', route: '/profile/edit', color: '#00796b', bg: '#e0f2f1' },
     { icon: 'group', label: 'Manage Members', route: '/profile/family', color: '#5c6bc0', bg: '#e8eaf6' },
     { icon: 'location_on', label: 'Address Book', route: '/profile/addresses', color: '#ef6c00', bg: '#fff3e0' },
-    { icon: 'download', label: 'Download Reports', route: '/dashboard', color: '#2e7d32', bg: '#e8f5e9' },
+    { icon: 'download', label: 'Download Reports', route: '/reports', color: '#2e7d32', bg: '#e8f5e9' },
     { icon: 'receipt_long', label: 'My Orders', route: '/dashboard', color: '#1565c0', bg: '#e3f2fd' },
-    { icon: 'help_outline', label: 'Help', route: '/help', color: '#7b1fa2', bg: '#f3e5f5' },
+    { icon: 'help_outline', label: 'Help', route: '/contact', color: '#7b1fa2', bg: '#f3e5f5' },
     { icon: 'support_agent', label: 'Contact Us', route: '/contact', color: '#0277bd', bg: '#e1f5fe' },
   ];
 

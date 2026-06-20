@@ -78,6 +78,8 @@ class BookingItem(Base):
 
     # Relationships
     booking: Mapped["Booking"] = relationship("Booking", back_populates="items")
+    test: Mapped[object] = relationship("Test", foreign_keys=[test_id], lazy="selectin")
+    package: Mapped[object] = relationship("Package", foreign_keys=[package_id], lazy="selectin")
 
 
 class BookingSlotCount(Base):

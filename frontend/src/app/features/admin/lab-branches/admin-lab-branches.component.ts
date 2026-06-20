@@ -230,9 +230,17 @@ export class AdminLabBranchesComponent implements OnInit {
   }
 
   toggleStatus(b: LabBranch, active: boolean): void {
-    this.api.update(b.id, { ...b, is_active: active }).subscribe({
-      next: () => this.load(),
-      error: () => this.snack.open('Failed to update status.', 'OK', { duration: 3000 }),
+    this.branches.update((list: LabBranch[]) =>
+      list.map((item: LabBranch) => item.id === b.id ? { ...item, is_active: active } : item)
+    );
+    this.api.update(b.id, { is_active: active }).subscribe({
+      next: () => {},
+      error: () => {
+        this.branches.update((list: LabBranch[]) =>
+          list.map((item: LabBranch) => item.id === b.id ? { ...item, is_active: !active } : item)
+        );
+        this.snack.open('Failed to update status.', 'OK', { duration: 3000 });
+      },
     });
   }
 

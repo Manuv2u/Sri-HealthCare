@@ -83,6 +83,16 @@ export interface LabBranch {
   is_active: boolean;
 }
 
+export interface BookingItem {
+  id: string;
+  booking_id: string;
+  item_type: string;
+  item_name: string;
+  test_id?: string;
+  package_id?: string;
+  unit_price: number;
+}
+
 export interface Booking {
   id: string;
   reference_number: string;
@@ -94,6 +104,7 @@ export interface Booking {
   total_amount: number;
   technician_notes?: string;
   created_at: string;
+  items?: BookingItem[];
 }
 
 export interface Report {

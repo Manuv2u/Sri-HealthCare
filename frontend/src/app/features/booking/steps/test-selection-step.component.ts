@@ -144,18 +144,18 @@ import { Package, Test } from '../../../core/api/api.types';
           @for (t of selectedTests(); track t.id) {
             <div class="billing-row">
               <span>{{ t.name }}</span>
-              <span>₹{{ t.price }}</span>
+              <span>₹{{ fmt(t.price) }}</span>
             </div>
           }
           @for (p of selectedPackages(); track p.id) {
             <div class="billing-row">
               <span>{{ p.name }}</span>
-              <span>₹{{ p.price }}</span>
+              <span>₹{{ fmt(p.price) }}</span>
             </div>
           }
           <div class="billing-total">
             <span>Total</span>
-            <span>₹{{ grandTotal() }}</span>
+            <span>₹{{ fmt(grandTotal()) }}</span>
           </div>
         </div>
       }
@@ -367,7 +367,7 @@ export class TestSelectionStepComponent implements OnInit, OnDestroy {
       });
     } else {
       this.store.patch({
-        selectedTests: [...this.selectedTests(), { id: test.id, name: test.name, price: test.effective_price }],
+        selectedTests: [...this.selectedTests(), { id: test.id, name: test.name, price: +test.effective_price }],
       });
     }
   }
@@ -379,9 +379,16 @@ export class TestSelectionStepComponent implements OnInit, OnDestroy {
       });
     } else {
       this.store.patch({
-        selectedPackages: [...this.selectedPackages(), { id: pkg.id, name: pkg.name, price: pkg.discounted_price }],
+        selectedPackages: [...this.selectedPackages(), { id: pkg.id, name: pkg.name, price: +pkg.discounted_price }],
       });
     }
+  }
+
+  fmt(value: number): string {
+    const n = +value;
+    return Number.isInteger(n)
+      ? n.toLocaleString('en-IN')
+      : n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
   onNext(): void { this.next.emit(); }

@@ -169,8 +169,29 @@ export class SlotSelectionStepComponent implements OnInit {
     const collectionType = this.store.collectionType() ?? 'lab';
     this.loading.set(true);
     this.slotApi.getAvailable(dateStr, collectionType).subscribe({
-      next: (s: TimeSlot[]) => { this.slots.set(s); this.loading.set(false); },
+      next: (s: TimeSlot[]) => { this.slots.set(this.filterPastSlots(s)); this.loading.set(false); },
       error: () => this.loading.set(false),
+    });
+  }
+
+  private isToday(date: Date | null): boolean {
+    if (!date) return false;
+    const today = new Date();
+    return (
+      date.getFullYear() === today.getFullYear() &&
+      date.getMonth() === today.getMonth() &&
+      date.getDate() === today.getDate()
+    );
+  }
+
+  private filterPastSlots(slots: TimeSlot[]): TimeSlot[] {
+    if (!this.isToday(this.selectedDate)) return slots;
+    const now = new Date();
+    const nowMinutes = now.getHours() * 60 + now.getMinutes();
+    return slots.filter((slot: TimeSlot) => {
+      const parts = slot.start_time.split(':');
+      const slotMinutes = parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+      return slotMinutes > nowMinutes;
     });
   }
 

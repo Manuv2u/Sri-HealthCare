@@ -1,10 +1,11 @@
 import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
-import { Booking } from '../../../core/api/api.types';
+import { Booking, BookingItem, FamilyMember, Report } from '../../../core/api/api.types';
 import { BookingApiService } from '../../../core/api/services/booking-api.service';
 import { UserApiService } from '../../../core/api/services/user-api.service';
+import { ReportApiService } from '../../../core/api/services/report-api.service';
 import { AuthStateService } from '../../../core/auth/auth-state.service';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner.component';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner.component';
@@ -12,7 +13,7 @@ import { ErrorBannerComponent } from '../../../shared/components/error-banner.co
 @Component({
   selector: 'app-booking-history',
   standalone: true,
-  imports: [CommonModule, RouterLink, MatIconModule, LoadingSpinnerComponent, ErrorBannerComponent],
+  imports: [CommonModule, RouterLink, RouterLinkActive, MatIconModule, LoadingSpinnerComponent, ErrorBannerComponent],
   template: `
     <div class="dashboard-layout">
       <!-- Sidebar -->
@@ -22,19 +23,19 @@ import { ErrorBannerComponent } from '../../../shared/components/error-banner.co
           <span>CLINICAL PRECISION</span>
         </div>
         <nav class="dash-nav">
-          <a routerLink="/dashboard" class="dash-nav-item active">
+          <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" class="dash-nav-item">
             <mat-icon>dashboard</mat-icon> Dashboard
           </a>
-          <a routerLink="/dashboard" class="dash-nav-item">
+          <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" class="dash-nav-item">
             <mat-icon>calendar_today</mat-icon> My Bookings
           </a>
-          <a routerLink="/profile" class="dash-nav-item">
+          <a routerLink="/profile/family" routerLinkActive="active" class="dash-nav-item">
             <mat-icon>people</mat-icon> Family Members
           </a>
-          <a routerLink="/lab-locations" class="dash-nav-item">
+          <a routerLink="/lab-locations" routerLinkActive="active" class="dash-nav-item">
             <mat-icon>location_on</mat-icon> Lab Locations
           </a>
-          <a routerLink="/profile" class="dash-nav-item">
+          <a routerLink="/profile" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" class="dash-nav-item">
             <mat-icon>settings</mat-icon> Settings
           </a>
         </nav>
@@ -114,7 +115,7 @@ import { ErrorBannerComponent } from '../../../shared/components/error-banner.co
                     <tr><td colspan="5" class="empty-row">No bookings yet. <a routerLink="/tests">Book your first test</a></td></tr>
                   }
                   @for (b of bookings(); track b.id) {
-                    <tr>
+                    <tr [class.row-expanded]="expandedId() === b.id">
                       <td class="ref-cell">{{ b.reference_number }}</td>
                       <td>
                         <div class="test-name-cell">{{ bookingLabel(b) }}</div>
@@ -122,8 +123,35 @@ import { ErrorBannerComponent } from '../../../shared/components/error-banner.co
                       </td>
                       <td>{{ b.booking_date | date:'MMM d, y' }}</td>
                       <td><span class="status-badge" [class]="statusClass(b.status)">{{ b.status | titlecase }}</span></td>
-                      <td><button class="action-link">View</button></td>
+                      <td>
+                        <button class="action-link" (click)="toggleExpand(b.id)">
+                          {{ expandedId() === b.id ? 'Close' : 'View' }}
+                        </button>
+                      </td>
                     </tr>
+                    @if (expandedId() === b.id) {
+                      <tr class="detail-row">
+                        <td colspan="5">
+                          <div class="detail-panel">
+                            <div class="detail-items">
+                              @for (item of (b.items ?? []); track item.id) {
+                                <div class="detail-item">
+                                  <span class="item-type-badge">{{ item.item_type }}</span>
+                                  <span class="item-name">{{ item.item_name || '—' }}</span>
+                                  <span class="item-price">₹{{ item.unit_price | number:'1.0-0' }}</span>
+                                </div>
+                              }
+                              @if (!(b.items?.length)) {
+                                <span class="no-items">No item details available.</span>
+                              }
+                            </div>
+                            <div class="detail-meta">
+                              <span>Payment: <strong>{{ b.payment_status | titlecase }}</strong></span>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    }
                   }
                 </tbody>
               </table>
@@ -134,33 +162,33 @@ import { ErrorBannerComponent } from '../../../shared/components/error-banner.co
           <div class="right-panel">
             <!-- Latest Reports -->
             <div class="reports-section">
-              <h2>Latest Reports</h2>
-              <div class="report-list">
-                <div class="report-item">
-                  <div class="report-icon red"><mat-icon>picture_as_pdf</mat-icon></div>
-                  <div class="report-info">
-                    <div class="report-name">Lipid Profile</div>
-                    <div class="report-date">Uploaded 2h ago</div>
-                  </div>
-                  <button class="report-dl"><mat-icon>download</mat-icon></button>
-                </div>
-                <div class="report-item">
-                  <div class="report-icon green"><mat-icon>picture_as_pdf</mat-icon></div>
-                  <div class="report-info">
-                    <div class="report-name">Blood Glucose (F)</div>
-                    <div class="report-date">Oct 20, 2023</div>
-                  </div>
-                  <button class="report-dl"><mat-icon>download</mat-icon></button>
-                </div>
-                <div class="report-item">
-                  <div class="report-icon blue"><mat-icon>picture_as_pdf</mat-icon></div>
-                  <div class="report-info">
-                    <div class="report-name">Vitamin B12 / D3</div>
-                    <div class="report-date">Oct 18, 2023</div>
-                  </div>
-                  <button class="report-dl"><mat-icon>download</mat-icon></button>
-                </div>
+              <div class="section-header">
+                <h2>Latest Reports</h2>
+                <a routerLink="/reports" class="view-all">View All →</a>
               </div>
+              @if (reportsLoading()) {
+                <div class="reports-loading">Loading…</div>
+              } @else if (reports().length === 0) {
+                <div class="reports-empty">
+                  <mat-icon>description</mat-icon>
+                  <span>No reports available yet.</span>
+                </div>
+              } @else {
+                <div class="report-list">
+                  @for (r of reports(); track r.id; let i = $index) {
+                    <div class="report-item">
+                      <div class="report-icon" [class]="reportIconClass(i)"><mat-icon>picture_as_pdf</mat-icon></div>
+                      <div class="report-info">
+                        <div class="report-name">{{ r.file_name }}</div>
+                        <div class="report-date">{{ r.uploaded_at | date:'MMM d, y' }}</div>
+                      </div>
+                      <button class="report-dl" (click)="downloadReport(r)" title="Download">
+                        <mat-icon>download</mat-icon>
+                      </button>
+                    </div>
+                  }
+                </div>
+              }
             </div>
 
             <!-- Promo card -->
@@ -254,11 +282,25 @@ import { ErrorBannerComponent } from '../../../shared/components/error-banner.co
     }
     .action-link { background:none; border:none; color:#1a56db; font-size:.8rem; font-weight:600; cursor:pointer; &:hover{text-decoration:underline;} }
     .empty-row { text-align:center; color:#a0aec0; padding:2rem !important; a{color:#00796b;} }
+    .row-expanded td { background:#f0fdf9; }
+    .detail-row td { padding:0 !important; border-bottom:1px solid #b2dfdb; }
+    .detail-panel { padding:.75rem 1rem; display:flex; flex-direction:column; gap:.5rem; }
+    .detail-items { display:flex; flex-direction:column; gap:.35rem; }
+    .detail-item { display:flex; align-items:center; gap:.6rem; font-size:.825rem; }
+    .item-type-badge { font-size:.65rem; font-weight:700; text-transform:uppercase; background:#e0f2f1; color:#00796b; padding:.15rem .45rem; border-radius:6px; }
+    .item-name { flex:1; color:#2d3748; font-weight:500; }
+    .item-price { font-weight:700; color:#1a202c; }
+    .detail-meta { font-size:.8rem; color:#718096; border-top:1px solid #e2e8f0; padding-top:.4rem; margin-top:.2rem; strong{color:#2d3748;} }
+    .no-items { font-size:.8rem; color:#a0aec0; }
 
     /* Right panel */
     .right-panel { display:flex; flex-direction:column; gap:1.25rem; }
     .reports-section { background:#fff; border-radius:14px; border:1px solid #e2e8f0; padding:1.25rem;
-      h2 { font-size:1rem; font-weight:700; color:#1a202c; margin-bottom:1rem; }
+      h2 { font-size:1rem; font-weight:700; color:#1a202c; }
+    }
+    .reports-loading { font-size:.85rem; color:#a0aec0; padding:.5rem 0; }
+    .reports-empty { display:flex; align-items:center; gap:.5rem; color:#a0aec0; font-size:.85rem; padding:.5rem 0;
+      mat-icon { font-size:1.1rem; width:1.1rem; height:1.1rem; }
     }
     .report-list { display:flex; flex-direction:column; gap:.75rem; }
     .report-item { display:flex; align-items:center; gap:.75rem; }
@@ -293,11 +335,16 @@ import { ErrorBannerComponent } from '../../../shared/components/error-banner.co
 export class BookingHistoryComponent implements OnInit {
   private auth = inject(AuthStateService);
   bookings = signal<Booking[]>([]);
+  reports = signal<Report[]>([]);
   loading = signal(true);
+  reportsLoading = signal(true);
   error = signal<string | null>(null);
   total = signal(0);
   familyMemberCount = signal(0);
+  expandedId = signal<string | null>(null);
   pageSize = 5;
+
+  readonly REPORT_ICON_CLASSES = ['red', 'green', 'blue'];
 
   userName = computed(() => this.auth.currentUser()?.name ?? '');
   firstName = computed(() => this.userName().split(' ')[0] || 'there');
@@ -309,7 +356,9 @@ export class BookingHistoryComponent implements OnInit {
     const id = this.auth.currentUser()?.id ?? '';
     return id.slice(-4).toUpperCase() || '0000';
   });
-  activeBookings = computed(() => this.bookings().filter((b: Booking) => b.status === 'confirmed' || b.status === 'pending').length);
+  activeBookings = computed(() =>
+    this.bookings().filter((b: Booking) => b.status === 'confirmed' || b.status === 'booked' || b.status === 'pending').length
+  );
 
   greeting = computed(() => {
     const h = new Date().getHours();
@@ -318,9 +367,13 @@ export class BookingHistoryComponent implements OnInit {
     return 'Good Evening';
   });
 
-  constructor(private bookingApi: BookingApiService, private userApi: UserApiService) {}
+  constructor(
+    private bookingApi: BookingApiService,
+    private userApi: UserApiService,
+    private reportApi: ReportApiService,
+  ) {}
 
-  ngOnInit(): void { this.load(); this.loadFamilyMembers(); }
+  ngOnInit(): void { this.load(); this.loadFamilyMembers(); this.loadReports(); }
 
   load(): void {
     this.loading.set(true);
@@ -336,14 +389,41 @@ export class BookingHistoryComponent implements OnInit {
 
   loadFamilyMembers(): void {
     this.userApi.getFamilyMembers().subscribe({
-      next: (members) => this.familyMemberCount.set(members.filter((m) => m.is_active && !m.deleted_at).length),
+      next: (members: FamilyMember[]) => this.familyMemberCount.set(members.filter((m: FamilyMember) => m.is_active && !m.deleted_at).length),
       error: () => {},
     });
+  }
+
+  loadReports(): void {
+    this.reportsLoading.set(true);
+    this.reportApi.list({ page: 1, page_size: 3 }).subscribe({
+      next: (res: { items: Report[] }) => { this.reports.set(res.items); this.reportsLoading.set(false); },
+      error: () => { this.reportsLoading.set(false); },
+    });
+  }
+
+  toggleExpand(id: string): void {
+    this.expandedId.set(this.expandedId() === id ? null : id);
+  }
+
+  downloadReport(r: Report): void {
+    this.reportApi.getDownloadUrl(r.id).subscribe({
+      next: (res: { download_url: string }) => window.open(res.download_url, '_blank'),
+      error: () => {},
+    });
+  }
+
+  reportIconClass(index: number): string {
+    return this.REPORT_ICON_CLASSES[index % this.REPORT_ICON_CLASSES.length];
   }
 
   statusClass(status: string): string { return status.toLowerCase(); }
 
   bookingLabel(b: Booking): string {
-    return b.collection_type === 'home' ? 'Home Collection' : 'Lab Visit';
+    const items = b.items ?? [];
+    if (!items.length) return b.collection_type === 'home' ? 'Home Collection' : 'Lab Visit';
+    const names = items.map((i: BookingItem) => i.item_name).filter(Boolean);
+    if (!names.length) return b.collection_type === 'home' ? 'Home Collection' : 'Lab Visit';
+    return names.slice(0, 2).join(', ') + (names.length > 2 ? ` +${names.length - 2} more` : '');
   }
 }

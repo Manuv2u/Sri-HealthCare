@@ -22,10 +22,18 @@ logger = logging.getLogger("sri.booking")
 def _item_to_dict(item: object) -> dict:
     from app.models.booking import BookingItem
     i: BookingItem = item  # type: ignore[assignment]
+    name = ""
+    test_obj = getattr(i, "test", None)
+    pkg_obj = getattr(i, "package", None)
+    if test_obj is not None:
+        name = getattr(test_obj, "name", "")
+    elif pkg_obj is not None:
+        name = getattr(pkg_obj, "name", "")
     return {
         "id": i.id,
         "booking_id": i.booking_id,
         "item_type": i.item_type,
+        "item_name": name,
         "test_id": i.test_id,
         "package_id": i.package_id,
         "unit_price": float(i.unit_price),

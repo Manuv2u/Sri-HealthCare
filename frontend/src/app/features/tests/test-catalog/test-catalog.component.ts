@@ -27,15 +27,6 @@ import { Test } from '../../../core/api/api.types';
             }
           </div>
         </div>
-        <div class="sidebar-section">
-          <h3>Price Range</h3>
-          <div class="price-filters">
-            <button class="price-chip" [class.active]="priceFilter() === 'all'" (click)="priceFilter.set('all')">All</button>
-            <button class="price-chip" [class.active]="priceFilter() === 'under500'" (click)="priceFilter.set('under500')">Under Rs.500</button>
-            <button class="price-chip" [class.active]="priceFilter() === '500to1000'" (click)="priceFilter.set('500to1000')">Rs.500-Rs.1000</button>
-            <button class="price-chip" [class.active]="priceFilter() === 'above1000'" (click)="priceFilter.set('above1000')">Above Rs.1000</button>
-          </div>
-        </div>
       </aside>
       <div class="catalog-main">
         <div class="catalog-header">
@@ -142,10 +133,6 @@ import { Test } from '../../../core/api/api.types';
     .cat-item:hover { background:#f7fafc; color:#2d3748; }
     .cat-item.active { background:#e0f2f1; color:#00796b; font-weight:600; }
     .cat-count { font-size:.75rem; background:#f0f4f8; color:#718096; padding:.1rem .45rem; border-radius:999px; }
-    .price-filters { display:flex; flex-direction:column; gap:.4rem; }
-    .price-chip { padding:.4rem .75rem; border-radius:8px; border:1px solid #e2e8f0; background:#fff; font-size:.8rem; color:#4a5568; cursor:pointer; text-align:left; transition:all .15s; }
-    .price-chip:hover { border-color:#00796b; color:#00796b; }
-    .price-chip.active { background:#e0f2f1; border-color:#00796b; color:#00796b; font-weight:600; }
     .catalog-main { display:flex; flex-direction:column; gap:1.5rem; }
     .catalog-header { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; }
     .catalog-title h1 { font-size:1.5rem; font-weight:800; color:#1a202c; }
@@ -213,7 +200,6 @@ export class TestCatalogComponent implements OnInit {
   page = signal(1);
   pageSize = 20;
   selectedCategory = signal<string | null>(null);
-  priceFilter = signal<string>('all');
 
   categories = computed(() => {
     const map = new Map<string, number>();
@@ -225,12 +211,8 @@ export class TestCatalogComponent implements OnInit {
     let tests = this.allTests();
     const q = (this.searchCtrl.value ?? '').toLowerCase().trim();
     const cat = this.selectedCategory();
-    const price = this.priceFilter();
     if (q) tests = tests.filter(t => t.name.toLowerCase().includes(q) || t.category.toLowerCase().includes(q) || (t.description ?? '').toLowerCase().includes(q));
     if (cat) tests = tests.filter(t => t.category === cat);
-    if (price === 'under500') tests = tests.filter(t => t.effective_price < 500);
-    else if (price === '500to1000') tests = tests.filter(t => t.effective_price >= 500 && t.effective_price <= 1000);
-    else if (price === 'above1000') tests = tests.filter(t => t.effective_price > 1000);
     return tests;
   });
 
@@ -271,6 +253,6 @@ export class TestCatalogComponent implements OnInit {
 
   selectCategory(cat: string | null): void { this.selectedCategory.set(cat); this.page.set(1); }
   changePage(p: number): void { this.page.set(p); window.scrollTo({ top: 0, behavior: 'smooth' }); }
-  clearFilters(): void { this.searchCtrl.setValue(''); this.selectedCategory.set(null); this.priceFilter.set('all'); this.page.set(1); }
+  clearFilters(): void { this.searchCtrl.setValue(''); this.selectedCategory.set(null); this.page.set(1); }
   book(test: Test): void { this.router.navigate(['/booking'], { queryParams: { test_id: test.id } }); }
 }

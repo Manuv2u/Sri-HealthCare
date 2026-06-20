@@ -42,6 +42,7 @@ class BookingItemOut(BaseModel):
     id: uuid.UUID
     booking_id: uuid.UUID
     item_type: str
+    item_name: str = ""
     test_id: uuid.UUID | None
     package_id: uuid.UUID | None
     unit_price: Decimal
