@@ -43,7 +43,14 @@ source "$CONF"
 
 : "${VM_HOST:?VM_HOST not set in $CONF}"
 : "${VM_USER:=ubuntu}"
-: "${VM_KEY:=$HOME/.ssh/oci_key}"
+# Key precedence: conf file → provision-oci.sh generated key → legacy ~/.ssh/oci_key
+if [[ -z "${VM_KEY:-}" ]]; then
+  if [[ -f "./keys/oci_vm_key" ]]; then
+    VM_KEY="./keys/oci_vm_key"
+  else
+    VM_KEY="$HOME/.ssh/oci_key"
+  fi
+fi
 : "${DEPLOY_DIR:=/opt/sri-diagnostics}"
 
 SSH="ssh -i $VM_KEY -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 $VM_USER@$VM_HOST"

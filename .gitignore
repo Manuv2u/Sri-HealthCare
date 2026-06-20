@@ -164,3 +164,7 @@ deploy/.deploy.conf
 deploy/.env.production
 frontend/src/environments/environment.prod.ts.bak
 frontend/src/environments/environment.prod.ts.bak2
+
+# OCI provisioning artefacts (never commit — contains private keys and OCIDs)
+keys/
+.oci-state.json
