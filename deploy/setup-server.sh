@@ -56,6 +56,16 @@ success "System packages ready"
 # ── 2. Docker ─────────────────────────────────────────────────────────────────
 if ! command -v docker &>/dev/null; then
   log "Installing Docker…"
+  # Stop background apt processes that hold the dpkg lock (common on fresh OCI VMs)
+  systemctl stop unattended-upgrades 2>/dev/null || true
+  systemctl stop apt-daily.service 2>/dev/null || true
+  systemctl stop apt-daily-upgrade.service 2>/dev/null || true
+  # Wait for any remaining lock to clear (up to 60s)
+  for i in $(seq 1 12); do
+    flock -n /var/lib/dpkg/lock-frontend -c true 2>/dev/null && break
+    echo "  Waiting for dpkg lock ($i/12)…"
+    sleep 5
+  done
   curl -fsSL https://get.docker.com | sh
   usermod -aG docker ubuntu
   systemctl enable docker
