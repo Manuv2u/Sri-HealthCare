@@ -10,11 +10,14 @@ from app.database import get_db_session
 from app.middleware.auth import get_current_user
 from app.schemas.auth import (
     AccessTokenResponse,
+    ChangePasswordRequest,
+    ForgotPasswordRequest,
     LoginOTPRequest,
     LoginRequest,
     MessageResponse,
     RefreshRequest,
     RegisterRequest,
+    ResetPasswordRequest,
     SessionOut,
     TokenResponse,
     VerifyOTPRequest,
@@ -145,3 +148,44 @@ async def revoke_all_sessions(
     svc = AuthService(db)
     await svc.logout_all(uuid.UUID(current_user["user_id"]))
     return MessageResponse(message="All sessions revoked")
+
+
+# TODO(TEMP_PASSWORD_AUTH): Remove these three endpoints when replacing password-based auth
+@router.post("/forgot-password", response_model=MessageResponse)
+async def forgot_password(
+    body: ForgotPasswordRequest,
+    db: AsyncSession = Depends(get_db_session),
+) -> MessageResponse:
+    """Send password reset token (logged to console in dev; email when SMTP configured)."""
+    from app.services.password_reset_service import PasswordResetService
+    svc = PasswordResetService(db)
+    result = await svc.forgot_password(body.phone_or_email)
+    return MessageResponse(**result)
+
+
+@router.post("/reset-password", response_model=MessageResponse)
+async def reset_password(
+    body: ResetPasswordRequest,
+    db: AsyncSession = Depends(get_db_session),
+) -> MessageResponse:
+    """Validate reset token and update password."""
+    from app.services.password_reset_service import PasswordResetService
+    svc = PasswordResetService(db)
+    result = await svc.reset_password(body.token, body.new_password)
+    return MessageResponse(**result)
+
+
+@router.post("/change-password", response_model=MessageResponse)
+async def change_password(
+    body: ChangePasswordRequest,
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db_session),
+) -> MessageResponse:
+    """Change password for the currently authenticated user."""
+    svc = AuthService(db)
+    await svc.change_password(
+        uuid.UUID(current_user["user_id"]),
+        body.current_password,
+        body.new_password,
+    )
+    return MessageResponse(message="Password changed successfully")

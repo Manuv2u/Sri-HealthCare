@@ -170,6 +170,25 @@ class AuthService:
         """Revoke all sessions for a user."""
         await self.session_repo.revoke_all_user_sessions(user_id)
 
+    # TODO(TEMP_PASSWORD_AUTH): Remove this method when replacing password-based auth
+    async def change_password(
+        self, user_id: uuid.UUID, current_password: str, new_password: str
+    ) -> None:
+        """Verify current password, then update to new password."""
+        if len(new_password) < 8:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail={"error_code": "WEAK_PASSWORD", "message": "Password must be at least 8 characters"},
+            )
+        user = await self.user_repo.get_by_id(user_id)
+        if user is None or not _verify_password(current_password, user.password_hash):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail={"error_code": "INVALID_CREDENTIALS", "message": "Current password is incorrect"},
+            )
+        new_hash = _hash_password(new_password)
+        await self.user_repo.update(user_id, password_hash=new_hash)
+
     async def _create_session_and_tokens(
         self,
         user,

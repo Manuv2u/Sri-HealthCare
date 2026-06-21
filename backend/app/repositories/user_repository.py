@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.user import FamilyMember, Session, User
+from app.models.user import FamilyMember, PasswordResetToken, Session, User
 
 
 class UserRepository:
@@ -227,3 +227,51 @@ class FamilyMemberRepository:
             )
         )
         return result.scalar_one_or_none()
+
+
+# TODO(TEMP_PASSWORD_AUTH): Remove this class when replacing password-based auth
+class PasswordResetTokenRepository:
+    """Async CRUD for password_reset_tokens (temporary password auth)."""
+
+    def __init__(self, db: AsyncSession) -> None:
+        self.db = db
+
+    async def create(self, user_id: uuid.UUID, token_hash: str, expires_at: datetime) -> PasswordResetToken:
+        token = PasswordResetToken(
+            id=uuid.uuid4(),
+            user_id=user_id,
+            token_hash=token_hash,
+            expires_at=expires_at,
+        )
+        self.db.add(token)
+        await self.db.flush()
+        await self.db.refresh(token)
+        return token
+
+    async def get_valid_by_hash(self, token_hash: str) -> PasswordResetToken | None:
+        now = datetime.now(timezone.utc)
+        result = await self.db.execute(
+            select(PasswordResetToken).where(
+                PasswordResetToken.token_hash == token_hash,
+                PasswordResetToken.used_at.is_(None),
+                PasswordResetToken.expires_at > now,
+            )
+        )
+        return result.scalar_one_or_none()
+
+    async def mark_used(self, token_id: uuid.UUID) -> None:
+        await self.db.execute(
+            update(PasswordResetToken)
+            .where(PasswordResetToken.id == token_id)
+            .values(used_at=datetime.now(timezone.utc))
+        )
+        await self.db.flush()
+
+    async def invalidate_user_tokens(self, user_id: uuid.UUID) -> None:
+        """Mark all unused tokens for a user as used."""
+        await self.db.execute(
+            update(PasswordResetToken)
+            .where(PasswordResetToken.user_id == user_id, PasswordResetToken.used_at.is_(None))
+            .values(used_at=datetime.now(timezone.utc))
+        )
+        await self.db.flush()

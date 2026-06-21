@@ -55,3 +55,18 @@ class SessionOut(BaseModel):
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+# TODO(TEMP_PASSWORD_AUTH): Remove these schemas when replacing password-based auth
+class ForgotPasswordRequest(BaseModel):
+    phone_or_email: str
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str
+
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str

@@ -1,7 +1,9 @@
+// TODO(TEMP_PASSWORD_AUTH): The "password" mode and all related logic can be removed
+// when switching back to OTP-only auth. Search for TODO(TEMP_PASSWORD_AUTH) to find all touch-points.
 import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthApiService } from '../../../core/api/services/auth-api.service';
 import { AuthStateService } from '../../../core/auth/auth-state.service';
@@ -9,7 +11,7 @@ import { AuthStateService } from '../../../core/auth/auth-state.service';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MatIconModule],
+  imports: [CommonModule, ReactiveFormsModule, MatIconModule, RouterModule],
   template: `
     <div class="auth-page">
       <div class="auth-card">
@@ -17,7 +19,17 @@ import { AuthStateService } from '../../../core/auth/auth-state.service';
         <div class="auth-logo">
           <div class="logo-icon">🧪</div>
           <h2>SRI Diagnostics</h2>
-          <p>{{ step() === 'phone' ? 'Sign in with your phone number' : 'Enter the OTP sent to your phone' }}</p>
+          <p>Sign in to your account</p>
+        </div>
+
+        <!-- Mode Toggle -->
+        <div class="mode-tabs">
+          <button class="mode-tab" [class.active]="mode() === 'password'" (click)="switchMode('password')">
+            <mat-icon>lock</mat-icon> Password
+          </button>
+          <button class="mode-tab" [class.active]="mode() === 'otp'" (click)="switchMode('otp')">
+            <mat-icon>phone</mat-icon> OTP
+          </button>
         </div>
 
         <!-- Session / info message -->
@@ -34,60 +46,103 @@ import { AuthStateService } from '../../../core/auth/auth-state.service';
           </div>
         }
 
-        <!-- Step 1: Phone -->
-        @if (step() === 'phone') {
-          <form [formGroup]="phoneForm" (ngSubmit)="sendOtp()">
+        <!-- Password Mode -->
+        @if (mode() === 'password') {
+          <form [formGroup]="passwordForm" (ngSubmit)="loginWithPassword()">
             <div class="field-wrap">
-              <label>Phone Number</label>
-              <div class="input-row" [class.focused]="phoneFocused" [class.invalid]="phoneForm.get('phone')?.invalid && phoneForm.get('phone')?.touched">
-                <mat-icon>phone</mat-icon>
-                <input formControlName="phone" type="tel" placeholder="+91XXXXXXXXXX"
-                  (focus)="phoneFocused=true" (blur)="phoneFocused=false" inputmode="tel" />
+              <label>Email or Phone</label>
+              <div class="input-row" [class.focused]="identifierFocused"
+                   [class.invalid]="passwordForm.get('identifier')?.invalid && passwordForm.get('identifier')?.touched">
+                <mat-icon>person</mat-icon>
+                <input formControlName="identifier" type="text" placeholder="email@example.com or phone"
+                  (focus)="identifierFocused=true" (blur)="identifierFocused=false" autocomplete="username" />
               </div>
-              @if (phoneForm.get('phone')?.invalid && phoneForm.get('phone')?.touched) {
-                <span class="field-err">Enter a valid phone number (10–15 digits)</span>
+              @if (passwordForm.get('identifier')?.invalid && passwordForm.get('identifier')?.touched) {
+                <span class="field-err">Enter your email or phone number</span>
               }
             </div>
-            <button class="btn-primary" type="submit" [disabled]="phoneForm.invalid || loading()">
-              @if (loading()) { <span class="spinner"></span> Sending OTP… }
-              @else { <mat-icon>send</mat-icon> Send OTP }
+            <div class="field-wrap">
+              <label>Password</label>
+              <div class="input-row" [class.focused]="pwFocused"
+                   [class.invalid]="passwordForm.get('password')?.invalid && passwordForm.get('password')?.touched">
+                <mat-icon>lock_outline</mat-icon>
+                <input formControlName="password" [type]="showPassword ? 'text' : 'password'"
+                  placeholder="Enter password" (focus)="pwFocused=true" (blur)="pwFocused=false"
+                  autocomplete="current-password" />
+                <button type="button" class="btn-eye" (click)="showPassword=!showPassword" tabindex="-1">
+                  <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                </button>
+              </div>
+              @if (passwordForm.get('password')?.invalid && passwordForm.get('password')?.touched) {
+                <span class="field-err">Password is required</span>
+              }
+            </div>
+            <div class="forgot-link">
+              <a routerLink="/auth/forgot-password">Forgot password?</a>
+            </div>
+            <button class="btn-primary" type="submit" [disabled]="passwordForm.invalid || loading()">
+              @if (loading()) { <span class="spinner"></span> Signing in… }
+              @else { <mat-icon>login</mat-icon> Sign In }
             </button>
           </form>
-          <div class="auth-footer">
-            New user? <a (click)="goRegister()">Create account</a>
-          </div>
         }
 
-        <!-- Step 2: OTP -->
-        @if (step() === 'otp') {
-          <div class="phone-display">
-            <mat-icon>phone</mat-icon>
-            <span>{{ phoneForm.value.phone }}</span>
-            <button class="btn-change" (click)="step.set('phone')">Change</button>
-          </div>
-
-          <div class="timer-row" [class.expired]="timeLeft() === 0">
-            <mat-icon>{{ timeLeft() > 0 ? 'timer' : 'timer_off' }}</mat-icon>
-            <span>{{ timeLeft() > 0 ? 'Expires in ' + timeLeft() + 's' : 'OTP expired' }}</span>
-            @if (timeLeft() === 0) {
-              <button class="btn-resend" (click)="sendOtp()">Resend</button>
-            }
-          </div>
-
-          <form [formGroup]="otpForm" (ngSubmit)="verifyOtp()">
-            <div class="field-wrap">
-              <label>6-digit OTP</label>
-              <div class="input-row otp-input" [class.focused]="otpFocused">
-                <mat-icon>pin</mat-icon>
-                <input formControlName="otp" maxlength="6" inputmode="numeric" placeholder="000000"
-                  (focus)="otpFocused=true" (blur)="otpFocused=false" autocomplete="one-time-code" />
+        <!-- OTP Mode -->
+        @if (mode() === 'otp') {
+          @if (step() === 'phone') {
+            <form [formGroup]="phoneForm" (ngSubmit)="sendOtp()">
+              <div class="field-wrap">
+                <label>Phone Number</label>
+                <div class="input-row" [class.focused]="phoneFocused"
+                     [class.invalid]="phoneForm.get('phone')?.invalid && phoneForm.get('phone')?.touched">
+                  <mat-icon>phone</mat-icon>
+                  <input formControlName="phone" type="tel" placeholder="+91XXXXXXXXXX"
+                    (focus)="phoneFocused=true" (blur)="phoneFocused=false" inputmode="tel" />
+                </div>
+                @if (phoneForm.get('phone')?.invalid && phoneForm.get('phone')?.touched) {
+                  <span class="field-err">Enter a valid phone number (10–15 digits)</span>
+                }
               </div>
+              <button class="btn-primary" type="submit" [disabled]="phoneForm.invalid || loading()">
+                @if (loading()) { <span class="spinner"></span> Sending OTP… }
+                @else { <mat-icon>send</mat-icon> Send OTP }
+              </button>
+            </form>
+            <div class="auth-footer">
+              New user? <a (click)="goRegister()">Create account</a>
             </div>
-            <button class="btn-primary" type="submit" [disabled]="otpForm.invalid || timeLeft() === 0 || loading()">
-              @if (loading()) { <span class="spinner"></span> Verifying… }
-              @else { <mat-icon>check_circle</mat-icon> Verify & Sign In }
-            </button>
-          </form>
+          }
+
+          @if (step() === 'otp') {
+            <div class="phone-display">
+              <mat-icon>phone</mat-icon>
+              <span>{{ phoneForm.value.phone }}</span>
+              <button class="btn-change" (click)="step.set('phone')">Change</button>
+            </div>
+
+            <div class="timer-row" [class.expired]="timeLeft() === 0">
+              <mat-icon>{{ timeLeft() > 0 ? 'timer' : 'timer_off' }}</mat-icon>
+              <span>{{ timeLeft() > 0 ? 'Expires in ' + timeLeft() + 's' : 'OTP expired' }}</span>
+              @if (timeLeft() === 0) {
+                <button class="btn-resend" (click)="sendOtp()">Resend</button>
+              }
+            </div>
+
+            <form [formGroup]="otpForm" (ngSubmit)="verifyOtp()">
+              <div class="field-wrap">
+                <label>6-digit OTP</label>
+                <div class="input-row otp-input" [class.focused]="otpFocused">
+                  <mat-icon>pin</mat-icon>
+                  <input formControlName="otp" maxlength="6" inputmode="numeric" placeholder="000000"
+                    (focus)="otpFocused=true" (blur)="otpFocused=false" autocomplete="one-time-code" />
+                </div>
+              </div>
+              <button class="btn-primary" type="submit" [disabled]="otpForm.invalid || timeLeft() === 0 || loading()">
+                @if (loading()) { <span class="spinner"></span> Verifying… }
+                @else { <mat-icon>check_circle</mat-icon> Verify & Sign In }
+              </button>
+            </form>
+          }
         }
       </div>
     </div>
@@ -107,6 +162,17 @@ import { AuthStateService } from '../../../core/auth/auth-state.service';
       h2 { font-size: 1.4rem; font-weight: 800; color: #1a202c; margin-bottom: .25rem; }
       p { font-size: .875rem; color: #718096; }
     }
+    .mode-tabs {
+      display: flex; gap: .5rem; background: #f7fafc; border-radius: 12px; padding: .25rem;
+    }
+    .mode-tab {
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: .4rem;
+      background: transparent; border: none; border-radius: 10px;
+      padding: .6rem; font-size: .875rem; font-weight: 600; color: #718096; cursor: pointer; transition: all .15s;
+      mat-icon { font-size: 1.1rem; width: 1.1rem; height: 1.1rem; }
+      &.active { background: #fff; color: #00796b; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+      &:hover:not(.active) { color: #4a5568; }
+    }
     .alert { display: flex; align-items: center; gap: .5rem; padding: .75rem 1rem; border-radius: 10px; font-size: .875rem;
       mat-icon { font-size: 1.1rem; width: 1.1rem; height: 1.1rem; flex-shrink: 0; }
       &.error { background: #fed7d7; color: #9b2c2c; }
@@ -125,7 +191,17 @@ import { AuthStateService } from '../../../core/auth/auth-state.service';
       &.invalid { border-color: #e53e3e; }
       &.otp-input input { font-size: 1.4rem; letter-spacing: .3em; font-weight: 700; }
     }
+    .btn-eye {
+      background: none; border: none; cursor: pointer; padding: 0; color: #a0aec0; display: flex; align-items: center;
+      mat-icon { font-size: 1.2rem; width: 1.2rem; height: 1.2rem; }
+      &:hover { color: #4a5568; }
+    }
     .field-err { font-size: .78rem; color: #e53e3e; }
+    .forgot-link { text-align: right; margin-top: -.25rem;
+      a { font-size: .82rem; color: #00796b; font-weight: 600; text-decoration: none; cursor: pointer;
+        &:hover { text-decoration: underline; }
+      }
+    }
     .btn-primary {
       width: 100%; display: flex; align-items: center; justify-content: center; gap: .5rem;
       background: #00796b; color: #fff; border: none; border-radius: 12px;
@@ -155,13 +231,20 @@ import { AuthStateService } from '../../../core/auth/auth-state.service';
   `],
 })
 export class LoginComponent implements OnInit, OnDestroy {
+  // TODO(TEMP_PASSWORD_AUTH): default mode is 'password'; revert to 'otp' when removing password auth
+  mode = signal<'otp' | 'password'>('password');
   step = signal<'phone' | 'otp'>('phone');
   loading = signal(false);
   error = signal<string | null>(null);
   sessionMessage = signal<string | null>(null);
   timeLeft = signal(600);
+
   phoneFocused = false;
   otpFocused = false;
+  identifierFocused = false;
+  pwFocused = false;
+  showPassword = false;
+
   private timer?: ReturnType<typeof setInterval>;
 
   phoneForm = this.fb.group({
@@ -169,6 +252,11 @@ export class LoginComponent implements OnInit, OnDestroy {
   });
   otpForm = this.fb.group({
     otp: ['', [Validators.required, Validators.pattern(/^\d{6}$/)]],
+  });
+  // TODO(TEMP_PASSWORD_AUTH): Remove passwordForm when removing password auth
+  passwordForm = this.fb.group({
+    identifier: ['', [Validators.required]],
+    password: ['', [Validators.required]],
   });
 
   constructor(
@@ -182,12 +270,43 @@ export class LoginComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     const msg = this.route.snapshot.queryParamMap.get('message');
     if (msg) this.sessionMessage.set(msg);
-    // Pre-fill phone if coming from register redirect
     const phone = this.route.snapshot.queryParamMap.get('phone');
     if (phone) this.phoneForm.patchValue({ phone });
   }
 
   ngOnDestroy(): void { clearInterval(this.timer); }
+
+  switchMode(m: 'otp' | 'password'): void {
+    this.mode.set(m);
+    this.error.set(null);
+    this.step.set('phone');
+  }
+
+  // TODO(TEMP_PASSWORD_AUTH): Remove this method when removing password auth
+  loginWithPassword(): void {
+    if (this.passwordForm.invalid) return;
+    this.error.set(null);
+    this.loading.set(true);
+    const { identifier, password } = this.passwordForm.value;
+
+    this.authApi.login(identifier!, password!).subscribe({
+      next: (tokens) => {
+        this.authState.setTokens(tokens.access_token, tokens.refresh_token);
+        try {
+          const payload = JSON.parse(atob(tokens.access_token.split('.')[1]));
+          this.authState.setUser({ id: payload.sub, name: payload.name ?? 'User', role: payload.role });
+        } catch { /* ignore */ }
+        const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+        const role = this.authState.role();
+        const defaultUrl = role === 'admin' ? '/admin' : role === 'technician' ? '/dashboard' : '/profile';
+        this.router.navigateByUrl(returnUrl ?? defaultUrl);
+      },
+      error: (err) => {
+        this.loading.set(false);
+        this.error.set(err.error?.message ?? 'Invalid email or password.');
+      },
+    });
+  }
 
   sendOtp(): void {
     if (this.phoneForm.invalid) return;
@@ -195,7 +314,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.loading.set(true);
     const phone = this.phoneForm.value.phone!;
 
-    // Try login-otp first (existing user). If 404/error, fall back to register flow.
     this.authApi.loginOtp(phone).subscribe({
       next: () => {
         this.loading.set(false);

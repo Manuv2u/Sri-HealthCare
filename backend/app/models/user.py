@@ -7,6 +7,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, TimestampMixin
 
+# TODO(TEMP_PASSWORD_AUTH): Remove PasswordResetToken class when replacing password auth
+
 
 class User(TimestampMixin, Base):
     __tablename__ = "users"
@@ -114,3 +116,23 @@ class UserAddress(Base):
 
     # Relationships
     user: Mapped["User"] = relationship("User", back_populates="addresses")
+
+
+class PasswordResetToken(Base):  # TODO(TEMP_PASSWORD_AUTH)
+    __tablename__ = "password_reset_tokens"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        server_default=text("gen_random_uuid()"),
+    )
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False
+    )
+    token_hash: Mapped[str] = mapped_column(String(64), nullable=False, unique=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=text("now()")
+    )

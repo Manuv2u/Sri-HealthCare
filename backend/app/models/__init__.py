@@ -1,6 +1,6 @@
 # Models package — import all models here so Alembic can detect them
 from app.models.base import Base, TimestampMixin
-from app.models.user import FamilyMember, Session, User
+from app.models.user import FamilyMember, PasswordResetToken, Session, User  # TODO(TEMP_PASSWORD_AUTH): remove PasswordResetToken
 from app.models.test import Package, PackageTest, Test
 from app.models.service import (
     LabBranch,
@@ -24,6 +24,7 @@ __all__ = [
     "User",
     "Session",
     "FamilyMember",
+    "PasswordResetToken",
     "Test",
     "Package",
     "PackageTest",

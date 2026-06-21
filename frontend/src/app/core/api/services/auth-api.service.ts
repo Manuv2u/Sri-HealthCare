@@ -30,4 +30,17 @@ export class AuthApiService {
   refresh(refresh_token: string): Observable<{ access_token: string }> {
     return this.http.post<{ access_token: string }>('/auth/refresh', { refresh_token });
   }
+
+  // TODO(TEMP_PASSWORD_AUTH): Remove these methods when replacing password-based auth
+  forgotPassword(phone_or_email: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>('/auth/forgot-password', { phone_or_email });
+  }
+
+  resetPassword(token: string, new_password: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>('/auth/reset-password', { token, new_password });
+  }
+
+  changePassword(current_password: string, new_password: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>('/auth/change-password', { current_password, new_password });
+  }
 }
