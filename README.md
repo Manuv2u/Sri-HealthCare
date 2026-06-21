@@ -1,130 +1,237 @@
-## Hi there 👋
+# SRI Diagnostic Laboratory & Health Care
 
-<!--
-**Sri-HealthCare/Sri-HealthCare** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
+Full-stack diagnostic lab management system — Angular 17 frontend, FastAPI backend, PostgreSQL database, deployed on OCI Always Free tier.
 
-Here are some ideas to get you started:
+---
 
-- 🔭 I’m currently working on ...
-- 🌱 I’m currently learning ...
-- 👯 I’m looking to collaborate on ...
-- 🤔 I’m looking for help with ...
-- 💬 Ask me about ...
-- 📫 How to reach me: ...
-- 😄 Pronouns: ...
-- ⚡ Fun fact: ...
--->
+## Quick Start — Deploy to OCI
+
+Two commands to get the app running on a cloud VM:
+
+```bash
+# 1. Create VM + deploy app (10–15 min first time)
+./vm-up.sh
+
+# 2. Delete VM and all cloud resources
+./vm-down.sh
+```
+
+---
+
+## Prerequisites (one-time setup)
+
+### 1. Install OCI CLI
+
+```bash
+bash -c "$(curl -L https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh)"
+# Installs to ~/bin/oci — accept all defaults
+```
+
+### 2. Configure OCI CLI
+
+```bash
+oci setup config
+```
+
+You will need:
+- **User OCID** — OCI Console → Profile (top right) → User Settings → copy OCID
+- **Tenancy OCID** — OCI Console → Profile → Tenancy → copy OCID
+- **Region** — e.g. `ap-mumbai-1`
+
+This creates `~/.oci/config` and generates an API key pair at `~/.oci/oci_api_key.pem`.
+
+### 3. Upload API key to OCI Console
+
+```bash
+cat ~/.oci/oci_api_key_public.pem
+```
+
+Copy the output. In OCI Console:
+1. Profile (top right) → **User Settings**
+2. Left sidebar → **API Keys** → **Add API Key**
+3. Select **Paste a public key** → paste the key → **Add**
+
+Verify it works:
+```bash
+~/bin/oci iam region list --output table
+```
+
+### 4. Install Docker
+
+Download **Docker Desktop** from [docker.com](https://www.docker.com/products/docker-desktop/) and start it.
+
+### 5. Install jq
+
+```bash
+brew install jq
+```
+
+---
+
+## vm-up.sh — Create VM and Deploy
+
+```
+./vm-up.sh [--provision | --deploy]
+```
+
+| Flag | What it does |
+|------|-------------|
+| *(none)* | Full run: creates VM + deploys app |
+| `--provision` | Creates/verifies VM only (skip deploy) |
+| `--deploy` | Deploys app only (VM must already exist) |
+
+**What happens on first run:**
+
+1. **Provision** (`provision-oci.sh`) — ~10 min
+   - Creates VCN, subnet, internet gateway, security list
+   - Launches Ubuntu 22.04 ARM VM (4 OCPU / 24 GB RAM — OCI Always Free)
+   - Installs Docker, Docker Compose, PostgreSQL 15
+   - Sets up firewall (UFW), fail2ban, daily DB backups
+   - Saves VM IP and SSH key to `deploy/.deploy.conf`
+
+2. **Deploy** (`deploy.sh`) — ~5 min
+   - Builds backend (FastAPI) and frontend (Angular) Docker images
+   - Uploads images to the VM via rsync
+   - Starts containers with `docker compose`
+   - Health-checks the backend; auto-rolls back if startup fails
+
+**Output:**
+
+```
+  App      : http://<VM_IP>
+  API Docs : http://<VM_IP>/api/v1/docs
+  SSH      : ssh -i keys/oci_vm_key ubuntu@<VM_IP>
+```
+
+**Re-deploy after code changes:**
+
+```bash
+./vm-up.sh --deploy
+```
+
+---
+
+## vm-down.sh — Delete VM
+
+```
+./vm-down.sh
+```
+
+Permanently deletes:
+- Compute instance (VM)
+- All data on the VM (PostgreSQL database, file storage)
+- VCN, subnet, internet gateway, security list
+
+> **Back up your database first:**
+> ```bash
+> ssh -i keys/oci_vm_key ubuntu@<VM_IP> \
+>   '/opt/sri-diagnostics/scripts/backup-db.sh'
+> ```
+
+You will be prompted to type `yes` to confirm. After destruction, run `./vm-up.sh` anytime to create a fresh VM.
+
+---
+
+## SSH into the VM
+
+```bash
+ssh -i keys/oci_vm_key ubuntu@<VM_IP>
+```
+
+Useful commands on the VM:
+
+```bash
+# View running containers
+docker compose -f /opt/sri-diagnostics/docker-compose.yml ps
+
+# View backend logs
+docker compose -f /opt/sri-diagnostics/docker-compose.yml logs -f backend
+
+# Manual DB backup
+/opt/sri-diagnostics/scripts/backup-db.sh
+
+# Restart everything
+cd /opt/sri-diagnostics && docker compose up -d --force-recreate
+```
+
+---
+
+## Local Development
+
+```bash
+# Start all services locally (PostgreSQL + backend + frontend)
+docker compose up --build
+
+# Frontend : http://localhost:4200
+# Backend  : http://localhost:8000
+# API Docs : http://localhost:8000/docs
+```
+
+Default admin login:
+- Email: `admin@sri.local`
+- Password: `Admin@123`
+
+---
+
+## File Structure
+
+```
+.
+├── vm-up.sh              ← Create VM + deploy (start here)
+├── vm-down.sh            ← Delete VM
+├── provision-oci.sh      ← OCI infra provisioning
+├── deploy.sh             ← Docker build + upload + deploy
+├── docker-compose.yml    ← Local dev
+├── backend/              ← FastAPI app
+├── frontend/             ← Angular 17 app
+└── deploy/
+    ├── docker-compose.prod.yml   ← Production compose
+    ├── setup-server.sh           ← Server bootstrap script
+    ├── destroy-oci.sh            ← Tear down OCI resources
+    └── scripts/                  ← DB backup, log archive, cleanup
+```
+
+---
+
+## State Files (gitignored)
+
+| File | Purpose |
+|------|---------|
+| `.oci-state.json` | OCI resource OCIDs — auto-created by `vm-up.sh` |
+| `keys/oci_vm_key` | SSH private key for the VM |
+| `keys/oci_vm_key.pub` | SSH public key |
+| `deploy/.deploy.conf` | VM IP, user, key path |
+| `deploy/.env.production` | Production secrets (DB password, JWT secret) |
+
+> These files are in `.gitignore` — never commit them.
+
+---
 
 ## Database Recovery
 
-This section describes how to restore the SRI Diagnostic Laboratory database from a backup file. The expected **Recovery Time Objective (RTO) is 4 hours**.
+Daily backups are stored at `/opt/sri-diagnostics/backups/` on the VM.
 
-### Backup Location
-
-Daily backups are stored as gzip-compressed SQL dumps:
-
-- **Local storage:** `<FILE_STORAGE_PATH>/backups/backup_YYYYMMDD_HHMMSS.sql.gz`
-- **S3 storage:** `s3://<AWS_S3_BUCKET>/backups/backup_YYYYMMDD_HHMMSS.sql.gz`
-
-### Step-by-Step Restore Instructions
-
-**1. Identify the backup file to restore**
+### Restore from backup
 
 ```bash
-# List available backups (most recent first)
-ls -lt /app/file_storage/backups/backup_*.sql.gz | head -10
+# SSH into VM
+ssh -i keys/oci_vm_key ubuntu@<VM_IP>
 
-# Or from S3
-aws s3 ls s3://<bucket>/backups/ --recursive | sort -r | head -10
+# List backups
+ls -lt /opt/sri-diagnostics/backups/
+
+# Restore
+gunzip -c /opt/sri-diagnostics/backups/sri_diagnostics_<DATE>.sql.gz \
+  | psql -h localhost -U sri_user sri_diagnostics
 ```
 
-**2. Download the backup (S3 only)**
+### Verify restore
 
 ```bash
-aws s3 cp s3://<bucket>/backups/backup_YYYYMMDD_HHMMSS.sql.gz /tmp/restore.sql.gz
-```
-
-**3. Decompress the backup**
-
-```bash
-gunzip -c /app/file_storage/backups/backup_YYYYMMDD_HHMMSS.sql.gz > /tmp/restore.sql
-# Or from the downloaded S3 file:
-gunzip -c /tmp/restore.sql.gz > /tmp/restore.sql
-```
-
-**4. Create a fresh target database (if restoring to a new instance)**
-
-```bash
-psql postgresql://sri:sri_secret@localhost:5432/postgres \
-  -c "CREATE DATABASE sri_lab;"
-```
-
-**5. Restore the dump**
-
-```bash
-psql postgresql://sri:sri_secret@localhost:5432/sri_lab \
-  -f /tmp/restore.sql
-```
-
-**6. Run Alembic migrations to apply any schema changes newer than the backup**
-
-```bash
-cd backend
-alembic upgrade head
-```
-
-**7. Restart the application**
-
-```bash
-# local
-ENV_FILE=.env.local docker compose up --build
-
-# staging
-ENV_FILE=.env.staging docker compose up --build
-
-# production
-ENV_FILE=.env.production docker compose up -d --build
-```
-
-### Verifying the Restore
-
-After restoring, confirm the database is healthy:
-
-```bash
-# Check key tables exist and have data
-psql postgresql://sri:sri_secret@localhost:5432/sri_lab -c "
+psql -h localhost -U sri_user sri_diagnostics -c "
 SELECT
   (SELECT COUNT(*) FROM users)    AS users,
   (SELECT COUNT(*) FROM bookings) AS bookings,
-  (SELECT COUNT(*) FROM payments) AS payments,
-  (SELECT COUNT(*) FROM tests)    AS tests,
-  (SELECT COUNT(*) FROM packages) AS packages;
+  (SELECT COUNT(*) FROM tests)    AS tests;
 "
-
-# Hit the health endpoint
-curl http://localhost:8000/api/v1/health
 ```
-
-A successful restore will show non-zero row counts for the key tables and a `200 OK` response from the health endpoint.
-
-### Automated Monthly Restore Validation
-
-The system runs an automated restore validation job on the 1st of every month at 03:00 UTC. It:
-
-1. Restores the most recent backup to a temporary database (`sri_restore_validation_<timestamp>`)
-2. Verifies all key tables (`users`, `bookings`, `payments`, `tests`, `packages`) exist
-3. Compares row counts between production and the restored database
-4. Logs the result (`pass`/`fail`), row counts, and duration
-5. Notifies the admin by email on failure
-6. Drops the temporary database
-
-Check the application logs for entries prefixed with `restore_validation_result:` to review past validation outcomes.
-
-
-
-
-
-git push origin main
-
-
-admin@sri.local / Admin@123

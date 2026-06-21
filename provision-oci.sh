@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# provision-oci.sh — Full OCI Always Free infrastructure provisioning
+# provision-oci.sh — OCI Always Free infrastructure provisioning (ap-mumbai-1)
 #
 # Creates from scratch:
 #   VCN → Internet Gateway → Route Table → Security List → Subnet
@@ -12,16 +12,17 @@
 #   ./provision-oci.sh --infra-only # OCI resources only, skip server setup
 #   ./provision-oci.sh --skip-infra # Skip OCI resources, only bootstrap server
 #
+# On "Out of host capacity" the script retries every 5 minutes for up to 2
+# hours. ARM capacity in Mumbai is a shared pool that frees up continuously.
+# Leave it running — it will claim a slot as soon as one opens.
+#
 # Idempotent: safe to re-run. Reads .oci-state.json and reuses existing
 # resources rather than creating duplicates.
-#
-# Prerequisites:
-#   - OCI CLI installed and configured  (oci setup config)
-#   - jq installed                      (brew install jq  or  apt install jq)
 # =============================================================================
 set -euo pipefail
+export PATH="$HOME/bin:$PATH"
 
-# ── Colours ──────────────────────────────────────────────────────────────────
+# ── Colours ───────────────────────────────────────────────────────────────────
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'
 BLUE='\033[0;34m'; CYAN='\033[0;36m'; BOLD='\033[1m'; NC='\033[0m'
 log()     { echo -e "${BLUE}[provision]${NC} $*"; }
@@ -56,31 +57,27 @@ SUBNET_CIDR="10.0.0.0/24"
 IGW_NAME="sri-diagnostics-igw"
 SUBNET_NAME="sri-diagnostics-subnet"
 SHAPE="VM.Standard.A1.Flex"
-SHAPE_OCPUS=4
-SHAPE_MEMORY=24
+SHAPE_OCPUS=2
+SHAPE_MEMORY=8
 BOOT_VOLUME_GB=100
 VM_USER="ubuntu"
 DEPLOY_DIR="/opt/sri-diagnostics"
 
-# ── OCI CLI profile (override with OCI_CLI_PROFILE env var) ───────────────────
+# Retry config for "Out of host capacity"
+RETRY_INTERVAL=300   # 5 minutes between attempts
+RETRY_MAX_WAIT=7200  # give up after 2 hours
+
+# ── OCI CLI helpers ───────────────────────────────────────────────────────────
 OCI_PROFILE="${OCI_CLI_PROFILE:-DEFAULT}"
-
-# Helper: run OCI CLI with chosen profile
 oci_cli() { oci --profile "$OCI_PROFILE" "$@"; }
-
-# ── Helpers ───────────────────────────────────────────────────────────────────
 is_ocid() { [[ -n "${1:-}" && "${1:-}" != "null" && "${1:-}" == ocid1.* ]]; }
 
-# Read a field from state file
 state_get() { [[ -f "$STATE_FILE" ]] && jq -r ".${1} // empty" "$STATE_FILE" || echo ""; }
-
-# Write / update a field in state file
 state_set() {
   local key="$1" val="$2"
-  if [[ -f "$STATE_FILE" ]]; then
-    local tmp; tmp=$(jq --arg k "$key" --arg v "$val" '.[$k] = $v' "$STATE_FILE")
-    echo "$tmp" > "$STATE_FILE"
-  fi
+  [[ -f "$STATE_FILE" ]] || echo '{}' > "$STATE_FILE"
+  local tmp; tmp=$(jq --arg k "$key" --arg v "$val" '.[$k] = $v' "$STATE_FILE")
+  echo "$tmp" > "$STATE_FILE"
 }
 
 # ── Pre-flight checks ─────────────────────────────────────────────────────────
@@ -88,46 +85,32 @@ step "Pre-flight checks"
 
 if ! command -v oci &>/dev/null; then
   error "OCI CLI not found."
-  echo ""
-  echo "  Install it with:"
-  echo "    bash -c \"\$(curl -L https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh)\""
-  echo "  Then configure:"
-  echo "    oci setup config"
+  echo "  Install: bash -c \"\$(curl -L https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh)\""
+  echo "  Then:    oci setup config"
   exit 1
 fi
 success "OCI CLI found ($(oci --version 2>/dev/null | head -1))"
 
 if ! command -v jq &>/dev/null; then
-  error "jq not found."
-  echo "  Install: brew install jq  (macOS)  or  sudo apt-get install -y jq  (Linux)"
+  error "jq not found. Install: brew install jq"
   exit 1
 fi
 success "jq found ($(jq --version))"
 
 OCI_CONFIG="${OCI_CLI_CONFIG_FILE:-$HOME/.oci/config}"
 if [[ ! -f "$OCI_CONFIG" ]]; then
-  error "OCI config not found at $OCI_CONFIG"
-  echo ""
-  echo "  Run: oci setup config"
-  echo "  You will need:"
-  echo "    - Your OCI user OCID       (Identity → Users → User details → OCID)"
-  echo "    - Your tenancy OCID        (Profile menu → Tenancy)"
-  echo "    - Your region              (top-right of OCI Console, e.g. ap-mumbai-1)"
+  error "OCI config not found at $OCI_CONFIG. Run: oci setup config"
   exit 1
 fi
 success "OCI config found at $OCI_CONFIG"
 
-# Verify credentials work
 if ! oci_cli iam region list --output table &>/dev/null; then
   error "OCI CLI credentials test failed."
-  echo "  Check your ~/.oci/config — key fingerprint and key file must be correct."
-  echo "  Test with: oci iam region list"
+  echo "  Verify API key is uploaded: OCI Console → Profile → User Settings → API Keys"
   exit 1
 fi
 success "OCI credentials verified"
 
-# ── Read config values ────────────────────────────────────────────────────────
-# Extract from OCI config file (handles [profile] sections)
 oci_config_get() {
   local key="$1"
   awk "/^\[${OCI_PROFILE}\]/{found=1} found && /^${key}[[:space:]]*=/{print; exit}" "$OCI_CONFIG" \
@@ -138,24 +121,21 @@ TENANCY_OCID=$(oci_config_get "tenancy")
 REGION=$(oci_config_get "region")
 
 if [[ -z "$TENANCY_OCID" ]]; then
-  error "Could not read tenancy OCID from $OCI_CONFIG (profile [$OCI_PROFILE])"
+  error "Could not read tenancy OCID from $OCI_CONFIG"
   exit 1
 fi
 if [[ -z "$REGION" ]]; then
-  error "Could not read region from $OCI_CONFIG (profile [$OCI_PROFILE])"
+  error "Could not read region from $OCI_CONFIG"
   exit 1
 fi
 
-# Use tenancy root as compartment (works for Always Free; change if needed)
 COMPARTMENT_ID="$TENANCY_OCID"
-
 log "Tenancy : $TENANCY_OCID"
 log "Region  : $REGION"
 log "Profile : $OCI_PROFILE"
 
 # ── SSH Key Generation ────────────────────────────────────────────────────────
 step "SSH key pair"
-
 mkdir -p "$KEYS_DIR"
 chmod 700 "$KEYS_DIR"
 
@@ -170,8 +150,6 @@ else
   log "  Private: $KEY_FILE"
   log "  Public : $KEY_PUB"
 fi
-
-SSH_PUB_KEY=$(cat "$KEY_PUB")
 SSH_OPTS="-i $KEY_FILE -o StrictHostKeyChecking=accept-new -o ConnectTimeout=10"
 
 # ── Skip infra if requested ───────────────────────────────────────────────────
@@ -180,7 +158,7 @@ if [[ "$SKIP_INFRA" == true ]]; then
   PUBLIC_IP=$(state_get "public_ip")
   INSTANCE_ID=$(state_get "instance_id")
   if [[ -z "$PUBLIC_IP" || -z "$INSTANCE_ID" ]]; then
-    error "No valid state found in $STATE_FILE. Run without --skip-infra first."
+    error "No valid state in $STATE_FILE. Run without --skip-infra first."
     exit 1
   fi
   log "Using existing VM: $PUBLIC_IP ($INSTANCE_ID)"
@@ -190,11 +168,10 @@ else
 # INFRASTRUCTURE PROVISIONING
 # =============================================================================
 
-# ── VCN ────────────────────────────────────────────────────────────────────────
+# ── VCN ───────────────────────────────────────────────────────────────────────
 step "VCN"
 VCN_ID=$(state_get "vcn_id")
 if ! is_ocid "$VCN_ID"; then
-  # Check if already exists by name (re-run safety)
   VCN_ID=$(oci_cli network vcn list \
     --compartment-id "$COMPARTMENT_ID" \
     --display-name "$VCN_NAME" \
@@ -248,7 +225,7 @@ else
   success "Internet Gateway loaded from state: $IGW_ID"
 fi
 
-# ── Route Table (update default) ──────────────────────────────────────────────
+# ── Route Table ───────────────────────────────────────────────────────────────
 step "Route Table"
 RT_ID=$(state_get "route_table_id")
 if ! is_ocid "$RT_ID"; then
@@ -324,7 +301,6 @@ INGRESS_RULES=$(cat << 'JSON'
 ]
 JSON
 )
-
 EGRESS_RULES='[{"isStateless":false,"destination":"0.0.0.0/0","destinationType":"CIDR_BLOCK","protocol":"all","description":"All outbound traffic"}]'
 
 log "Updating security list (SSH, HTTP, HTTPS, API 8080)…"
@@ -370,13 +346,12 @@ else
   success "Subnet loaded from state: $SUBNET_ID"
 fi
 
-# ── Find Ubuntu 22.04 ARM image ───────────────────────────────────────────────
+# ── Ubuntu 22.04 ARM image ────────────────────────────────────────────────────
 step "Ubuntu 22.04 ARM image"
 IMAGE_ID=$(state_get "image_id")
 if ! is_ocid "$IMAGE_ID"; then
   log "Querying latest Ubuntu 22.04 (aarch64) platform image…"
 
-  # Try ARM-specific image first (named with aarch64)
   IMAGE_ID=$(oci_cli compute image list \
     --compartment-id "$COMPARTMENT_ID" \
     --operating-system "Canonical Ubuntu" \
@@ -386,9 +361,8 @@ if ! is_ocid "$IMAGE_ID"; then
     | jq -r '[.data[] | select(."display-name" | ascii_downcase | contains("aarch64"))]
               | sort_by(."time-created") | last | .id // empty')
 
-  # Fallback: any Ubuntu 22.04 image (for regions that use unified images)
   if ! is_ocid "$IMAGE_ID"; then
-    warn "No aarch64-specific image found — falling back to latest Ubuntu 22.04"
+    warn "No aarch64-specific image — falling back to latest Ubuntu 22.04"
     IMAGE_ID=$(oci_cli compute image list \
       --compartment-id "$COMPARTMENT_ID" \
       --operating-system "Canonical Ubuntu" \
@@ -399,7 +373,7 @@ if ! is_ocid "$IMAGE_ID"; then
   fi
 
   if ! is_ocid "$IMAGE_ID"; then
-    error "Could not find a Ubuntu 22.04 image in region $REGION"
+    error "Could not find a Ubuntu 22.04 image in $REGION"
     exit 1
   fi
   state_set "image_id" "$IMAGE_ID"
@@ -415,48 +389,80 @@ AD=$(oci_cli iam availability-domain list \
   --query 'data[0].name' --raw-output)
 log "Using AD: $AD"
 
-# ── Compute Instance ──────────────────────────────────────────────────────────
+# ── Compute Instance (with capacity retry) ────────────────────────────────────
 step "Compute Instance"
 INSTANCE_ID=$(state_get "instance_id")
+
 if ! is_ocid "$INSTANCE_ID"; then
-  # Check if already exists by name
+  # Check if already exists by name (previous partial run)
   INSTANCE_ID=$(oci_cli compute instance list \
     --compartment-id "$COMPARTMENT_ID" \
     --display-name "$VM_DISPLAY_NAME" \
     --lifecycle-state RUNNING \
     --query 'data[0].id' --raw-output 2>/dev/null || echo "")
+fi
 
-  if ! is_ocid "$INSTANCE_ID"; then
-    log "Launching $SHAPE ($SHAPE_OCPUS OCPU / ${SHAPE_MEMORY}GB RAM)…"
-    log "This takes 2-3 minutes."
+if is_ocid "$INSTANCE_ID"; then
+  success "Instance already running: $INSTANCE_ID"
+  state_set "instance_id" "$INSTANCE_ID"
+else
+  SHAPE_CONFIG="{\"ocpus\":$SHAPE_OCPUS,\"memoryInGBs\":$SHAPE_MEMORY}"
+  FREEFORM_TAGS='{"project":"sri-diagnostics","managed-by":"provision-oci.sh"}'
 
-    VNIC_DETAILS="{\"subnetId\":\"$SUBNET_ID\",\"assignPublicIp\":true,\"displayName\":\"${VM_DISPLAY_NAME}-vnic\"}"
-    METADATA="{\"ssh_authorized_keys\":\"$SSH_PUB_KEY\"}"
-    SHAPE_CONFIG="{\"ocpus\":$SHAPE_OCPUS,\"memoryInGBs\":$SHAPE_MEMORY}"
-    FREEFORM_TAGS='{"project":"sri-diagnostics","managed-by":"provision-oci.sh"}'
+  ELAPSED=0
+  ATTEMPT=0
+  while true; do
+    ATTEMPT=$((ATTEMPT + 1))
+    log "Launch attempt $ATTEMPT — $SHAPE ($SHAPE_OCPUS OCPU / ${SHAPE_MEMORY}GB RAM)…"
 
-    INSTANCE_ID=$(oci_cli compute instance launch \
+    LAUNCH_OUTPUT=$(oci_cli compute instance launch \
       --compartment-id "$COMPARTMENT_ID" \
       --availability-domain "$AD" \
       --shape "$SHAPE" \
       --shape-config "$SHAPE_CONFIG" \
       --image-id "$IMAGE_ID" \
-      --create-vnic-details "$VNIC_DETAILS" \
+      --subnet-id "$SUBNET_ID" \
+      --assign-public-ip true \
+      --vnic-display-name "${VM_DISPLAY_NAME}-vnic" \
+      --ssh-authorized-keys-file "$KEY_PUB" \
       --display-name "$VM_DISPLAY_NAME" \
-      --metadata "$METADATA" \
       --boot-volume-size-in-gbs "$BOOT_VOLUME_GB" \
       --freeform-tags "$FREEFORM_TAGS" \
-      --query 'data.id' --raw-output)
+      --query 'data.id' --raw-output 2>&1) || true
 
-    # Save immediately so re-run can find it
-    state_set "instance_id" "$INSTANCE_ID"
-    log "Instance launched: $INSTANCE_ID"
-  else
-    success "Instance already exists: $INSTANCE_ID"
-    state_set "instance_id" "$INSTANCE_ID"
-  fi
-else
-  success "Instance loaded from state: $INSTANCE_ID"
+    if echo "$LAUNCH_OUTPUT" | grep -q "^ocid1\."; then
+      # Success
+      INSTANCE_ID="$LAUNCH_OUTPUT"
+      state_set "instance_id" "$INSTANCE_ID"
+      success "Instance launched: $INSTANCE_ID"
+      break
+
+    elif echo "$LAUNCH_OUTPUT" | grep -qE "Out of host capacity|timed out|RequestException|ConnectionError|connection to endpoint"; then
+      ELAPSED=$((ELAPSED + RETRY_INTERVAL))
+      if [[ $ELAPSED -ge $RETRY_MAX_WAIT ]]; then
+        error "Still failing after ${RETRY_MAX_WAIT}s of retrying."
+        echo ""
+        echo "  Mumbai ARM pool may still be full. Options:"
+        echo "    • Try again later (early morning IST has more capacity):"
+        echo "        ./vm-up.sh --provision"
+        echo "    • Or try a different OCI Free Trial account."
+        exit 1
+      fi
+      WAIT_MIN=$((RETRY_INTERVAL / 60))
+      TOTAL_MIN=$((ELAPSED / 60))
+      MAX_MIN=$((RETRY_MAX_WAIT / 60))
+      REASON="capacity"
+      echo "$LAUNCH_OUTPUT" | grep -qE "timed out|RequestException|ConnectionError" && REASON="network timeout"
+      warn "Retryable error ($REASON) — attempt $ATTEMPT, ${TOTAL_MIN}/${MAX_MIN} min elapsed."
+      warn "Retrying in ${WAIT_MIN} minutes…"
+      sleep $RETRY_INTERVAL
+
+    else
+      error "Instance launch failed:"
+      error "$LAUNCH_OUTPUT"
+      exit 1
+    fi
+  done
 fi
 
 # ── Wait for RUNNING ──────────────────────────────────────────────────────────
@@ -474,19 +480,19 @@ for i in $(seq 1 60); do
       ;;
     TERMINATED|TERMINATING)
       error "Instance entered $STATE state unexpectedly."
-      error "Check OCI Console → Compute → Instances for error details."
+      error "Check OCI Console → Compute → Instances for details."
       exit 1
       ;;
     *)
       echo -n "  [$STATE] "
-      [[ $((i % 6)) -eq 0 ]] && echo ""  # newline every 60s
+      [[ $((i % 6)) -eq 0 ]] && echo ""
       sleep 10
       ;;
   esac
 
   if [[ $i -eq 60 ]]; then
     error "Timeout: Instance did not reach RUNNING after 600s"
-    error "Check OCI Console for errors. Re-run with --skip-infra after it's running."
+    error "Re-run with --skip-infra once it's running."
     exit 1
   fi
 done
@@ -497,7 +503,6 @@ step "Public IP"
 PUBLIC_IP=$(state_get "public_ip")
 if [[ -z "$PUBLIC_IP" || "$PUBLIC_IP" == "null" ]]; then
   log "Fetching public IP…"
-  # Retry up to 30s — IP assignment can lag slightly
   for i in $(seq 1 6); do
     PUBLIC_IP=$(oci_cli compute instance list-vnics \
       --instance-id "$INSTANCE_ID" \
@@ -515,21 +520,21 @@ if [[ -z "$PUBLIC_IP" || "$PUBLIC_IP" == "null" ]]; then
 fi
 success "Public IP: $PUBLIC_IP"
 
-fi  # end of SKIP_INFRA block
+fi  # end SKIP_INFRA block
 
 # ── Save full state file ───────────────────────────────────────────────────────
 step "Saving state"
 cat > "$STATE_FILE" << JSON
 {
-  "compartment_id":  "${COMPARTMENT_ID}",
-  "region":          "${REGION}",
+  "compartment_id":  "$COMPARTMENT_ID",
+  "region":          "$REGION",
   "vcn_id":          "$(state_get vcn_id)",
   "igw_id":          "$(state_get igw_id)",
   "route_table_id":  "$(state_get route_table_id)",
   "security_list_id":"$(state_get security_list_id)",
   "subnet_id":       "$(state_get subnet_id)",
   "image_id":        "$(state_get image_id)",
-  "instance_id":     "$(state_get instance_id)",
+  "instance_id":     "$INSTANCE_ID",
   "public_ip":       "$PUBLIC_IP",
   "vm_user":         "$VM_USER",
   "ssh_key":         "$KEY_FILE",
@@ -580,8 +585,7 @@ done
 echo ""
 if [[ "$SSH_READY" != true ]]; then
   error "SSH not available after 300s."
-  error "Verify security list allows port 22 and the VM finished booting."
-  error "Re-run with --skip-infra once SSH is accessible."
+  error "Verify security list allows port 22. Re-run with --skip-infra once SSH is accessible."
   exit 1
 fi
 
@@ -608,6 +612,7 @@ echo -e "${BOLD}  Provisioning Complete ✔${NC}"
 echo -e "${BOLD}${GREEN}══════════════════════════════════════════════════${NC}"
 echo ""
 echo "  VM IP       : $PUBLIC_IP"
+echo "  Region      : $REGION"
 echo "  SSH key     : $KEY_FILE"
 echo "  State file  : $STATE_FILE"
 echo "  Deploy env  : $DEPLOY_ENV"
@@ -617,7 +622,6 @@ echo "  OCI Resources:"
 echo "    Instance   : $(state_get instance_id)"
 echo "    VCN        : $(state_get vcn_id)"
 echo "    Subnet     : $(state_get subnet_id)"
-echo "    Region     : $REGION"
 echo ""
 echo -e "  ${YELLOW}Next steps:${NC}"
 echo "    1. Edit $DEPLOY_ENV — fill in SMTP, SMS, payment keys"
@@ -628,8 +632,7 @@ echo -e "    Frontend : ${CYAN}http://$PUBLIC_IP${NC}"
 echo -e "    Backend  : ${CYAN}http://$PUBLIC_IP:8080${NC}"
 echo -e "    API docs : ${CYAN}http://$PUBLIC_IP:8080/docs${NC}"
 echo ""
-echo "  To SSH into the VM:"
-echo "    ssh -i $KEY_FILE $VM_USER@$PUBLIC_IP"
+echo "  SSH: ssh -i $KEY_FILE $VM_USER@$PUBLIC_IP"
 echo ""
 echo "  To destroy all OCI resources:"
 echo "    ./deploy/destroy-oci.sh"

@@ -14,9 +14,12 @@ FROM nginx:1.25-alpine
 
 COPY --from=builder /app/dist/sri-diagnostic-lab/browser /usr/share/nginx/html
 
-# Nginx config: serve SPA and proxy /api/ to backend container
+# Nginx config: serve SPA on both ports and proxy /api/ to backend container
+# Port 4200 = local dev (docker-compose.yml maps 4200:4200)
+# Port 80   = production (docker-compose.prod.yml maps 80:80)
 RUN printf 'server {\n\
     listen 4200;\n\
+    listen 80;\n\
     root /usr/share/nginx/html;\n\
     index index.html;\n\
 \n\
@@ -33,4 +36,4 @@ RUN printf 'server {\n\
     }\n\
 }\n' > /etc/nginx/conf.d/default.conf
 
-EXPOSE 4200
+EXPOSE 4200 80

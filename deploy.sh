@@ -9,6 +9,9 @@
 # =============================================================================
 set -euo pipefail
 
+# Add ~/bin to PATH so OCI CLI installed at ~/bin/oci is always found
+export PATH="$HOME/bin:$PATH"
+
 # ── Colours ──────────────────────────────────────────────────────────────────
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'
 BLUE='\033[0;34m'; CYAN='\033[0;36m'; BOLD='\033[1m'; NC='\033[0m'
@@ -80,19 +83,10 @@ success "VM reachable"
 
 # ── Build images ──────────────────────────────────────────────────────────────
 if [[ "$SKIP_BUILD" == false ]]; then
-  step "Patching environment.prod.ts with VM API URL"
-  ENV_FILE_TS="frontend/src/environments/environment.prod.ts"
-  # Backup and inject the real API host
-  cp "$ENV_FILE_TS" "${ENV_FILE_TS}.bak"
-  sed -i.bak2 "s|apiUrl:.*|apiUrl: 'http://${VM_HOST}:8080/api/v1',|" "$ENV_FILE_TS"
-  success "API URL → http://${VM_HOST}:8080/api/v1"
-
-  # Ensure we restore the original even on failure
-  restore_env() {
-    mv "${ENV_FILE_TS}.bak" "$ENV_FILE_TS" 2>/dev/null || true
-    rm -f "${ENV_FILE_TS}.bak2"
-  }
-  trap restore_env EXIT
+  # Frontend uses relative /api/v1 URL; nginx inside the container proxies
+  # /api/ → http://backend:8000/api/ via Docker-internal networking.
+  # No need to patch environment.prod.ts with the VM IP.
+  log "API routing: nginx proxy → backend container (no IP patch needed)"
 
   step "Building backend image"
   docker build -t "$BACKEND_IMAGE" ./backend
@@ -101,10 +95,6 @@ if [[ "$SKIP_BUILD" == false ]]; then
   step "Building frontend image"
   docker build -t "$FRONTEND_IMAGE" ./frontend
   success "Frontend image built"
-
-  # Restore immediately after successful build
-  restore_env
-  trap - EXIT
 else
   warn "Skipping image build (--skip-build)"
 fi
@@ -211,8 +201,8 @@ echo -e "${BOLD}${GREEN}══════════════════�
 echo -e "${BOLD}  Deployment Successful ✔${NC}"
 echo -e "${BOLD}${GREEN}════════════════════════════════════════${NC}"
 echo -e "  Frontend : ${CYAN}http://${VM_HOST}${NC}"
-echo -e "  Backend  : ${CYAN}http://${VM_HOST}:8080${NC}"
-echo -e "  API Docs : ${CYAN}http://${VM_HOST}:8080/docs${NC}"
+echo -e "  API Docs : ${CYAN}http://${VM_HOST}/api/v1/docs${NC}"
+echo -e "  Direct BE: ${CYAN}http://${VM_HOST}:8080${NC} (debug only)"
 echo -e "  Release  : ${TIMESTAMP}"
 echo -e "${BOLD}${GREEN}════════════════════════════════════════${NC}"
 echo ""

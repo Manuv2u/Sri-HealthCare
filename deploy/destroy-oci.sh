@@ -10,12 +10,19 @@
 # =============================================================================
 set -euo pipefail
 
+# Add ~/bin to PATH so OCI CLI installed at ~/bin/oci is always found
+export PATH="$HOME/bin:$PATH"
+
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'
 BLUE='\033[0;34m'; BOLD='\033[1m'; NC='\033[0m'
 log()     { echo -e "${BLUE}[destroy]${NC} $*"; }
 success() { echo -e "${GREEN}[✔]${NC} $*"; }
 warn()    { echo -e "${YELLOW}[!]${NC} $*"; }
 error()   { echo -e "${RED}[✘]${NC} $*" >&2; }
+
+# Always run from repo root regardless of where script is called from
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR/.."
 
 STATE_FILE=".oci-state.json"
 OCI_PROFILE="${OCI_CLI_PROFILE:-DEFAULT}"
@@ -30,7 +37,8 @@ if [[ ! -f "$STATE_FILE" ]]; then
 fi
 
 if ! command -v oci &>/dev/null; then
-  error "OCI CLI not found."
+  error "OCI CLI not found at ~/bin/oci or in PATH."
+  echo "  Install: bash -c \"\$(curl -L https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh)\""
   exit 1
 fi
 
@@ -150,10 +158,10 @@ echo ""
 read -r -p "  Also delete local keys/ and state files? [y/N]: " DEL_LOCAL
 if [[ "$DEL_LOCAL" =~ ^[Yy]$ ]]; then
   rm -rf keys/
-  rm -f "$STATE_FILE" deploy/.deploy.conf deploy/.env.production
+  rm -f "$STATE_FILE" .oci-state-*.json deploy/.deploy.conf deploy/.env.production
   success "Local keys and state files deleted"
 else
-  log "Local files kept (keys/, $STATE_FILE)"
+  log "Local files kept (keys/, $STATE_FILE, .oci-state-*.json)"
 fi
 
 echo ""

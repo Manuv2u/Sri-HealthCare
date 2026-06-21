@@ -38,10 +38,18 @@ DB_PASS="${DB_PASS:-$(openssl rand -base64 32 | tr -dc 'A-Za-z0-9' | head -c 32)
 log "Updating system packages…"
 apt-get update -qq
 DEBIAN_FRONTEND=noninteractive apt-get upgrade -y -qq
+
+# Enable universe repo (needed for zip, fail2ban, htop on OCI minimal image)
+add-apt-repository universe -y
+apt-get update -qq
+
 apt-get install -y -qq \
   curl wget gnupg2 lsb-release ca-certificates \
   apt-transport-https software-properties-common \
-  unzip zip rsync jq htop ufw fail2ban
+  unzip zip rsync jq htop ufw
+
+# fail2ban is optional (SSH brute-force protection) — don't abort if unavailable
+apt-get install -y -qq fail2ban || warn "fail2ban not available — skipping (non-critical)"
 
 success "System packages ready"
 
@@ -206,8 +214,9 @@ ufw --force enable
 success "UFW configured"
 
 # ── 9. fail2ban ───────────────────────────────────────────────────────────────
-log "Configuring fail2ban…"
-cat > /etc/fail2ban/jail.local << 'FAIL2BAN'
+if command -v fail2ban-server &>/dev/null; then
+  log "Configuring fail2ban…"
+  cat > /etc/fail2ban/jail.local << 'FAIL2BAN'
 [sshd]
 enabled  = true
 port     = ssh
@@ -215,9 +224,12 @@ maxretry = 5
 bantime  = 3600
 findtime = 600
 FAIL2BAN
-systemctl enable fail2ban
-systemctl restart fail2ban
-success "fail2ban configured"
+  systemctl enable fail2ban
+  systemctl restart fail2ban
+  success "fail2ban configured"
+else
+  warn "fail2ban not installed — skipping"
+fi
 
 # ── 10. Server-side maintenance scripts ──────────────────────────────────────
 # These will be overwritten by deploy.sh on each deploy — scaffold them here
