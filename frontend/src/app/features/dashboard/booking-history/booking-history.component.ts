@@ -100,6 +100,7 @@ import { ErrorBannerComponent } from '../../../shared/components/error-banner.co
             <app-error-banner *ngIf="error()" [message]="error()!" [retryLabel]="'Retry'" (retry)="load()" />
 
             @if (!loading() && !error()) {
+              <div class="table-wrap">
               <table class="bookings-table">
                 <thead>
                   <tr>
@@ -155,6 +156,7 @@ import { ErrorBannerComponent } from '../../../shared/components/error-banner.co
                   }
                 </tbody>
               </table>
+              </div>
             }
           </div>
 
@@ -329,7 +331,19 @@ import { ErrorBannerComponent } from '../../../shared/components/error-banner.co
     .promo-orig { font-size:.9rem; opacity:.6; text-decoration:line-through; }
     .btn-promo { display:block; background:#fff; color:#1a56db; border:none; border-radius:8px; padding:.6rem 1rem; font-size:.875rem; font-weight:700; text-align:center; text-decoration:none; cursor:pointer; &:hover{background:#ebf8ff;} }
 
-    @media(max-width:900px){.dashboard-layout{grid-template-columns:1fr;}.dash-sidebar{display:none;}.dash-content-grid{grid-template-columns:1fr;}.kpi-row{grid-template-columns:1fr 1fr;}}
+    .table-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; width:100%; }
+    @media(max-width:900px){
+      .dashboard-layout{grid-template-columns:1fr;}
+      .dash-sidebar{display:none;}
+      .dash-content-grid{grid-template-columns:1fr;}
+      .kpi-row{grid-template-columns:1fr 1fr;}
+      .dash-main{padding:1.25rem;}
+    }
+    @media(max-width:480px){
+      .kpi-row{grid-template-columns:1fr;}
+      .dash-header{flex-direction:column;}
+      .btn-book-new{width:100%;justify-content:center;}
+    }
   `],
 })
 export class BookingHistoryComponent implements OnInit {

@@ -125,3 +125,6 @@ Check the application logs for entries prefixed with `restore_validation_result:
 
 
 git push origin main
+
+
+admin@sri.local / Admin@123

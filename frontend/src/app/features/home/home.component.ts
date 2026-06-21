@@ -25,15 +25,23 @@ import { Package } from '../../core/api/api.types';
             <input [formControl]="searchCtrl" placeholder="Search for e.g., CBC, Thyroid Profile…" (keydown.enter)="goSearch()" />
             <button class="btn-find" (click)="goSearch()">Find Test</button>
           </div>
-          <div class="hero-actions">
-            <a routerLink="/booking" class="hero-action-btn">
-              <mat-icon>calendar_today</mat-icon> Book Collection
+          <div class="hero-ctas">
+            <a routerLink="/booking" class="hero-cta-primary">
+              <mat-icon>calendar_today</mat-icon> Book Home Collection
             </a>
-            <a routerLink="/reports" class="hero-action-btn outline">
-              <mat-icon>download</mat-icon> Download Reports
+            <a routerLink="/tests" class="hero-cta-secondary">
+              <mat-icon>biotech</mat-icon> Browse Tests
             </a>
-            <a routerLink="/profile" class="hero-action-btn outline">
-              <mat-icon>people</mat-icon> Manage Family Profiles
+          </div>
+          <div class="hero-action-chips">
+            <a routerLink="/reports" class="hac">
+              <mat-icon>download</mat-icon> Reports
+            </a>
+            <a routerLink="/profile" class="hac">
+              <mat-icon>people</mat-icon> Family
+            </a>
+            <a routerLink="/packages" class="hac">
+              <mat-icon>inventory_2</mat-icon> Packages
             </a>
           </div>
           <div class="hero-stat">
@@ -247,17 +255,35 @@ import { Package } from '../../core/api/api.types';
       padding: .45rem 1rem; font-size: .875rem; font-weight: 600; cursor: pointer; white-space: nowrap;
       &:hover { background: #00695c; }
     }
-    .hero-actions {
-      display: flex; flex-wrap: wrap; gap: .75rem; margin-bottom: 1.5rem;
+    .hero-ctas {
+      display: flex; flex-wrap: wrap; gap: .75rem; margin-bottom: 1rem;
     }
-    .hero-action-btn {
-      display: inline-flex; align-items: center; gap: .4rem;
-      background: #fff; border: 1.5px solid #e2e8f0; border-radius: 10px;
-      padding: .5rem 1rem; font-size: .85rem; font-weight: 600; color: #2d3748;
-      text-decoration: none; transition: all .15s;
-      mat-icon { font-size: 1rem; width: 1rem; height: 1rem; color: #00796b; }
-      &:hover { border-color: #00796b; color: #00796b; }
-      &.outline { background: transparent; }
+    .hero-cta-primary {
+      display: inline-flex; align-items: center; gap: .5rem;
+      background: #00796b; color: #fff; border: none; border-radius: 12px;
+      padding: .8rem 1.5rem; font-size: .95rem; font-weight: 700;
+      text-decoration: none; transition: all .15s; min-height: 48px;
+      mat-icon { font-size: 1.1rem; width: 1.1rem; height: 1.1rem; }
+      &:hover { background: #00695c; box-shadow: 0 4px 16px rgba(0,121,107,.35); text-decoration: none; }
+    }
+    .hero-cta-secondary {
+      display: inline-flex; align-items: center; gap: .5rem;
+      background: #fff; color: #00796b; border: 1.5px solid #00796b; border-radius: 12px;
+      padding: .75rem 1.25rem; font-size: .9rem; font-weight: 700;
+      text-decoration: none; transition: all .15s; min-height: 48px;
+      mat-icon { font-size: 1.1rem; width: 1.1rem; height: 1.1rem; }
+      &:hover { background: #e0f2f1; text-decoration: none; }
+    }
+    .hero-action-chips {
+      display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1.25rem;
+    }
+    .hac {
+      display: inline-flex; align-items: center; gap: .35rem;
+      background: #fff; border: 1.5px solid #e2e8f0; border-radius: 999px;
+      padding: .4rem .9rem; font-size: .82rem; font-weight: 600; color: #2d3748;
+      text-decoration: none; transition: all .15s; min-height: 36px;
+      mat-icon { font-size: .95rem; width: .95rem; height: .95rem; color: #00796b; }
+      &:hover { border-color: #00796b; color: #00796b; text-decoration: none; }
     }
     .hero-stat {
       display: flex; flex-direction: column;
@@ -424,21 +450,25 @@ import { Package } from '../../core/api/api.types';
     @media (max-width: 768px) {
       .hero-content { grid-template-columns: 1fr; }
       .hero-visual { display: none; }
-      .hero { padding: 2.5rem 1rem 2rem; }
-      .hero-text h1 { font-size: 2rem; }
+      .hero { padding: 2rem 1rem 1.75rem; }
+      .hero-text h1 { font-size: 1.9rem; }
+      .hero-text p { font-size: .9rem; }
       .section { padding: 2.5rem 1rem; }
       .quality-inner { grid-template-columns: 1fr; }
+      .quality-map { display: none; }
       .footer-inner { grid-template-columns: 1fr 1fr; }
       .section-header { flex-direction: column; align-items: flex-start; }
     }
 
     @media (max-width: 480px) {
-      .hero-text h1 { font-size: 1.65rem; }
-      .hero-search { flex-wrap: wrap; }
+      .hero { padding: 1.5rem 1rem 1.5rem; }
+      .hero-text h1 { font-size: 1.6rem; }
+      .hero-badge { font-size: .75rem; }
+      .hero-search { flex-wrap: wrap; gap: .4rem; }
       .hero-search input { min-width: 0; width: 100%; }
-      .btn-find { width: 100%; justify-content: center; }
-      .hero-actions { flex-direction: column; }
-      .hero-action-btn { width: 100%; justify-content: center; }
+      .btn-find { width: 100%; justify-content: center; padding: .55rem 1rem; }
+      .hero-ctas { flex-direction: column; }
+      .hero-cta-primary, .hero-cta-secondary { width: 100%; justify-content: center; }
       .footer-inner { grid-template-columns: 1fr; }
     }
   `],

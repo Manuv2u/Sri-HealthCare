@@ -28,6 +28,18 @@ import { Test } from '../../../core/api/api.types';
           </div>
         </div>
       </aside>
+      <!-- Mobile category pills (hidden on desktop where sidebar shows) -->
+      <div class="mobile-cats">
+        <button class="mcat-pill" [class.active]="!selectedCategory()" (click)="selectCategory(null)">
+          All <span class="mcat-count">{{ total() }}</span>
+        </button>
+        @for (cat of categories(); track cat.name) {
+          <button class="mcat-pill" [class.active]="selectedCategory() === cat.name" (click)="selectCategory(cat.name)">
+            {{ cat.name }} <span class="mcat-count">{{ cat.count }}</span>
+          </button>
+        }
+      </div>
+
       <div class="catalog-main">
         <div class="catalog-header">
           <div class="catalog-title">
@@ -188,7 +200,33 @@ import { Test } from '../../../core/api/api.types';
     .error-state mat-icon,.empty-state mat-icon { font-size:3rem; width:3rem; height:3rem; color:#cbd5e0; }
     .error-state h3,.empty-state h3 { font-size:1.1rem; font-weight:700; color:#4a5568; }
     .btn-retry { background:#00796b; color:#fff; border:none; border-radius:8px; padding:.5rem 1.25rem; font-size:.875rem; font-weight:600; cursor:pointer; }
-    @media(max-width:768px) { .catalog-layout{grid-template-columns:1fr;padding:1rem;} .catalog-sidebar{display:none;} .catalog-header{flex-direction:column;align-items:stretch;} .catalog-search{min-width:unset;} }
+    .mobile-cats { display:none; }
+    @media(max-width:768px) {
+      .catalog-layout{grid-template-columns:1fr;padding:1rem 0 1rem;gap:0;}
+      .catalog-sidebar{display:none;}
+      .catalog-header{flex-direction:column;align-items:stretch;}
+      .catalog-search{min-width:unset;}
+      .mobile-cats {
+        display:flex; gap:.5rem; overflow-x:auto; padding:.75rem 1rem;
+        -webkit-overflow-scrolling:touch; scrollbar-width:none;
+        scroll-snap-type:x mandatory; flex-shrink:0;
+        background:#fff; border-bottom:1px solid #e2e8f0;
+        position:sticky; top:64px; z-index:10;
+      }
+      .mobile-cats::-webkit-scrollbar { display:none; }
+      .mcat-pill {
+        display:inline-flex; align-items:center; gap:.35rem; flex-shrink:0;
+        padding:.45rem 1rem; border-radius:999px; border:1.5px solid #e2e8f0;
+        font-size:.82rem; font-weight:600; color:#4a5568; background:#fff;
+        cursor:pointer; transition:all .15s; scroll-snap-align:start;
+        white-space:nowrap; min-height:36px;
+      }
+      .mcat-pill:hover { border-color:#00796b; color:#00796b; }
+      .mcat-pill.active { background:#00796b; color:#fff; border-color:#00796b; }
+      .mcat-pill.active .mcat-count { background:rgba(255,255,255,.25); color:#fff; }
+      .mcat-count { font-size:.7rem; font-weight:700; background:#f0f4f8; color:#718096; padding:.1rem .35rem; border-radius:999px; }
+      .catalog-main { padding:0 1rem; }
+    }
   `],
 })
 export class TestCatalogComponent implements OnInit {
