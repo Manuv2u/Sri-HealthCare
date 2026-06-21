@@ -83,11 +83,6 @@ success "VM reachable"
 
 # ── Build images ──────────────────────────────────────────────────────────────
 if [[ "$SKIP_BUILD" == false ]]; then
-  # Frontend uses relative /api/v1 URL; nginx inside the container proxies
-  # /api/ → http://backend:8000/api/ via Docker-internal networking.
-  # No need to patch environment.prod.ts with the VM IP.
-  log "API routing: nginx proxy → backend container (no IP patch needed)"
-
   step "Building backend image"
   docker build -t "$BACKEND_IMAGE" ./backend
   success "Backend image built"
@@ -113,8 +108,8 @@ success "Backend: $BACKEND_SIZE  Frontend: $FRONTEND_SIZE"
 # ── Upload files ──────────────────────────────────────────────────────────────
 step "Uploading to VM ($VM_HOST)"
 
-# Create remote release directory
-$SSH "mkdir -p $DEPLOY_DIR/releases/$TIMESTAMP $DEPLOY_DIR/backups $DEPLOY_DIR/logs/archive $DEPLOY_DIR/scripts $DEPLOY_DIR/file_storage"
+# Create remote directories
+$SSH "mkdir -p $DEPLOY_DIR/releases/$TIMESTAMP $DEPLOY_DIR/scripts $DEPLOY_DIR/nginx/conf.d"
 
 log "Uploading backend image…"
 rsync -az --progress -e "ssh -i $VM_KEY -o StrictHostKeyChecking=accept-new" \
@@ -129,10 +124,17 @@ $SCP deploy/docker-compose.prod.yml "$VM_USER@$VM_HOST:$DEPLOY_DIR/docker-compos
 
 log "Uploading .env.production…"
 $SCP deploy/.env.production "$VM_USER@$VM_HOST:$DEPLOY_DIR/.env"
+$SSH "chmod 600 $DEPLOY_DIR/.env"
 
-log "Uploading scripts…"
-$SCP deploy/scripts/*.sh "$VM_USER@$VM_HOST:$DEPLOY_DIR/scripts/"
-$SSH "chmod +x $DEPLOY_DIR/scripts/*.sh"
+log "Uploading nginx config…"
+$SCP deploy/nginx/nginx.conf "$VM_USER@$VM_HOST:$DEPLOY_DIR/nginx/nginx.conf"
+$SCP deploy/nginx/conf.d/app.conf "$VM_USER@$VM_HOST:$DEPLOY_DIR/nginx/conf.d/app.conf"
+
+if [[ -d deploy/scripts ]]; then
+  log "Uploading scripts…"
+  $SCP deploy/scripts/*.sh "$VM_USER@$VM_HOST:$DEPLOY_DIR/scripts/"
+  $SSH "chmod +x $DEPLOY_DIR/scripts/*.sh"
+fi
 
 success "Upload complete"
 
@@ -161,22 +163,25 @@ docker compose pull --ignore-pull-failures 2>/dev/null || true
 docker compose up -d --force-recreate --remove-orphans
 echo "[remote] Containers started"
 
-# Wait for backend health
-echo "[remote] Waiting for backend health check…"
+# Wait for nginx + backend health (via nginx proxy)
+echo "[remote] Waiting for health checks (up to 120s)…"
 RETRIES=24
 for i in $(seq 1 $RETRIES); do
-  if curl -sf http://localhost:8080/health > /dev/null 2>&1; then
-    echo "[remote] Backend healthy (attempt $i)"
+  # Check nginx is up first, then the full backend path via nginx
+  if curl -sf http://localhost/health > /dev/null 2>&1 && \
+     curl -sf http://localhost/api/v1/health > /dev/null 2>&1; then
+    echo "[remote] All services healthy (attempt $i)"
     break
   fi
   if [[ $i -eq $RETRIES ]]; then
-    echo "[remote] Backend health check failed after $((RETRIES * 5))s"
+    echo "[remote] Health check failed after $((RETRIES * 5))s — docker logs:"
+    docker compose logs --tail=50 nginx backend || true
     if [[ "$NO_ROLLBACK" != "true" ]]; then
       echo "[remote] Rolling back to previous images…"
       docker tag sri-healthcare-backend:previous sri-healthcare-backend:latest 2>/dev/null || true
       docker tag sri-healthcare-frontend:previous sri-healthcare-frontend:latest 2>/dev/null || true
       docker compose up -d --force-recreate
-      echo "[remote] Rollback complete"
+      echo "[remote] Rollback complete — previous version restored"
     fi
     exit 1
   fi
@@ -201,8 +206,9 @@ echo -e "${BOLD}${GREEN}══════════════════�
 echo -e "${BOLD}  Deployment Successful ✔${NC}"
 echo -e "${BOLD}${GREEN}════════════════════════════════════════${NC}"
 echo -e "  Frontend : ${CYAN}http://${VM_HOST}${NC}"
-echo -e "  API Docs : ${CYAN}http://${VM_HOST}/api/v1/docs${NC}"
-echo -e "  Direct BE: ${CYAN}http://${VM_HOST}:8080${NC} (debug only)"
+echo -e "  API      : ${CYAN}http://${VM_HOST}/api/v1/docs${NC}"
+echo -e "  Health   : ${CYAN}http://${VM_HOST}/api/v1/health${NC}"
 echo -e "  Release  : ${TIMESTAMP}"
+echo -e "  Monitor  : ssh -L 19999:localhost:19999 ${VM_USER}@${VM_HOST}"
 echo -e "${BOLD}${GREEN}════════════════════════════════════════${NC}"
 echo ""

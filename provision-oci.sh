@@ -4,7 +4,7 @@
 #
 # Creates from scratch:
 #   VCN → Internet Gateway → Route Table → Security List → Subnet
-#   SSH key pair → Ubuntu 22.04 ARM Compute Instance → Public IP
+#   SSH key pair → Ubuntu 24.04 ARM Compute Instance → Public IP
 #   Bootstraps server (Docker, PostgreSQL, cron, firewall)
 #
 # Usage:
@@ -57,8 +57,8 @@ SUBNET_CIDR="10.0.0.0/24"
 IGW_NAME="sri-diagnostics-igw"
 SUBNET_NAME="sri-diagnostics-subnet"
 SHAPE="VM.Standard.A1.Flex"
-SHAPE_OCPUS=2
-SHAPE_MEMORY=8
+SHAPE_OCPUS=4
+SHAPE_MEMORY=24
 BOOT_VOLUME_GB=100
 VM_USER="ubuntu"
 DEPLOY_DIR="/opt/sri-diagnostics"
@@ -347,33 +347,33 @@ else
 fi
 
 # ── Ubuntu 22.04 ARM image ────────────────────────────────────────────────────
-step "Ubuntu 22.04 ARM image"
+step "Ubuntu 24.04 ARM image"
 IMAGE_ID=$(state_get "image_id")
 if ! is_ocid "$IMAGE_ID"; then
-  log "Querying latest Ubuntu 22.04 (aarch64) platform image…"
+  log "Querying latest Ubuntu 24.04 (aarch64) platform image…"
 
   IMAGE_ID=$(oci_cli compute image list \
     --compartment-id "$COMPARTMENT_ID" \
     --operating-system "Canonical Ubuntu" \
-    --operating-system-version "22.04" \
+    --operating-system-version "24.04" \
     --lifecycle-state AVAILABLE \
     --all \
     | jq -r '[.data[] | select(."display-name" | ascii_downcase | contains("aarch64"))]
               | sort_by(."time-created") | last | .id // empty')
 
   if ! is_ocid "$IMAGE_ID"; then
-    warn "No aarch64-specific image — falling back to latest Ubuntu 22.04"
+    warn "No aarch64-specific image — falling back to latest Ubuntu 24.04"
     IMAGE_ID=$(oci_cli compute image list \
       --compartment-id "$COMPARTMENT_ID" \
       --operating-system "Canonical Ubuntu" \
-      --operating-system-version "22.04" \
+      --operating-system-version "24.04" \
       --lifecycle-state AVAILABLE \
       --all \
       | jq -r '.data | sort_by(."time-created") | last | .id')
   fi
 
   if ! is_ocid "$IMAGE_ID"; then
-    error "Could not find a Ubuntu 22.04 image in $REGION"
+    error "Could not find a Ubuntu 24.04 image in $REGION"
     exit 1
   fi
   state_set "image_id" "$IMAGE_ID"
