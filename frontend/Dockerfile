@@ -14,11 +14,20 @@ FROM nginx:1.25-alpine
 
 COPY --from=builder /app/dist/sri-diagnostic-lab/browser /usr/share/nginx/html
 
-# Simple nginx config to serve the SPA and forward unknown paths to index.html
+# Nginx config: serve SPA and proxy /api/ to backend container
 RUN printf 'server {\n\
     listen 4200;\n\
     root /usr/share/nginx/html;\n\
     index index.html;\n\
+\n\
+    location /api/ {\n\
+        proxy_pass http://backend:8000/api/;\n\
+        proxy_set_header Host $host;\n\
+        proxy_set_header X-Real-IP $remote_addr;\n\
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n\
+        proxy_read_timeout 30s;\n\
+    }\n\
+\n\
     location / {\n\
         try_files $uri $uri/ /index.html;\n\
     }\n\

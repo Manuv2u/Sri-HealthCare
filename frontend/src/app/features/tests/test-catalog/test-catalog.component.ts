@@ -202,30 +202,32 @@ import { Test } from '../../../core/api/api.types';
     .btn-retry { background:#00796b; color:#fff; border:none; border-radius:8px; padding:.5rem 1.25rem; font-size:.875rem; font-weight:600; cursor:pointer; }
     .mobile-cats { display:none; }
     @media(max-width:768px) {
-      .catalog-layout{grid-template-columns:1fr;padding:1rem 0 1rem;gap:0;}
-      .catalog-sidebar{display:none;}
-      .catalog-header{flex-direction:column;align-items:stretch;}
-      .catalog-search{min-width:unset;}
+      .catalog-layout { grid-template-columns:1fr; padding:0; gap:0; align-content:start; }
+      .catalog-sidebar { display:none; }
+      .catalog-header { flex-direction:column; align-items:stretch; }
+      .catalog-search { min-width:unset; }
       .mobile-cats {
-        display:flex; gap:.5rem; overflow-x:auto; padding:.75rem 1rem;
+        display:flex; align-items:center; gap:.5rem;
+        overflow-x:auto; padding:.6rem 1rem;
         -webkit-overflow-scrolling:touch; scrollbar-width:none;
-        scroll-snap-type:x mandatory; flex-shrink:0;
         background:#fff; border-bottom:1px solid #e2e8f0;
         position:sticky; top:64px; z-index:10;
+        align-self:start; height:auto; flex-wrap:nowrap;
       }
       .mobile-cats::-webkit-scrollbar { display:none; }
       .mcat-pill {
-        display:inline-flex; align-items:center; gap:.35rem; flex-shrink:0;
-        padding:.45rem 1rem; border-radius:999px; border:1.5px solid #e2e8f0;
-        font-size:.82rem; font-weight:600; color:#4a5568; background:#fff;
-        cursor:pointer; transition:all .15s; scroll-snap-align:start;
-        white-space:nowrap; min-height:36px;
+        display:inline-flex; align-items:center; gap:.3rem;
+        flex-shrink:0; flex-grow:0;
+        padding:.35rem .85rem; border-radius:999px; border:1.5px solid #e2e8f0;
+        font-size:.8rem; font-weight:600; color:#4a5568; background:#fff;
+        cursor:pointer; transition:all .15s; white-space:nowrap;
+        height:32px; line-height:1;
       }
       .mcat-pill:hover { border-color:#00796b; color:#00796b; }
       .mcat-pill.active { background:#00796b; color:#fff; border-color:#00796b; }
       .mcat-pill.active .mcat-count { background:rgba(255,255,255,.25); color:#fff; }
-      .mcat-count { font-size:.7rem; font-weight:700; background:#f0f4f8; color:#718096; padding:.1rem .35rem; border-radius:999px; }
-      .catalog-main { padding:0 1rem; }
+      .mcat-count { font-size:.68rem; font-weight:700; background:#f0f4f8; color:#718096; padding:.05rem .3rem; border-radius:999px; }
+      .catalog-main { padding:0 1rem 1rem; }
     }
   `],
 })
