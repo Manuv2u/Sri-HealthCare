@@ -45,12 +45,12 @@ def upgrade() -> None:
     # Revoke UPDATE and DELETE on audit_logs from the application DB user
     # The application user is 'sri' (matches docker-compose / .env.local)
     # ------------------------------------------------------------------
-    op.execute("REVOKE UPDATE, DELETE ON audit_logs FROM sri")
+    op.execute("REVOKE UPDATE, DELETE ON audit_logs FROM CURRENT_USER")
 
 
 def downgrade() -> None:
     # Restore permissions
-    op.execute("GRANT UPDATE, DELETE ON audit_logs TO sri")
+    op.execute("GRANT UPDATE, DELETE ON audit_logs TO CURRENT_USER")
 
     # Drop trigger and function
     op.execute("DROP TRIGGER IF EXISTS enforce_report_retention ON reports")

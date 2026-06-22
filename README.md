@@ -235,3 +235,6 @@ SELECT
   (SELECT COUNT(*) FROM tests)    AS tests;
 "
 ```
+manuv@Manus-MacBook-Air Sri-HealthCare % chmod 600 /Users/manuv/PersonalGithub/Sri-HealthCare/keys/oci_vm_key
+
+ssh -i /Users/manuv/PersonalGithub/Sri-HealthCare/keys/oci_vm_key ubuntu@140.245.6.204
