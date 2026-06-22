@@ -14,9 +14,6 @@ _DEFAULTS = [
     ("home_collection", True, "Enable home sample collection bookings"),
     ("online_payment", True, "Enable online payment gateway"),
     ("notify_me", True, "Enable Notify Me for uncovered pincodes"),
-    ("advance_payment_enabled", True, "Require advance payment at the time of booking"),
-    ("advance_payment_percentage", True, "20"),
-    ("advance_payment_minimum_amount", True, "100"),
 ]
 
 

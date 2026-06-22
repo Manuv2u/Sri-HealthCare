@@ -40,20 +40,36 @@ class AuthService:
         self.user_repo = UserRepository(db)
         self.session_repo = SessionRepository(db)
 
-    async def register(self, phone: str, name: str) -> dict:
-        """Check phone not already registered, generate OTP, return message."""
-        existing = await self.user_repo.get_by_phone(phone)
-        if existing is not None:
+    async def register(
+        self,
+        phone: str,
+        name: str,
+        email: str,
+        password: str,
+        device_identifier: str | None = None,
+        ip_address: str | None = None,
+    ) -> dict:
+        """Register a new user with phone, email and password. Returns auth tokens."""
+        if await self.user_repo.get_by_phone(phone) is not None:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail={"error_code": "PHONE_ALREADY_REGISTERED", "message": "Phone already registered"},
+                detail={"error_code": "PHONE_ALREADY_REGISTERED", "message": "Phone number already registered"},
             )
-        otp = otp_service.generate_otp(phone)
-        # In production: send OTP via SMS provider
-        # For now, log it (dev only)
-        import logging
-        logging.getLogger("sri.auth").info("OTP for %s: %s", phone, otp)
-        return {"message": "OTP sent"}
+        if await self.user_repo.get_by_email(email) is not None:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail={"error_code": "EMAIL_ALREADY_REGISTERED", "message": "Email address already registered"},
+            )
+
+        pw_hash = _hash_password(password)
+        user = await self.user_repo.create_user(
+            name=name,
+            phone=phone,
+            email=email,
+            password_hash=pw_hash,
+            role="user",
+        )
+        return await self._create_session_and_tokens(user, device_identifier, ip_address)
 
     async def login_otp(self, phone: str) -> dict:
         """Send OTP to any existing user (user/admin/technician) for login."""
@@ -140,14 +156,6 @@ class AuthService:
 
     async def refresh(self, refresh_token: str) -> dict:
         """Find session by hash, validate, issue new access token, update last_seen."""
-        token_hash = hash_refresh_token(refresh_token)
-        # We need to find by verifying against stored hashes (bcrypt is not deterministic)
-        # Instead, store a SHA-256 lookup hash alongside bcrypt for fast lookup
-        # Per design: store bcrypt hash — so we must scan or use a secondary index.
-        # The design says get_by_refresh_token_hash(token_hash) — we store bcrypt hash
-        # and the token itself is the lookup key. We need a fast lookup.
-        # Solution: store SHA-256 of token as the lookup key, bcrypt for verification.
-        # But the design says "stored as bcrypt hash" — we'll use SHA-256 for lookup.
         import hashlib
         lookup_hash = hashlib.sha256(refresh_token.encode()).hexdigest()
         session = await self.session_repo.get_by_refresh_token_hash(lookup_hash)
@@ -197,7 +205,6 @@ class AuthService:
     ) -> dict:
         import hashlib
         refresh_token = generate_refresh_token()
-        # Use SHA-256 for fast lookup (stored in refresh_token_hash column)
         lookup_hash = hashlib.sha256(refresh_token.encode()).hexdigest()
         expires_at = datetime.now(timezone.utc) + timedelta(days=settings.refresh_token_expire_days)
         await self.session_repo.create_session(

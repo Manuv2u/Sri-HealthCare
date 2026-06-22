@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import date, datetime, timedelta, timezone
+from decimal import Decimal
 
 from fastapi import HTTPException, status
 from sqlalchemy import func, select, text, update
@@ -10,23 +11,46 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.models.booking import Booking, BookingItem, BookingSlotCount, BookingStatusHistory
-from app.models.payment import Payment
+from app.models.payment import Payment, Refund
 from app.models.service import TimeSlot
 
 
-# Valid state machine transitions
-_VALID_TRANSITIONS: dict[str, str] = {
-    "booked": "collected",
-    "collected": "processing",
-    "processing": "completed",
+# Valid state machine transitions (technician/sequential flow)
+# Admin can bypass these and set any status
+_VALID_TRANSITIONS: dict[str, list[str]] = {
+    "booked": ["technician_assigned", "cancelled"],
+    "technician_assigned": ["accepted", "cancelled"],
+    "accepted": ["on_the_way", "cancelled"],
+    "on_the_way": ["sample_collected"],
+    "sample_collected": ["reached_lab"],
+    "reached_lab": ["sample_delivered"],
+    "sample_delivered": ["processing"],
+    "processing": ["report_ready"],
+    "report_ready": ["completed"],
+    # Legacy statuses for backwards compatibility
+    "collected": ["processing"],
+    "completed": [],
+    "cancelled": [],
 }
 
-# Timestamp field to set per transition
+# Statuses from which user cancellation is allowed
+_CANCELLABLE_STATUSES = {"booked", "technician_assigned", "accepted"}
+
+# Timestamp field to set per status
 _TRANSITION_TIMESTAMPS: dict[str, str] = {
+    "sample_collected": "collected_at",
     "collected": "collected_at",
     "processing": "processing_started_at",
     "completed": "completed_at",
     "cancelled": "cancelled_at",
+}
+
+ALL_VALID_STATUSES = {
+    "booked", "technician_assigned", "accepted", "on_the_way",
+    "sample_collected", "reached_lab", "sample_delivered",
+    "processing", "report_ready", "completed", "cancelled",
+    # legacy
+    "collected",
 }
 
 
@@ -96,7 +120,6 @@ class BookingRepository:
         row = result.fetchone()
 
         if row is None:
-            # Insert with count=0 then re-lock
             await self.db.execute(
                 text(
                     "INSERT INTO booking_slot_counts (time_slot_id, booking_date, confirmed_count) "
@@ -215,7 +238,6 @@ class BookingRepository:
         await self.db.flush()
         await self.db.refresh(booking)
 
-        # Load items relationship
         return await self._get_booking_with_items(booking_id)  # type: ignore[return-value]
 
     # ── read ──────────────────────────────────────────────────────────────────
@@ -266,7 +288,13 @@ class BookingRepository:
     # ── cancel ────────────────────────────────────────────────────────────────
 
     async def cancel_booking(
-        self, booking_id: uuid.UUID, cancelled_by: uuid.UUID
+        self,
+        booking_id: uuid.UUID,
+        cancelled_by: uuid.UUID,
+        cancellation_reason: str,
+        cancellation_charge: float = 0.0,
+        cancellation_fee_type: str | None = None,
+        is_admin: bool = False,
     ) -> Booking:
         booking = await self._get_booking_with_items(booking_id)
         if booking is None:
@@ -274,7 +302,7 @@ class BookingRepository:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail={"error_code": "BOOKING_NOT_FOUND", "message": "Booking not found"},
             )
-        if booking.status != "booked":
+        if booking.status not in _CANCELLABLE_STATUSES:
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail={
@@ -284,14 +312,22 @@ class BookingRepository:
             )
 
         slot = await self._get_slot(booking.time_slot_id)
-        if slot:
+        if slot and not is_admin:
             await self._check_cancellation_window(booking, slot)
 
         now = datetime.now(timezone.utc)
+        update_values: dict = {
+            "status": "cancelled",
+            "cancelled_at": now,
+            "cancellation_reason": cancellation_reason,
+            "cancelled_by": cancelled_by,
+        }
+        if cancellation_charge > 0:
+            update_values["cancellation_fee"] = cancellation_charge
+            update_values["cancellation_fee_type"] = cancellation_fee_type or "fixed"
+
         await self.db.execute(
-            update(Booking)
-            .where(Booking.id == booking_id)
-            .values(status="cancelled", cancelled_at=now)
+            update(Booking).where(Booking.id == booking_id).values(**update_values)
         )
 
         # Decrement slot count
@@ -303,15 +339,37 @@ class BookingRepository:
             {"ts_id": str(booking.time_slot_id), "bd": booking.booking_date},
         )
 
+        # Handle refund if there was a payment
+        if cancellation_charge >= 0:
+            payment_result = await self.db.execute(
+                select(Payment).where(Payment.booking_id == booking_id)
+            )
+            payment = payment_result.scalar_one_or_none()
+            if payment and payment.status == "paid":
+                total_paid = float(payment.amount) + float(payment.gst_amount)
+                refund_amount = max(total_paid - cancellation_charge, 0.0)
+                charge_desc = f"Cancellation charge: ₹{cancellation_charge:.2f}" if cancellation_charge > 0 else "Full refund"
+                refund = Refund(
+                    id=uuid.uuid4(),
+                    payment_id=payment.id,
+                    amount=refund_amount,
+                    reason=f"Booking cancelled. {charge_desc}",
+                    status="pending",
+                    initiated_by=cancelled_by,
+                    initiated_at=now,
+                )
+                self.db.add(refund)
+
         # Status history
         self.db.add(
             BookingStatusHistory(
                 id=uuid.uuid4(),
                 booking_id=booking_id,
-                from_status="booked",
+                from_status=booking.status,
                 to_status="cancelled",
                 changed_by=cancelled_by,
                 changed_at=now,
+                reason=cancellation_reason,
             )
         )
         await self.db.flush()
@@ -428,6 +486,7 @@ class BookingRepository:
                 to_status="booked",
                 changed_by=rescheduled_by,
                 changed_at=now,
+                reason="Booking rescheduled",
             )
         )
         await self.db.flush()
@@ -440,6 +499,8 @@ class BookingRepository:
         booking_id: uuid.UUID,
         new_status: str,
         changed_by: uuid.UUID,
+        is_admin: bool = False,
+        reason: str | None = None,
     ) -> Booking:
         booking = await self._get_booking_with_items(booking_id)
         if booking is None:
@@ -448,18 +509,29 @@ class BookingRepository:
                 detail={"error_code": "BOOKING_NOT_FOUND", "message": "Booking not found"},
             )
 
-        expected_from = _VALID_TRANSITIONS.get(booking.status)
-        if expected_from != new_status:
+        if new_status not in ALL_VALID_STATUSES:
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail={
-                    "error_code": "INVALID_STATUS_TRANSITION",
-                    "message": (
-                        f"Cannot transition from '{booking.status}' to '{new_status}'. "
-                        f"Valid next status: '{expected_from}'"
-                    ),
+                    "error_code": "INVALID_STATUS",
+                    "message": f"'{new_status}' is not a valid booking status",
                 },
             )
+
+        # Admins can force any status transition; others must follow the state machine
+        if not is_admin:
+            valid_next = _VALID_TRANSITIONS.get(booking.status, [])
+            if new_status not in valid_next:
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    detail={
+                        "error_code": "INVALID_STATUS_TRANSITION",
+                        "message": (
+                            f"Cannot transition from '{booking.status}' to '{new_status}'. "
+                            f"Valid next: {valid_next}"
+                        ),
+                    },
+                )
 
         now = datetime.now(timezone.utc)
         update_values: dict = {"status": new_status}
@@ -479,6 +551,7 @@ class BookingRepository:
                 to_status=new_status,
                 changed_by=changed_by,
                 changed_at=now,
+                reason=reason,
             )
         )
         await self.db.flush()

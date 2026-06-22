@@ -5,7 +5,7 @@ import uuid
 from datetime import date, datetime
 from decimal import Decimal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 
 class BookingItemIn(BaseModel):
@@ -32,6 +32,18 @@ class RescheduleRequest(BaseModel):
 
 class UpdateStatusRequest(BaseModel):
     status: str
+    reason: str | None = None
+
+
+class CancelBookingRequest(BaseModel):
+    reason: str
+
+    @field_validator("reason")
+    @classmethod
+    def reason_not_empty(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("Cancellation reason is required")
+        return v.strip()
 
 
 class AddRemarksRequest(BaseModel):
@@ -66,6 +78,10 @@ class BookingOut(BaseModel):
     processing_started_at: datetime | None
     completed_at: datetime | None
     cancelled_at: datetime | None
+    cancellation_reason: str | None = None
+    cancelled_by: uuid.UUID | None = None
+    cancellation_fee: float | None = None
+    cancellation_fee_type: str | None = None
     technician_notes: str | None = None
     created_at: datetime
     updated_at: datetime

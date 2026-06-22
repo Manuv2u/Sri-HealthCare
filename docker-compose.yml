@@ -59,7 +59,7 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     ports:
-      - "4200:4200"
+      - "4200:80"
     networks:
       - sri_net
     develop:

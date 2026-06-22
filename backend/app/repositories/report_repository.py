@@ -9,6 +9,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.report import Report
 
+_RETENTION_DAYS = 90
+
 
 class ReportRepository:
     def __init__(self, db: AsyncSession) -> None:
@@ -22,7 +24,6 @@ class ReportRepository:
         file_size_bytes: int,
         uploaded_by: uuid.UUID,
         uploader_role: str,
-        retention_years: int = 7,
     ) -> Report:
         now = datetime.now(timezone.utc)
         report = Report(
@@ -34,7 +35,7 @@ class ReportRepository:
             uploaded_by=uploaded_by,
             uploader_role=uploader_role,
             uploaded_at=now,
-            retention_until=date.today() + timedelta(days=365 * retention_years),
+            retention_until=date.today() + timedelta(days=_RETENTION_DAYS),
         )
         self.db.add(report)
         await self.db.flush()

@@ -27,6 +27,8 @@ class User(TimestampMixin, Base):
     gender: Mapped[str | None] = mapped_column(String(10), nullable=True)
     role: Mapped[str] = mapped_column(String(20), nullable=False, server_default="user")
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="true")
+    is_temp_password: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="false")
+    password_changed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     deletion_requested_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 

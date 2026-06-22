@@ -70,8 +70,6 @@ class ServiceRequest(Base):
     )
 
 
-
-
 class LabBranch(Base):
     __tablename__ = "lab_branches"
 
@@ -178,3 +176,9 @@ class TechnicianAssignment(Base):
     assigned_by: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id"), nullable=False
     )
+    # Technician accept/reject workflow
+    status: Mapped[str] = mapped_column(
+        String(20), nullable=False, server_default="pending"
+    )  # pending / accepted / rejected
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    responded_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

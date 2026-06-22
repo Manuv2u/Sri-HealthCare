@@ -16,7 +16,7 @@ export const ADMIN_ROUTES: Routes = [
       { path: 'bookings',      loadComponent: () => import('./bookings/admin-bookings.component').then(m => m.AdminBookingsComponent) },
       { path: 'lab-branches',   loadComponent: () => import('./lab-branches/admin-lab-branches.component').then(m => m.AdminLabBranchesComponent) },
       { path: 'analytics',      loadComponent: () => import('./analytics/admin-analytics.component').then(m => m.AdminAnalyticsComponent) },
-      { path: 'payment-config', loadComponent: () => import('./payment-config/admin-payment-config.component').then(m => m.AdminPaymentConfigComponent) },
+      { path: 'cancellation-config', loadComponent: () => import('./cancellation-config/admin-cancellation-config.component').then(m => m.AdminCancellationConfigComponent) },
       { path: 'feature-flags',  loadComponent: () => import('./feature-flags/admin-feature-flags.component').then(m => m.AdminFeatureFlagsComponent) },
     ],
   },

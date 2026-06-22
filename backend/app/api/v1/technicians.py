@@ -8,9 +8,13 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db_session
-from app.middleware.auth import require_roles
+from app.middleware.auth import get_current_user, require_roles
 from app.schemas.technicians import (
+    AssignmentOut,
+    AssignmentRespondRequest,
     AssignRequest,
+    TechnicianAccountCreate,
+    TechnicianAccountOut,
     TechnicianCreate,
     TechnicianListResponse,
     TechnicianOut,
@@ -20,6 +24,62 @@ from app.schemas.technicians import (
 from app.services.technician_service import TechnicianService
 
 router = APIRouter(prefix="/technicians", tags=["technicians"])
+
+
+@router.post("/create-account", response_model=TechnicianAccountOut, status_code=201)
+async def create_technician_account(
+    body: TechnicianAccountCreate,
+    current_user: dict = Depends(require_roles("admin")),
+    db: AsyncSession = Depends(get_db_session),
+) -> TechnicianAccountOut:
+    """Admin creates a user account with role=technician and a temporary password."""
+    import bcrypt as _bcrypt
+    from app.repositories.user_repository import UserRepository
+    from app.repositories.technician_repository import TechnicianRepository
+    from fastapi import HTTPException, status as http_status
+
+    user_repo = UserRepository(db)
+    tech_repo = TechnicianRepository(db)
+
+    if await user_repo.get_by_phone(body.phone):
+        raise HTTPException(
+            status_code=http_status.HTTP_409_CONFLICT,
+            detail={"error_code": "PHONE_ALREADY_REGISTERED", "message": "Phone number already registered"},
+        )
+    if await user_repo.get_by_email(body.email):
+        raise HTTPException(
+            status_code=http_status.HTTP_409_CONFLICT,
+            detail={"error_code": "EMAIL_ALREADY_REGISTERED", "message": "Email address already registered"},
+        )
+
+    pw_hash = _bcrypt.hashpw(body.password.encode()[:72], _bcrypt.gensalt(rounds=12)).decode()
+    user = await user_repo.create_user(
+        name=body.name,
+        phone=body.phone,
+        email=body.email,
+        password_hash=pw_hash,
+        role="technician",
+        is_temp_password=True,
+    )
+
+    tech = await tech_repo.create(
+        user_id=user.id,
+        name=body.name,
+        phone=body.phone,
+        email=body.email,
+    )
+    await db.commit()
+
+    return TechnicianAccountOut(
+        id=tech.id,
+        user_id=user.id,
+        name=tech.name,
+        phone=tech.phone,
+        email=tech.email,
+        is_active=tech.is_active,
+        is_temp_password=user.is_temp_password,
+        created_at=tech.created_at,
+    )
 
 
 @router.post("", response_model=TechnicianOut, status_code=201)
@@ -38,7 +98,7 @@ async def create_technician(
     return TechnicianOut.model_validate(result)
 
 
-# NOTE: /workload must be declared BEFORE /{technician_id} to avoid path conflict
+# NOTE: /workload and /assignments/* must be declared BEFORE /{technician_id}
 @router.get("/workload", response_model=list[WorkloadItem])
 async def get_workload(
     date: date,
@@ -48,6 +108,38 @@ async def get_workload(
     svc = TechnicianService(db)
     items = await svc.get_workload(date)
     return [WorkloadItem.model_validate(item) for item in items]
+
+
+@router.post("/assignments/{assignment_id}/accept", response_model=AssignmentOut)
+async def accept_assignment(
+    assignment_id: uuid.UUID,
+    current_user: dict = Depends(require_roles("technician")),
+    db: AsyncSession = Depends(get_db_session),
+) -> AssignmentOut:
+    """Technician accepts their assignment — booking moves to 'accepted'."""
+    svc = TechnicianService(db)
+    result = await svc.accept_assignment(
+        assignment_id=assignment_id,
+        technician_user_id=uuid.UUID(current_user["user_id"]),
+    )
+    return AssignmentOut.model_validate(result)
+
+
+@router.post("/assignments/{assignment_id}/reject", response_model=AssignmentOut)
+async def reject_assignment(
+    assignment_id: uuid.UUID,
+    body: AssignmentRespondRequest | None = None,
+    current_user: dict = Depends(require_roles("technician")),
+    db: AsyncSession = Depends(get_db_session),
+) -> AssignmentOut:
+    """Technician rejects their assignment — booking reverts to 'booked' for reassignment."""
+    svc = TechnicianService(db)
+    result = await svc.reject_assignment(
+        assignment_id=assignment_id,
+        technician_user_id=uuid.UUID(current_user["user_id"]),
+        notes=body.notes if body else None,
+    )
+    return AssignmentOut.model_validate(result)
 
 
 @router.get("", response_model=TechnicianListResponse)
@@ -97,16 +189,17 @@ async def delete_technician(
     await svc.delete_technician(technician_id)
 
 
-@router.post("/{technician_id}/assign", status_code=201)
+@router.post("/{technician_id}/assign", response_model=AssignmentOut, status_code=201)
 async def assign_technician(
     technician_id: uuid.UUID,
     body: AssignRequest,
     current_user: dict = Depends(require_roles("admin")),
     db: AsyncSession = Depends(get_db_session),
-) -> dict:
+) -> AssignmentOut:
     svc = TechnicianService(db)
-    return await svc.assign_to_booking(
+    result = await svc.assign_to_booking(
         technician_id=technician_id,
         booking_id=body.booking_id,
         assigned_by_id=uuid.UUID(current_user["user_id"]),
     )
+    return AssignmentOut.model_validate(result)

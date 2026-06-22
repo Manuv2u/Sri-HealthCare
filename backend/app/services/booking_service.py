@@ -13,6 +13,7 @@ from app.models.booking import Booking
 from app.repositories.booking_repository import BookingRepository
 from app.repositories.package_repository import PackageRepository
 from app.repositories.service_repository import ServiceAreaRepository
+from app.repositories.settings_repository import SettingsRepository
 from app.repositories.test_repository import TestRepository
 from app.repositories.user_repository import FamilyMemberRepository
 
@@ -57,6 +58,11 @@ def _booking_to_dict(booking: Booking) -> dict:
         "processing_started_at": booking.processing_started_at,
         "completed_at": booking.completed_at,
         "cancelled_at": booking.cancelled_at,
+        "cancellation_reason": booking.cancellation_reason,
+        "cancelled_by": booking.cancelled_by,
+        "cancellation_fee": float(booking.cancellation_fee) if booking.cancellation_fee is not None else None,
+        "cancellation_fee_type": booking.cancellation_fee_type,
+        "technician_notes": booking.technician_notes,
         "created_at": booking.created_at,
         "updated_at": booking.updated_at,
         "items": [_item_to_dict(i) for i in (booking.items or [])],
@@ -71,6 +77,7 @@ class BookingService:
         self.package_repo = PackageRepository(db)
         self.service_area_repo = ServiceAreaRepository(db)
         self.family_member_repo = FamilyMemberRepository(db)
+        self.settings_repo = SettingsRepository(db)
 
     async def create_booking(
         self,
@@ -181,7 +188,6 @@ class BookingService:
             gst_rate=settings.gst_rate,
         )
 
-        # Enqueue notification (log for now — notification service comes later)
         logger.info(
             "booking_confirmed: booking_id=%s reference=%s user_id=%s",
             booking.id,
@@ -235,9 +241,17 @@ class BookingService:
         booking_id: uuid.UUID,
         user_id: uuid.UUID,
         role: str,
+        reason: str,
     ) -> dict:
+        # Technicians cannot cancel bookings
+        if role == "technician":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail={"error_code": "FORBIDDEN", "message": "Technicians cannot cancel bookings"},
+            )
+
         # Verify ownership unless admin
-        if role not in ("admin",):
+        if role != "admin":
             booking = await self.repo.get_by_id(booking_id)
             if booking is None:
                 raise HTTPException(
@@ -250,8 +264,40 @@ class BookingService:
                     detail={"error_code": "FORBIDDEN", "message": "Access denied"},
                 )
 
-        booking = await self.repo.cancel_booking(booking_id=booking_id, cancelled_by=user_id)
-        logger.info("booking_cancelled: booking_id=%s by user_id=%s", booking_id, user_id)
+        # Calculate cancellation charge if a setting is active
+        charge = 0.0
+        fee_type: str | None = None
+        setting = await self.settings_repo.get_active_cancellation_setting()
+        if setting:
+            booking = await self.repo.get_by_id(booking_id)
+            if booking:
+                from sqlalchemy import select
+                from app.models.payment import Payment
+                payment_result = await self.db.execute(
+                    select(Payment).where(Payment.booking_id == booking_id)
+                )
+                payment = payment_result.scalar_one_or_none()
+                if payment and payment.status == "paid":
+                    total_paid = float(payment.amount) + float(payment.gst_amount)
+                    if str(setting.charge_type) == "percentage":
+                        charge = round(total_paid * float(setting.charge_value) / 100, 2)
+                        fee_type = "percentage"
+                    else:
+                        charge = float(setting.charge_value)
+                        fee_type = "fixed"
+
+        booking = await self.repo.cancel_booking(
+            booking_id=booking_id,
+            cancelled_by=user_id,
+            cancellation_reason=reason,
+            cancellation_charge=charge,
+            cancellation_fee_type=fee_type,
+            is_admin=(role == "admin"),
+        )
+        logger.info(
+            "booking_cancelled: booking_id=%s by user_id=%s role=%s charge=%.2f",
+            booking_id, user_id, role, charge,
+        )
         return _booking_to_dict(booking)
 
     async def reschedule_booking(
@@ -290,6 +336,7 @@ class BookingService:
         new_status: str,
         changed_by_id: uuid.UUID,
         role: str,
+        reason: str | None = None,
     ) -> dict:
         if role not in ("admin", "technician"):
             raise HTTPException(
@@ -300,5 +347,7 @@ class BookingService:
             booking_id=booking_id,
             new_status=new_status,
             changed_by=changed_by_id,
+            is_admin=(role == "admin"),
+            reason=reason,
         )
         return _booking_to_dict(booking)

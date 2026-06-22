@@ -17,6 +17,7 @@ from app.schemas.bookings import (
     AddRemarksRequest,
     BookingListResponse,
     BookingOut,
+    CancelBookingRequest,
     CreateBookingRequest,
     RescheduleRequest,
     UpdateStatusRequest,
@@ -133,6 +134,7 @@ async def get_booking(
 @router.post("/{booking_id}/cancel", response_model=BookingOut)
 async def cancel_booking(
     booking_id: uuid.UUID,
+    body: CancelBookingRequest,
     current_user: dict = Depends(get_current_user),
     db: AsyncSession = Depends(get_db_session),
 ) -> BookingOut:
@@ -141,6 +143,7 @@ async def cancel_booking(
         booking_id=booking_id,
         user_id=uuid.UUID(current_user["user_id"]),
         role=current_user["role"],
+        reason=body.reason,
     )
     return BookingOut.model_validate(result)
 
@@ -176,6 +179,7 @@ async def update_booking_status(
         new_status=body.status,
         changed_by_id=uuid.UUID(current_user["user_id"]),
         role=current_user["role"],
+        reason=body.reason,
     )
     return BookingOut.model_validate(result)
 

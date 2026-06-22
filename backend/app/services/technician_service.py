@@ -37,6 +37,9 @@ def _assignment_to_dict(assignment: TechnicianAssignment) -> dict:
         "technician_id": assignment.technician_id,
         "assigned_at": assignment.assigned_at,
         "assigned_by": assignment.assigned_by,
+        "status": assignment.status,
+        "notes": assignment.notes,
+        "responded_at": assignment.responded_at,
     }
 
 
@@ -135,6 +138,15 @@ class TechnicianService:
             assigned_by=assigned_by_id,
         )
 
+        # Update booking status to technician_assigned
+        await self.booking_repo.update_status(
+            booking_id=booking_id,
+            new_status="technician_assigned",
+            changed_by=assigned_by_id,
+            is_admin=True,
+            reason=f"Technician {tech.name} assigned",
+        )
+
         logger.info(
             "technician_assigned: technician_id=%s booking_id=%s assigned_by=%s",
             technician_id,
@@ -143,6 +155,103 @@ class TechnicianService:
         )
 
         return _assignment_to_dict(assignment)
+
+    async def accept_assignment(
+        self,
+        assignment_id: uuid.UUID,
+        technician_user_id: uuid.UUID,
+    ) -> dict:
+        assignment = await self.repo.get_assignment_by_id(assignment_id)
+        if assignment is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={"error_code": "ASSIGNMENT_NOT_FOUND", "message": "Assignment not found"},
+            )
+
+        # Verify the technician owns this assignment
+        from sqlalchemy import select
+        from app.models.service import Technician as TechModel
+        result = await self.db.execute(
+            select(TechModel).where(TechModel.user_id == technician_user_id)
+        )
+        tech = result.scalar_one_or_none()
+        if tech is None or tech.id != assignment.technician_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail={"error_code": "FORBIDDEN", "message": "This assignment is not yours"},
+            )
+
+        if assignment.status != "pending":
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail={
+                    "error_code": "ALREADY_RESPONDED",
+                    "message": f"Assignment already {assignment.status}",
+                },
+            )
+
+        updated = await self.repo.respond_to_assignment(assignment_id, "accepted")
+
+        # Update booking status to accepted
+        await self.booking_repo.update_status(
+            booking_id=assignment.booking_id,
+            new_status="accepted",
+            changed_by=technician_user_id,
+            is_admin=True,
+            reason="Technician accepted assignment",
+        )
+
+        logger.info("assignment_accepted: assignment_id=%s technician_user_id=%s", assignment_id, technician_user_id)
+        return _assignment_to_dict(updated)  # type: ignore[arg-type]
+
+    async def reject_assignment(
+        self,
+        assignment_id: uuid.UUID,
+        technician_user_id: uuid.UUID,
+        notes: str | None = None,
+    ) -> dict:
+        assignment = await self.repo.get_assignment_by_id(assignment_id)
+        if assignment is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={"error_code": "ASSIGNMENT_NOT_FOUND", "message": "Assignment not found"},
+            )
+
+        # Verify the technician owns this assignment
+        from sqlalchemy import select
+        from app.models.service import Technician as TechModel
+        result = await self.db.execute(
+            select(TechModel).where(TechModel.user_id == technician_user_id)
+        )
+        tech = result.scalar_one_or_none()
+        if tech is None or tech.id != assignment.technician_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail={"error_code": "FORBIDDEN", "message": "This assignment is not yours"},
+            )
+
+        if assignment.status != "pending":
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail={
+                    "error_code": "ALREADY_RESPONDED",
+                    "message": f"Assignment already {assignment.status}",
+                },
+            )
+
+        updated = await self.repo.respond_to_assignment(assignment_id, "rejected", notes)
+
+        # Revert booking status back to booked so admin can reassign
+        await self.booking_repo.update_status(
+            booking_id=assignment.booking_id,
+            new_status="booked",
+            changed_by=technician_user_id,
+            is_admin=True,
+            reason=f"Technician rejected assignment. Notes: {notes or 'none'}",
+        )
+
+        logger.info("assignment_rejected: assignment_id=%s technician_user_id=%s", assignment_id, technician_user_id)
+        return _assignment_to_dict(updated)  # type: ignore[arg-type]
 
     async def auto_assign_to_booking(
         self,
@@ -161,7 +270,6 @@ class TechnicianService:
         if booking.pincode:
             service_area = await self.service_area_repo.get_by_pincode(booking.pincode)
         elif booking.lab_branch_id:
-            # For lab bookings, find service area by lab branch pincode
             from app.repositories.lab_branch_repository import LabBranchRepository
             branch_repo = LabBranchRepository(self.db)
             branch = await branch_repo.get_by_id(booking.lab_branch_id)
@@ -194,6 +302,15 @@ class TechnicianService:
             booking_id=booking_id,
             technician_id=tech.id,
             assigned_by=assigned_by_id,
+        )
+
+        # Update booking status to technician_assigned
+        await self.booking_repo.update_status(
+            booking_id=booking_id,
+            new_status="technician_assigned",
+            changed_by=assigned_by_id,
+            is_admin=True,
+            reason=f"Auto-assigned technician {tech.name}",
         )
 
         logger.info(

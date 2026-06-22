@@ -15,7 +15,7 @@ const NAV_ITEMS = [
   { label: 'Bookings',      icon: 'calendar_month',      path: '/admin/bookings' },
   { label: 'Lab Branches',  icon: 'location_city',       path: '/admin/lab-branches' },
   { label: 'Analytics',     icon: 'bar_chart',           path: '/admin/analytics' },
-  { label: 'Payment Config',icon: 'payments',            path: '/admin/payment-config' },
+  { label: 'Cancellation',   icon: 'cancel',              path: '/admin/cancellation-config' },
   { label: 'Feature Flags', icon: 'toggle_on',           path: '/admin/feature-flags' },
 ];
 

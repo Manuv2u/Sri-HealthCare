@@ -116,6 +116,7 @@ from app.api.v1.reports import router as reports_router  # noqa: E402
 from app.api.v1.payments import router as payments_router  # noqa: E402
 from app.api.v1.feature_flags import router as feature_flags_router  # noqa: E402
 from app.api.v1.health import router as health_router  # noqa: E402
+from app.api.v1.admin_settings import router as admin_settings_router  # noqa: E402
 
 api_v1 = APIRouter(prefix="/api/v1")
 
@@ -134,5 +135,6 @@ api_v1.include_router(reports_router)
 api_v1.include_router(payments_router)
 api_v1.include_router(feature_flags_router)
 api_v1.include_router(admin_router)
+api_v1.include_router(admin_settings_router)
 
 app.include_router(api_v1)

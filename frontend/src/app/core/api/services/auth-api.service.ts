@@ -11,8 +11,8 @@ export class AuthApiService {
     return this.http.post<{ message: string }>('/auth/login-otp', { phone });
   }
 
-  register(phone: string, name: string): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>('/auth/register', { phone, name });
+  register(name: string, phone: string, email: string, password: string): Observable<AuthTokens> {
+    return this.http.post<AuthTokens>('/auth/register', { name, phone, email, password });
   }
 
   verifyOtp(phone: string, otp: string, name?: string): Observable<AuthTokens> {

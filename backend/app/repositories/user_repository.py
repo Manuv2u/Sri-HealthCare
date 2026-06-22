@@ -23,6 +23,7 @@ class UserRepository:
         email: str | None,
         password_hash: str,
         role: str = "user",
+        is_temp_password: bool = False,
     ) -> User:
         user = User(
             id=uuid.uuid4(),
@@ -31,6 +32,7 @@ class UserRepository:
             email=email,
             password_hash=password_hash,
             role=role,
+            is_temp_password=is_temp_password,
         )
         self.db.add(user)
         await self.db.flush()

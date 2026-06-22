@@ -69,8 +69,11 @@ class ReportService:
             uploader_role=uploader_role,
         )
 
-        # Update booking status to completed
-        await self.booking_repo.update_status(booking_id, "completed", changed_by=uploaded_by)
+        # Update booking status to report_ready
+        await self.booking_repo.update_status(
+            booking_id, "report_ready", changed_by=uploaded_by, is_admin=True,
+            reason="Report uploaded"
+        )
 
         logger.info("report_uploaded: report_id=%s booking_id=%s", report.id, booking_id)
 

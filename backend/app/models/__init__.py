@@ -17,6 +17,7 @@ from app.models.report import Report
 from app.models.notification import Notification
 from app.models.audit import AuditLog, FeatureFlag
 from app.models.archive import BookingArchive, PaymentArchive
+from app.models.settings import CancellationSetting
 
 __all__ = [
     "Base",
@@ -47,4 +48,5 @@ __all__ = [
     "FeatureFlag",
     "BookingArchive",
     "PaymentArchive",
+    "CancellationSetting",
 ]

@@ -33,14 +33,24 @@ def _get_client_info(request: Request) -> tuple[str | None, str | None]:
     return device, ip
 
 
-@router.post("/register", response_model=MessageResponse)
+@router.post("/register", response_model=TokenResponse, status_code=201)
 async def register(
     body: RegisterRequest,
+    request: Request,
     db: AsyncSession = Depends(get_db_session),
-) -> MessageResponse:
+) -> TokenResponse:
+    """Register with name, phone, email and password. Returns auth tokens immediately."""
+    device, ip = _get_client_info(request)
     svc = AuthService(db)
-    result = await svc.register(phone=body.phone, name=body.name)
-    return MessageResponse(**result)
+    tokens = await svc.register(
+        phone=body.phone,
+        name=body.name,
+        email=body.email,
+        password=body.password,
+        device_identifier=device,
+        ip_address=ip,
+    )
+    return TokenResponse(**tokens)
 
 
 @router.post("/verify-otp", response_model=TokenResponse)
@@ -95,9 +105,6 @@ async def logout(
     current_user: dict = Depends(get_current_user),
     db: AsyncSession = Depends(get_db_session),
 ) -> MessageResponse:
-    # session_id is stored in request state by auth middleware if available
-    # For simplicity, revoke all sessions matching the current user's active session
-    # The session_id should be passed or we revoke by user — here we use a header
     session_id_header = request.headers.get("X-Session-Id")
     svc = AuthService(db)
     if session_id_header:

@@ -1,5 +1,6 @@
 import uuid
 from datetime import date, datetime
+from decimal import Decimal
 
 from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Integer, Numeric, String, Text, text
 from sqlalchemy.dialects.postgresql import UUID
@@ -33,7 +34,7 @@ class Booking(TimestampMixin, Base):
         UUID(as_uuid=True), ForeignKey("lab_branches.id"), nullable=True
     )
     pincode: Mapped[str | None] = mapped_column(String(10), nullable=True)
-    status: Mapped[str] = mapped_column(String(20), nullable=False, server_default="booked")
+    status: Mapped[str] = mapped_column(String(30), nullable=False, server_default="booked")
     payment_status: Mapped[str] = mapped_column(
         String(20), nullable=False, server_default="pending"
     )
@@ -43,6 +44,12 @@ class Booking(TimestampMixin, Base):
     )
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     cancelled_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    cancellation_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
+    cancelled_by: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id"), nullable=True
+    )
+    cancellation_fee: Mapped[Decimal | None] = mapped_column(Numeric(10, 2), nullable=True)
+    cancellation_fee_type: Mapped[str | None] = mapped_column(String(20), nullable=True)
     technician_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     # Relationships
@@ -106,12 +113,13 @@ class BookingStatusHistory(Base):
     booking_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("bookings.id"), nullable=False
     )
-    from_status: Mapped[str | None] = mapped_column(String(20), nullable=True)
-    to_status: Mapped[str] = mapped_column(String(20), nullable=False)
+    from_status: Mapped[str | None] = mapped_column(String(30), nullable=True)
+    to_status: Mapped[str] = mapped_column(String(30), nullable=False)
     changed_by: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id"), nullable=False
     )
     changed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    reason: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     # Relationships
     booking: Mapped["Booking"] = relationship("Booking", back_populates="status_history")

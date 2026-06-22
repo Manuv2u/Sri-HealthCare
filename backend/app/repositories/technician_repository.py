@@ -172,7 +172,6 @@ class TechnicianRepository:
         Find the active technician covering service_area_id with the minimum
         booking count for booking_date (max 20). Returns None if none available.
         """
-        # Subquery: booking count per technician for the date
         booking_count_sq = (
             select(
                 TechnicianAssignment.technician_id,
@@ -216,17 +215,33 @@ class TechnicianRepository:
         technician_id: uuid.UUID,
         assigned_by: uuid.UUID,
     ) -> TechnicianAssignment:
+        # Remove any existing assignment for this booking
+        await self.db.execute(
+            delete(TechnicianAssignment).where(
+                TechnicianAssignment.booking_id == booking_id
+            )
+        )
         assignment = TechnicianAssignment(
             id=uuid.uuid4(),
             booking_id=booking_id,
             technician_id=technician_id,
             assigned_at=datetime.now(timezone.utc),
             assigned_by=assigned_by,
+            status="pending",
         )
         self.db.add(assignment)
         await self.db.flush()
         await self.db.refresh(assignment)
         return assignment
+
+    async def get_assignment_by_id(
+        self,
+        assignment_id: uuid.UUID,
+    ) -> TechnicianAssignment | None:
+        result = await self.db.execute(
+            select(TechnicianAssignment).where(TechnicianAssignment.id == assignment_id)
+        )
+        return result.scalar_one_or_none()
 
     async def get_assignment_by_booking(
         self,
@@ -238,3 +253,18 @@ class TechnicianRepository:
             )
         )
         return result.scalar_one_or_none()
+
+    async def respond_to_assignment(
+        self,
+        assignment_id: uuid.UUID,
+        new_status: str,
+        notes: str | None = None,
+    ) -> TechnicianAssignment | None:
+        now = datetime.now(timezone.utc)
+        await self.db.execute(
+            update(TechnicianAssignment)
+            .where(TechnicianAssignment.id == assignment_id)
+            .values(status=new_status, notes=notes, responded_at=now)
+        )
+        await self.db.flush()
+        return await self.get_assignment_by_id(assignment_id)
