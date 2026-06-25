@@ -58,6 +58,47 @@ class PaymentService:
         total = round(subtotal + gst, 2)
         amount_paise = int(total * 100)
 
+        # Cash payments skip the gateway — confirm immediately
+        if method == "cash":
+            if existing is None:
+                payment = await self.repo.create(
+                    booking_id=booking_id,
+                    method=method,
+                    amount=total,
+                    gst_amount=gst,
+                )
+            else:
+                payment = existing
+                from sqlalchemy import update as sa_update
+                from app.models.payment import Payment as PaymentModel
+                await self.db.execute(
+                    sa_update(PaymentModel)
+                    .where(PaymentModel.id == payment.id)
+                    .values(method=method, amount=total, gst_amount=gst)
+                )
+            invoice_num = _invoice_number()
+            await self.repo.update_status(
+                payment.id,
+                status="paid",
+                gateway_order_id=f"cash_{payment.id.hex[:12]}",
+                gateway_payment_id=f"cash_{payment.id.hex[:12]}",
+                invoice_number=invoice_num,
+                paid_at=datetime.now(timezone.utc),
+            )
+            await self.booking_repo.update_status(booking_id, "confirmed", changed_by=None)
+            try:
+                invoice_svc = InvoiceService(self.db)
+                await invoice_svc.generate_pdf(payment.id)
+            except Exception as exc:
+                logger.error("cash_invoice_failed: payment_id=%s error=%s", payment.id, exc)
+            return {
+                "payment_id": payment.id,
+                "order_id": f"cash_{payment.id.hex[:12]}",
+                "payment_url": None,
+                "amount": total,
+                "gst_amount": gst,
+            }
+
         # Create gateway order
         order = await self.gateway.create_order(
             amount_paise=amount_paise,

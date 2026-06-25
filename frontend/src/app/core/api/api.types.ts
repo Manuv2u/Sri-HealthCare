@@ -103,6 +103,8 @@ export interface Booking {
   payment_status: string;
   total_amount: number;
   technician_notes?: string;
+  cancellation_reason?: string;
+  cancellation_fee?: number;
   created_at: string;
   items?: BookingItem[];
 }

@@ -2,6 +2,8 @@ import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
+import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 import { Booking, BookingItem, FamilyMember, Report } from '../../../core/api/api.types';
 import { BookingApiService } from '../../../core/api/services/booking-api.service';
 import { UserApiService } from '../../../core/api/services/user-api.service';
@@ -10,10 +12,12 @@ import { AuthStateService } from '../../../core/auth/auth-state.service';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner.component';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner.component';
 
+const CANCELLABLE = new Set(['booked', 'technician_assigned', 'accepted']);
+
 @Component({
   selector: 'app-booking-history',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, MatIconModule, LoadingSpinnerComponent, ErrorBannerComponent],
+  imports: [CommonModule, RouterLink, RouterLinkActive, MatIconModule, FormsModule, LoadingSpinnerComponent, ErrorBannerComponent],
   template: `
     <div class="dashboard-layout">
       <!-- Sidebar -->
@@ -125,9 +129,14 @@ import { ErrorBannerComponent } from '../../../shared/components/error-banner.co
                       <td>{{ b.booking_date | date:'MMM d, y' }}</td>
                       <td><span class="status-badge" [class]="statusClass(b.status)">{{ b.status | titlecase }}</span></td>
                       <td>
-                        <button class="action-link" (click)="toggleExpand(b.id)">
-                          {{ expandedId() === b.id ? 'Close' : 'View' }}
-                        </button>
+                        <div class="row-btns">
+                          <button class="action-link" (click)="toggleExpand(b.id)">
+                            {{ expandedId() === b.id ? 'Close' : 'View' }}
+                          </button>
+                          @if (isCancellable(b.status)) {
+                            <button class="action-link cancel-link" (click)="openCancel(b)">Cancel</button>
+                          }
+                        </div>
                       </td>
                     </tr>
                     @if (expandedId() === b.id) {
@@ -148,6 +157,9 @@ import { ErrorBannerComponent } from '../../../shared/components/error-banner.co
                             </div>
                             <div class="detail-meta">
                               <span>Payment: <strong>{{ b.payment_status | titlecase }}</strong></span>
+                              @if (b.cancellation_reason) {
+                                <span> · Cancelled: <strong>{{ b.cancellation_reason }}</strong></span>
+                              }
                             </div>
                           </div>
                         </td>
@@ -208,6 +220,69 @@ import { ErrorBannerComponent } from '../../../shared/components/error-banner.co
         </div>
       </main>
     </div>
+
+    <!-- Cancellation dialog -->
+    @if (cancelDialogOpen()) {
+      <div class="dialog-backdrop" (click)="closeCancel()">
+        <div class="dialog-box" (click)="$event.stopPropagation()">
+          <div class="dialog-header">
+            <h3>Cancel Booking</h3>
+            <button class="dialog-close" (click)="closeCancel()"><mat-icon>close</mat-icon></button>
+          </div>
+
+          @if (cancelFeeInfo()) {
+            <div class="fee-notice">
+              <mat-icon>warning_amber</mat-icon>
+              <div>
+                <div class="fee-title">Cancellation fee applies</div>
+                <div class="fee-row">
+                  <span>Booking amount</span>
+                  <span>₹{{ cancelBookingTotal() | number:'1.0-0' }}</span>
+                </div>
+                <div class="fee-row red">
+                  <span>Cancellation fee
+                    @if (cancelFeeInfo()!.charge_type === 'percentage') {
+                      ({{ cancelFeeInfo()!.charge_value }}%)
+                    }
+                  </span>
+                  <span>−₹{{ cancelFeeAmount() | number:'1.0-0' }}</span>
+                </div>
+                <div class="fee-row bold">
+                  <span>Refund amount</span>
+                  <span>₹{{ cancelRefundAmount() | number:'1.0-0' }}</span>
+                </div>
+              </div>
+            </div>
+          }
+
+          <div class="dialog-body">
+            <label class="dlg-label">Reason for cancellation *</label>
+            <select [(ngModel)]="cancelReason" class="dlg-select">
+              <option value="">Select a reason…</option>
+              <option value="Schedule changed">Schedule changed</option>
+              <option value="Booked by mistake">Booked by mistake</option>
+              <option value="Test no longer required">Test no longer required</option>
+              <option value="Found another diagnostic center">Found another diagnostic center</option>
+              <option value="Unable to visit">Unable to visit</option>
+              <option value="Other">Other</option>
+            </select>
+            @if (cancelReason === 'Other') {
+              <textarea [(ngModel)]="cancelReasonOther" class="dlg-textarea" rows="3"
+                placeholder="Please describe your reason…"></textarea>
+            }
+            @if (cancelError()) {
+              <div class="dlg-error"><mat-icon>error_outline</mat-icon> {{ cancelError() }}</div>
+            }
+          </div>
+          <div class="dialog-footer">
+            <button class="btn-ghost" (click)="closeCancel()" [disabled]="cancelling()">Keep Booking</button>
+            <button class="btn-cancel-confirm" (click)="confirmCancel()" [disabled]="cancelling()">
+              {{ cancelling() ? 'Cancelling…' : 'Confirm Cancellation' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    }
   `,
   styles: [`
     .dashboard-layout { display:grid; grid-template-columns:220px 1fr; min-height:calc(100vh - 64px); }
@@ -332,6 +407,37 @@ import { ErrorBannerComponent } from '../../../shared/components/error-banner.co
     .btn-promo { display:block; background:#fff; color:#1a56db; border:none; border-radius:8px; padding:.6rem 1rem; font-size:.875rem; font-weight:700; text-align:center; text-decoration:none; cursor:pointer; &:hover{background:#ebf8ff;} }
 
     .table-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; width:100%; }
+    .row-btns { display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; }
+    .cancel-link { color:#e53e3e !important; &:hover{color:#c53030 !important;} }
+
+    /* Cancellation dialog */
+    .dialog-backdrop { position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:1000; display:flex; align-items:center; justify-content:center; padding:1rem; }
+    .dialog-box { background:#fff; border-radius:16px; width:100%; max-width:460px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,.2); }
+    .dialog-header { display:flex; justify-content:space-between; align-items:center; padding:1.25rem 1.5rem; border-bottom:1px solid #e2e8f0;
+      h3 { font-size:1rem; font-weight:700; color:#1a202c; margin:0; }
+    }
+    .dialog-close { background:none; border:none; cursor:pointer; color:#718096; display:flex; padding:.25rem; border-radius:6px; &:hover{background:#f7fafc;} }
+    .dialog-body { padding:1.25rem 1.5rem; display:flex; flex-direction:column; gap:.75rem; }
+    .dialog-footer { display:flex; justify-content:flex-end; gap:.75rem; padding:1rem 1.5rem; border-top:1px solid #e2e8f0; background:#f7fafc; }
+    .fee-notice { display:flex; gap:.75rem; padding:1rem 1.5rem; background:#fffbeb; border-bottom:1px solid #f6e05e;
+      mat-icon { color:#d69e2e; flex-shrink:0; margin-top:.1rem; font-size:1.2rem; width:1.2rem; height:1.2rem; }
+    }
+    .fee-title { font-size:.8rem; font-weight:700; color:#744210; margin-bottom:.5rem; }
+    .fee-row { display:flex; justify-content:space-between; font-size:.85rem; color:#4a5568; padding:.15rem 0;
+      &.red { color:#e53e3e; }
+      &.bold { font-weight:700; color:#1a202c; border-top:1px solid #e2e8f0; margin-top:.35rem; padding-top:.35rem; }
+    }
+    .dlg-label { font-size:.8rem; font-weight:600; color:#4a5568; }
+    .dlg-select, .dlg-textarea { border:1px solid #e2e8f0; border-radius:8px; padding:.5rem .75rem; font-size:.875rem; color:#2d3748; background:#fff; width:100%;
+      &:focus { outline:none; border-color:#00796b; box-shadow:0 0 0 3px rgba(0,121,107,.1); }
+    }
+    .dlg-textarea { resize:vertical; font-family:inherit; }
+    .dlg-error { display:flex; align-items:center; gap:.4rem; font-size:.8rem; color:#c53030; background:#fff5f5; padding:.5rem .75rem; border-radius:8px;
+      mat-icon { font-size:1rem; width:1rem; height:1rem; }
+    }
+    .btn-ghost { background:none; border:1px solid #e2e8f0; border-radius:8px; padding:.55rem 1.1rem; font-size:.875rem; cursor:pointer; color:#4a5568; &:hover{background:#f7fafc;} &:disabled{opacity:.5;cursor:not-allowed;} }
+    .btn-cancel-confirm { background:#e53e3e; color:#fff; border:none; border-radius:8px; padding:.55rem 1.25rem; font-size:.875rem; font-weight:600; cursor:pointer; &:hover{background:#c53030;} &:disabled{opacity:.5;cursor:not-allowed;} }
+
     @media(max-width:900px){
       .dashboard-layout{grid-template-columns:1fr;}
       .dash-sidebar{display:none;}
@@ -346,8 +452,10 @@ import { ErrorBannerComponent } from '../../../shared/components/error-banner.co
     }
   `],
 })
+
 export class BookingHistoryComponent implements OnInit {
   private auth = inject(AuthStateService);
+  private http = inject(HttpClient);
   bookings = signal<Booking[]>([]);
   reports = signal<Report[]>([]);
   loading = signal(true);
@@ -357,6 +465,14 @@ export class BookingHistoryComponent implements OnInit {
   familyMemberCount = signal(0);
   expandedId = signal<string | null>(null);
   pageSize = 5;
+
+  cancelDialogOpen = signal(false);
+  cancelBooking = signal<Booking | null>(null);
+  cancelReason = '';
+  cancelReasonOther = '';
+  cancelling = signal(false);
+  cancelError = signal<string | null>(null);
+  cancelFeeInfo = signal<{ charge_type: string; charge_value: number } | null>(null);
 
   readonly REPORT_ICON_CLASSES = ['red', 'green', 'blue'];
 
@@ -381,13 +497,29 @@ export class BookingHistoryComponent implements OnInit {
     return 'Good Evening';
   });
 
+  cancelBookingTotal = computed(() => {
+    const b = this.cancelBooking();
+    if (!b?.items?.length) return 0;
+    return b.items.reduce((sum: number, i: BookingItem) => sum + Number(i.unit_price), 0);
+  });
+
+  cancelFeeAmount = computed(() => {
+    const fee = this.cancelFeeInfo();
+    if (!fee) return 0;
+    const total = this.cancelBookingTotal();
+    if (fee.charge_type === 'percentage') return Math.round(total * fee.charge_value / 100);
+    return Math.min(fee.charge_value, total);
+  });
+
+  cancelRefundAmount = computed(() => Math.max(0, this.cancelBookingTotal() - this.cancelFeeAmount()));
+
   constructor(
     private bookingApi: BookingApiService,
     private userApi: UserApiService,
     private reportApi: ReportApiService,
   ) {}
 
-  ngOnInit(): void { this.load(); this.loadFamilyMembers(); this.loadReports(); }
+  ngOnInit(): void { this.load(); this.loadFamilyMembers(); this.loadReports(); this.loadCancelFee(); }
 
   load(): void {
     this.loading.set(true);
@@ -418,6 +550,50 @@ export class BookingHistoryComponent implements OnInit {
 
   toggleExpand(id: string): void {
     this.expandedId.set(this.expandedId() === id ? null : id);
+  }
+
+  isCancellable(status: string): boolean { return CANCELLABLE.has(status); }
+
+  loadCancelFee(): void {
+    this.http.get<{ charge_type: string; charge_value: number } | null>('/api/v1/admin/settings/cancellation').subscribe({
+      next: (res) => this.cancelFeeInfo.set(res),
+      error: () => {},
+    });
+  }
+
+  openCancel(b: Booking): void {
+    this.cancelBooking.set(b);
+    this.cancelReason = '';
+    this.cancelReasonOther = '';
+    this.cancelError.set(null);
+    this.cancelDialogOpen.set(true);
+  }
+
+  closeCancel(): void {
+    if (this.cancelling()) return;
+    this.cancelDialogOpen.set(false);
+    this.cancelBooking.set(null);
+  }
+
+  confirmCancel(): void {
+    const reason = this.cancelReason === 'Other' ? this.cancelReasonOther.trim() : this.cancelReason;
+    if (!reason) { this.cancelError.set('Please select or enter a cancellation reason.'); return; }
+    const b = this.cancelBooking();
+    if (!b) return;
+    this.cancelling.set(true);
+    this.cancelError.set(null);
+    this.bookingApi.cancel(b.id, reason).subscribe({
+      next: () => {
+        this.cancelling.set(false);
+        this.cancelDialogOpen.set(false);
+        this.cancelBooking.set(null);
+        this.load();
+      },
+      error: (err: any) => {
+        this.cancelError.set(err.error?.detail?.message || err.error?.message || 'Failed to cancel booking.');
+        this.cancelling.set(false);
+      },
+    });
   }
 
   downloadReport(r: Report): void {

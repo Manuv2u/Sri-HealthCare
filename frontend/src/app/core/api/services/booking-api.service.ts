@@ -22,8 +22,8 @@ export class BookingApiService {
     return this.http.get<Booking>(`/bookings/${id}`);
   }
 
-  cancel(id: string): Observable<Booking> {
-    return this.http.post<Booking>(`/bookings/${id}/cancel`, {});
+  cancel(id: string, reason: string): Observable<Booking> {
+    return this.http.post<Booking>(`/bookings/${id}/cancel`, { reason });
   }
 
   reschedule(id: string, data: { slot_id: string; booking_date: string }): Observable<Booking> {

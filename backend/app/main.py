@@ -24,6 +24,14 @@ async def lifespan(app: FastAPI):  # type: ignore[type-arg]
         await seed_admin_user(db)
         await db.commit()
 
+    # Startup — seed lab branches, service areas, and time slots
+    from app.scripts.seed_lab_data import seed_lab_branches, seed_service_areas, seed_time_slots
+    async with AsyncSessionFactory() as db:
+        await seed_lab_branches(db)
+        await seed_service_areas(db)
+        await seed_time_slots(db)
+        await db.commit()
+
     # Start APScheduler
     from apscheduler.schedulers.asyncio import AsyncIOScheduler
     from apscheduler.triggers.cron import CronTrigger

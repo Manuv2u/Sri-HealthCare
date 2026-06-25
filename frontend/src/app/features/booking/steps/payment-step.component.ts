@@ -1,7 +1,8 @@
-import { Component, inject, output, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, output, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 import { BookingApiService } from '../../../core/api/services/booking-api.service';
 import { PaymentApiService } from '../../../core/api/services/payment-api.service';
 import { BookingWizardStore } from '../../../core/store/booking-wizard.store';
@@ -17,6 +18,19 @@ import { Booking, Payment } from '../../../core/api/api.types';
         <h2>Review and Pay</h2>
         <p>Confirm your booking details before payment</p>
       </div>
+      @if (cancellationFee()) {
+        <div class="cancel-notice">
+          <mat-icon>info_outline</mat-icon>
+          <span>
+            <strong>Cancellation policy:</strong>
+            @if (cancellationFee()!.charge_type === 'fixed') {
+              A cancellation fee of <strong>₹{{ cancellationFee()!.charge_value }}</strong> applies if you cancel this booking.
+            } @else {
+              A cancellation fee of <strong>{{ cancellationFee()!.charge_value }}%</strong> of the booking amount applies if you cancel.
+            }
+          </span>
+        </div>
+      }
       @if (confirmed()) {
         <div class="success-card">
           <div class="success-icon"><mat-icon>check_circle</mat-icon></div>
@@ -106,23 +120,35 @@ import { Booking, Payment } from '../../../core/api/api.types';
     .success-title { font-size: 1.25rem; font-weight: 800; color: #1a202c; }
     .success-sub { font-size: .875rem; color: #718096; }
     .btn-invoice { display: inline-flex; align-items: center; gap: .4rem; background: #00796b; color: #fff; border: none; border-radius: 10px; padding: .65rem 1.5rem; font-size: .9rem; font-weight: 700; text-decoration: none; margin-top: .5rem; }
+    .cancel-notice { display: flex; align-items: flex-start; gap: .6rem; padding: .75rem 1rem; background: #fffbeb; border: 1px solid #f6e05e; border-radius: 10px; font-size: .85rem; color: #744210;
+      mat-icon { font-size: 1.1rem; width: 1.1rem; height: 1.1rem; flex-shrink: 0; margin-top: .05rem; }
+    }
   `],
 })
-export class PaymentStepComponent {
+export class PaymentStepComponent implements OnInit {
   back = output<void>();
   private bookingApi = inject(BookingApiService);
   private paymentApi = inject(PaymentApiService);
+  private http = inject(HttpClient);
   readonly store = inject(BookingWizardStore);
   paymentMethod = '';
   loading = signal(false);
   error = signal<string | null>(null);
   confirmed = signal(false);
   invoiceUrl = signal<string | null>(null);
+  cancellationFee = signal<{ charge_type: string; charge_value: number } | null>(null);
   paymentOptions = [
     { value: 'upi',  label: 'UPI',          icon: 'account_balance_wallet' },
     { value: 'card', label: 'Card',          icon: 'credit_card' },
     { value: 'cash', label: 'Cash on Visit', icon: 'payments' },
   ];
+  ngOnInit(): void {
+    this.http.get<{ charge_type: string; charge_value: number } | null>('/api/v1/admin/settings/cancellation').subscribe({
+      next: (res) => this.cancellationFee.set(res),
+      error: () => {},
+    });
+  }
+
   grandTotal = computed(() => {
     const s = this.store;
     const testSum = s.selectedTests().reduce((acc: number, t: { price: number }) => acc + t.price, 0);
@@ -148,13 +174,13 @@ export class PaymentStepComponent {
       next: (booking: Booking) => {
         (this.store as any).patchState({ paymentMethod: this.paymentMethod });
         this.paymentApi.initiate(booking.id, this.paymentMethod).subscribe({
-          next: (payment: Payment) => {
+          next: (payment: any) => {
             this.loading.set(false);
-            if (this.paymentMethod !== 'cash' && payment.payment_url) {
+            if (payment.payment_url && this.paymentMethod !== 'cash') {
               window.location.href = payment.payment_url;
             } else {
               this.confirmed.set(true);
-              this.invoiceUrl.set('/payments/' + payment.payment_id + '/invoice');
+              this.invoiceUrl.set('/api/v1/payments/' + payment.payment_id + '/invoice');
             }
           },
           error: () => { this.error.set('Payment initiation failed. Please try again.'); this.loading.set(false); },

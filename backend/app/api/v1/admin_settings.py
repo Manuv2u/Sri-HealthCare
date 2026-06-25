@@ -39,7 +39,7 @@ class CancellationSettingIn(BaseModel):
 
 @router.get("/cancellation", response_model=Optional[CancellationSettingOut])
 async def get_cancellation_setting(
-    current_user: dict = Depends(require_roles("admin")),
+    current_user: dict = Depends(require_roles("admin", "user", "technician")),
     db: AsyncSession = Depends(get_db_session),
 ) -> Optional[CancellationSettingOut]:
     """Get the currently active cancellation charge setting."""
