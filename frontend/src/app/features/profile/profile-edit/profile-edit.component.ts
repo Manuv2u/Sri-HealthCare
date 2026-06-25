@@ -24,96 +24,317 @@ import { ErrorBannerComponent } from '../../../shared/components/error-banner.co
   ],
   template: `
     <div class="edit-page">
+
+      <!-- Header -->
       <div class="edit-header">
-        <button class="back-btn" (click)="goBack()">
+        <button class="back-btn" (click)="goBack()" aria-label="Go back">
           <mat-icon>arrow_back</mat-icon>
         </button>
-        <h1>Edit Profile</h1>
+        <div class="header-text">
+          <h1>Edit Profile</h1>
+          <p>Update your personal details</p>
+        </div>
       </div>
 
-      @if (loading()) { <app-loading-spinner /> }
-      @else if (loadError()) { <app-error-banner [message]="loadError()!" retryLabel="Retry" (retry)="load()" /> }
-      @else {
-        <form [formGroup]="form" (ngSubmit)="save()" class="edit-form">
-          <div class="avatar-row">
-            <div class="avatar">{{ initials() }}</div>
-            <div class="phone-display">
-              <mat-icon>phone</mat-icon> {{ phone() }}
-              <span class="phone-note">Phone number cannot be changed</span>
+      @if (loading()) {
+        <div class="state-center">
+          <div class="spinner"></div>
+          <span>Loading profile…</span>
+        </div>
+      } @else if (loadError()) {
+        <app-error-banner [message]="loadError()!" retryLabel="Retry" (retry)="load()" />
+      } @else {
+        <form [formGroup]="form" (ngSubmit)="save()" class="edit-body">
+
+          <!-- Avatar block -->
+          <div class="avatar-block">
+            <div class="avatar-ring">
+              <div class="avatar">{{ initials() }}</div>
+            </div>
+            <div class="phone-block">
+              <div class="phone-row">
+                <mat-icon class="phone-icon">smartphone</mat-icon>
+                <span class="phone-num">{{ phone() }}</span>
+              </div>
+              <span class="phone-hint">Phone number cannot be changed</span>
             </div>
           </div>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Full Name</mat-label>
-            <input matInput formControlName="name" />
-            <mat-error>Name is required</mat-error>
-          </mat-form-field>
+          <!-- Fields -->
+          <div class="fields-section">
+            <div class="field-group">
+              <label class="field-label">Full Name <span class="req">*</span></label>
+              <mat-form-field appearance="outline" class="field">
+                <input matInput formControlName="name" placeholder="Your full name" />
+                <mat-error>Name is required</mat-error>
+              </mat-form-field>
+            </div>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Email Address</mat-label>
-            <input matInput formControlName="email" type="email" />
-            <mat-error>Enter a valid email</mat-error>
-          </mat-form-field>
+            <div class="field-group">
+              <label class="field-label">Email Address</label>
+              <mat-form-field appearance="outline" class="field">
+                <input matInput formControlName="email" type="email" placeholder="you@example.com" />
+                <mat-error>Enter a valid email</mat-error>
+              </mat-form-field>
+            </div>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Date of Birth</mat-label>
-            <input matInput formControlName="date_of_birth" type="date" />
-          </mat-form-field>
+            <div class="field-row-2">
+              <div class="field-group">
+                <label class="field-label">Date of Birth</label>
+                <mat-form-field appearance="outline" class="field">
+                  <input matInput formControlName="date_of_birth" type="date" />
+                </mat-form-field>
+              </div>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Gender</mat-label>
-            <mat-select formControlName="gender">
-              <mat-option value="">Prefer not to say</mat-option>
-              <mat-option value="male">Male</mat-option>
-              <mat-option value="female">Female</mat-option>
-              <mat-option value="other">Other</mat-option>
-            </mat-select>
-          </mat-form-field>
+              <div class="field-group">
+                <label class="field-label">Gender</label>
+                <mat-form-field appearance="outline" class="field">
+                  <mat-select formControlName="gender">
+                    <mat-option value="">Prefer not to say</mat-option>
+                    <mat-option value="male">Male</mat-option>
+                    <mat-option value="female">Female</mat-option>
+                    <mat-option value="other">Other</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+          </div>
 
+          <!-- Actions -->
           <div class="form-actions">
-            <button mat-button type="button" (click)="goBack()">Cancel</button>
-            <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || saving()">
-              {{ saving() ? 'Saving…' : 'Save Changes' }}
+            <button type="button" class="btn-cancel" (click)="goBack()">Cancel</button>
+            <button type="submit" class="btn-save" [disabled]="form.invalid || saving()">
+              @if (saving()) {
+                <span class="btn-spinner"></span>
+                Saving…
+              } @else {
+                <mat-icon>check</mat-icon>
+                Save Changes
+              }
             </button>
           </div>
+
         </form>
       }
     </div>
   `,
   styles: [`
-    .edit-page { min-height: 100vh; background: #f7fafc; }
+    :host { display: block; }
+
+    .edit-page {
+      min-height: 100vh;
+      background: #F8F9FF;
+      font-family: 'Inter', -apple-system, sans-serif;
+    }
+
+    /* ── Header ── */
     .edit-header {
-      background: linear-gradient(135deg, #00796b, #004d40); color: #fff;
-      padding: 1.25rem 1.5rem; display: flex; align-items: center; gap: 1rem;
-      h1 { margin: 0; font-size: 1.2rem; font-weight: 700; }
+      background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
+      color: #fff;
+      padding: 1.25rem 1.5rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
     }
     .back-btn {
-      background: rgba(255,255,255,.15); border: none; color: #fff;
-      border-radius: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
-      cursor: pointer; flex-shrink: 0;
+      background: rgba(255,255,255,.15);
+      border: none;
+      color: #fff;
+      border-radius: 10px;
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background .15s;
       mat-icon { font-size: 1.2rem; width: 1.2rem; height: 1.2rem; }
       &:hover { background: rgba(255,255,255,.25); }
     }
-    .edit-form {
-      max-width: 500px; margin: 1.5rem auto; padding: 0 1.25rem 3rem;
-      display: flex; flex-direction: column; gap: 1rem;
+    .header-text {
+      h1 { margin: 0 0 .15rem; font-size: 1.2rem; font-weight: 700; letter-spacing: -.01em; }
+      p { margin: 0; font-size: .8rem; opacity: .75; }
     }
-    .avatar-row {
-      display: flex; align-items: center; gap: 1rem; padding: 1rem;
-      background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: .5rem;
+
+    /* ── Loading state ── */
+    .state-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: .85rem;
+      padding: 4rem 1.5rem;
+      color: #94A3B8;
+      font-size: .9rem;
+    }
+    .spinner {
+      width: 36px;
+      height: 36px;
+      border: 3px solid #E2E8F0;
+      border-top-color: #6366F1;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Form body ── */
+    .edit-body {
+      max-width: 540px;
+      margin: 0 auto;
+      padding: 1.5rem 1.25rem 3rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    /* ── Avatar block ── */
+    .avatar-block {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid #E2E8F0;
+      padding: 1.25rem;
+      box-shadow: 0 1px 4px rgba(99,102,241,.06);
+    }
+    .avatar-ring {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #6366F1, #4F46E5);
+      padding: 2.5px;
+      flex-shrink: 0;
+      box-shadow: 0 4px 14px rgba(99,102,241,.35);
     }
     .avatar {
-      width: 52px; height: 52px; border-radius: 50%; background: #00796b; color: #fff;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.1rem; font-weight: 700; flex-shrink: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #6366F1, #4F46E5);
+      border: 2.5px solid #fff;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -.02em;
+      box-sizing: border-box;
     }
-    .phone-display {
-      display: flex; align-items: center; gap: .4rem; font-size: .9rem; font-weight: 600; color: #2d3748; flex-wrap: wrap;
-      mat-icon { font-size: 1rem; width: 1rem; height: 1rem; color: #00796b; }
+    .phone-block {
+      display: flex;
+      flex-direction: column;
+      gap: .25rem;
     }
-    .phone-note { font-size: .72rem; color: #a0aec0; font-weight: 400; width: 100%; margin-top: .1rem; }
-    mat-form-field { width: 100%; }
-    .form-actions { display: flex; gap: .75rem; justify-content: flex-end; padding-top: .5rem; }
+    .phone-row {
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+    }
+    .phone-icon {
+      font-size: 1rem;
+      width: 1rem;
+      height: 1rem;
+      color: #6366F1;
+    }
+    .phone-num {
+      font-size: .95rem;
+      font-weight: 600;
+      color: #0F172A;
+      letter-spacing: .01em;
+    }
+    .phone-hint {
+      font-size: .73rem;
+      color: #94A3B8;
+    }
+
+    /* ── Fields ── */
+    .fields-section {
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid #E2E8F0;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: .75rem;
+      box-shadow: 0 1px 4px rgba(99,102,241,.06);
+    }
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: .35rem;
+    }
+    .field-label {
+      font-size: .78rem;
+      font-weight: 600;
+      color: #475569;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .req { color: #EF4444; }
+    .field { width: 100%; }
+    .field-row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    /* ── Actions ── */
+    .form-actions {
+      display: flex;
+      gap: .75rem;
+      align-items: center;
+    }
+    .btn-cancel {
+      flex: 0 0 auto;
+      height: 48px;
+      padding: 0 1.25rem;
+      border-radius: 999px;
+      border: 1.5px solid #E2E8F0;
+      background: #fff;
+      color: #475569;
+      font-size: .9rem;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: border-color .15s, color .15s;
+      &:hover { border-color: #6366F1; color: #6366F1; }
+    }
+    .btn-save {
+      flex: 1;
+      height: 48px;
+      border-radius: 999px;
+      border: none;
+      background: linear-gradient(135deg, #6366F1, #4F46E5);
+      color: #fff;
+      font-size: .95rem;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .45rem;
+      transition: opacity .15s, transform .1s;
+      box-shadow: 0 4px 14px rgba(99,102,241,.35);
+      mat-icon { font-size: 1.1rem; width: 1.1rem; height: 1.1rem; }
+      &:hover:not(:disabled) { opacity: .9; transform: translateY(-1px); }
+      &:disabled { opacity: .55; cursor: not-allowed; transform: none; box-shadow: none; }
+    }
+    .btn-spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @media (max-width: 600px) {
+      .field-row-2 { grid-template-columns: 1fr; }
+      .edit-body { padding: 1.25rem 1rem 3rem; }
+    }
   `],
 })
 export class ProfileEditComponent implements OnInit {

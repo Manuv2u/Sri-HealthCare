@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormControl } from '@angular/forms';
@@ -11,179 +11,299 @@ import { Package } from '../../core/api/api.types';
   standalone: true,
   imports: [CommonModule, RouterLink, ReactiveFormsModule, MatIconModule],
   template: `
-    <!-- Hero -->
-    <section class="hero">
-      <div class="hero-content">
-        <div class="hero-text">
-          <div class="hero-badge">
-            <span class="dot"></span> 30-min to your doorstep, guaranteed
+    <!-- ══════════════════════════════════════════
+         HERO
+    ══════════════════════════════════════════ -->
+    <section class="hero" aria-label="Hero">
+      <canvas #heroCanvas class="hero-canvas" aria-hidden="true"></canvas>
+      <div class="hero-inner">
+        <div class="hero-text-col">
+          <div class="trust-badge">
+            <span class="trust-stars">★★★★★</span>
+            <span>4.8 &nbsp;·&nbsp; Trusted by 50,000+ patients</span>
           </div>
-          <h1>Clinical Precision,<br><span class="accent">Expert Care</span></h1>
-          <p>Experience the gold standard in diagnostic accuracy. Our state-of-the-art labs provide rapid, reliable results powered by world-class pathologists.</p>
-          <div class="hero-search">
-            <mat-icon>search</mat-icon>
-            <input [formControl]="searchCtrl" placeholder="Search for e.g., CBC, Thyroid Profile…" (keydown.enter)="goSearch()" />
-            <button class="btn-find" (click)="goSearch()">Find Test</button>
-          </div>
+          <h1 class="hero-headline">
+            Book Lab Tests<br>
+            <span class="hero-headline-accent">at Home</span>
+          </h1>
+          <p class="hero-sub">
+            Certified phlebotomists, NABL-accredited labs, and same-day reports —
+            all from the comfort of your home across Shivamogga and beyond.
+          </p>
           <div class="hero-ctas">
-            <a routerLink="/booking" class="hero-cta-primary">
-              <mat-icon>calendar_today</mat-icon> Book Home Collection
+            <a routerLink="/booking" class="btn-primary">
+              <mat-icon>calendar_today</mat-icon>
+              Book a Test
             </a>
-            <a routerLink="/tests" class="hero-cta-secondary">
-              <mat-icon>biotech</mat-icon> Browse Tests
+            <a routerLink="/tests" class="btn-outline">
+              <mat-icon>biotech</mat-icon>
+              View Tests
             </a>
           </div>
-          <div class="hero-action-chips">
-            <a routerLink="/reports" class="hac">
+          <div class="hero-chips">
+            <a routerLink="/reports" class="hero-chip">
               <mat-icon>download</mat-icon> Reports
             </a>
-            <a routerLink="/profile" class="hac">
-              <mat-icon>people</mat-icon> Family
+            <a routerLink="/profile" class="hero-chip">
+              <mat-icon>group</mat-icon> Family
             </a>
-            <a routerLink="/packages" class="hac">
+            <a routerLink="/packages" class="hero-chip">
               <mat-icon>inventory_2</mat-icon> Packages
             </a>
           </div>
-          <div class="hero-stat">
-            <span class="stat-num">99.9%</span>
-            <span class="stat-label">ACCURACY RATE</span>
-          </div>
         </div>
-        <div class="hero-visual">
-          <div class="hero-img-wrap">
-            <div class="hero-circle"></div>
-            <div class="hero-icon-grid">
-              <div class="hig-item"><mat-icon>biotech</mat-icon></div>
-              <div class="hig-item"><mat-icon>science</mat-icon></div>
-              <div class="hig-item"><mat-icon>vaccines</mat-icon></div>
-              <div class="hig-item"><mat-icon>monitor_heart</mat-icon></div>
+        <div class="hero-visual-col" aria-hidden="true">
+          <div class="hero-card-stack">
+            <div class="hv-card hv-card-main">
+              <div class="hvc-icon-row">
+                <div class="hvc-icon-box hvc-ib-1"><mat-icon>biotech</mat-icon></div>
+                <div class="hvc-icon-box hvc-ib-2"><mat-icon>science</mat-icon></div>
+              </div>
+              <div class="hvc-icon-row">
+                <div class="hvc-icon-box hvc-ib-3"><mat-icon>vaccines</mat-icon></div>
+                <div class="hvc-icon-box hvc-ib-4"><mat-icon>monitor_heart</mat-icon></div>
+              </div>
+              <div class="hvc-label">NABL Accredited Lab</div>
+            </div>
+            <div class="hv-card hv-card-stat">
+              <span class="hvs-num">99.9%</span>
+              <span class="hvs-label">Accuracy Rate</span>
+            </div>
+            <div class="hv-card hv-card-report">
+              <mat-icon>task_alt</mat-icon>
+              <div>
+                <div class="hvr-title">Report Ready</div>
+                <div class="hvr-sub">Same day delivery</div>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Popular Packages -->
-    <section class="section">
-      <div class="section-inner">
-        <div class="section-header">
+    <!-- ══════════════════════════════════════════
+         STATS BAR
+    ══════════════════════════════════════════ -->
+    <section class="stats-bar" aria-label="Key stats">
+      <div class="stats-inner">
+        <div class="stat-item">
+          <span class="stat-icon"><mat-icon>people</mat-icon></span>
           <div>
-            <h2>Popular Health Packages</h2>
-            <p>Comprehensive diagnostic panels designed for early detection and holistic health monitoring</p>
+            <span class="stat-num">50K+</span>
+            <span class="stat-label">Patients</span>
           </div>
-          <a routerLink="/packages" class="view-all">View all 150+ tests →</a>
         </div>
-        <div class="pkg-grid">
-          @for (pkg of packages(); track pkg.id) {
-            <div class="pkg-card">
-              <div class="pkg-icon"><mat-icon>inventory_2</mat-icon></div>
-              <h3>{{ pkg.name }}</h3>
-              @if (pkg.description) { <p class="pkg-desc">{{ pkg.description }}</p> }
-              <div class="pkg-tests">
-                @for (t of pkg.tests.slice(0, 3); track t.id) {
-                  <span class="pkg-test-chip">
-                    <mat-icon>check_circle</mat-icon> {{ t.name }}
-                  </span>
-                }
-                @if (pkg.tests.length > 3) {
-                  <span class="pkg-test-chip more">+{{ pkg.tests.length - 3 }} more</span>
-                }
-              </div>
-              <div class="pkg-footer">
-                <div class="pkg-price">
-                  @if (pkg.original_price > pkg.discounted_price) {
-                    <span class="pkg-orig">₹{{ pkg.original_price }}</span>
-                  }
-                  <span class="pkg-eff">from ₹{{ pkg.discounted_price }}</span>
-                </div>
-                <button class="btn-book" (click)="bookPackage(pkg)">Book Now</button>
-              </div>
-            </div>
-          }
-          @if (packages().length === 0 && !pkgLoading()) {
-            <div class="pkg-card empty-pkg">
-              <mat-icon>inventory_2</mat-icon>
-              <p>No packages available yet</p>
-            </div>
-          }
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-icon"><mat-icon>biotech</mat-icon></span>
+          <div>
+            <span class="stat-num">200+</span>
+            <span class="stat-label">Tests Available</span>
+          </div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-icon"><mat-icon>location_on</mat-icon></span>
+          <div>
+            <span class="stat-num">15+</span>
+            <span class="stat-label">Branches</span>
+          </div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-icon"><mat-icon>speed</mat-icon></span>
+          <div>
+            <span class="stat-num">Same Day</span>
+            <span class="stat-label">Reports</span>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- Features -->
-    <section class="features-section">
+    <!-- ══════════════════════════════════════════
+         WHY CHOOSE US
+    ══════════════════════════════════════════ -->
+    <section class="section why-section" aria-labelledby="why-heading">
       <div class="section-inner">
-        <div class="features-grid">
-          <div class="feature-item">
-            <div class="feature-icon teal"><mat-icon>home</mat-icon></div>
-            <h4>Home Sample Collection</h4>
-            <p>Certified phlebotomists arrive at your doorstep with sterile, single-use kits for maximum hygiene.</p>
+        <div class="section-eyebrow">Why Sri Health</div>
+        <h2 id="why-heading" class="section-heading">Built around your convenience</h2>
+        <p class="section-sub">Every step is designed so getting tested feels effortless, not clinical.</p>
+        <div class="why-grid">
+          <div class="why-card why-card-anim">
+            <div class="why-icon why-icon-indigo">
+              <mat-icon>home</mat-icon>
+            </div>
+            <h3>Home Collection</h3>
+            <p>Certified phlebotomists arrive at your door with sterile, single-use kits. No clinic, no queue.</p>
           </div>
-          <div class="feature-item">
-            <div class="feature-icon blue"><mat-icon>shield</mat-icon></div>
-            <h4>100% Secure Reports</h4>
-            <p>Your medical data is encrypted and accessible only through our secure patient portal and family dashboard.</p>
+          <div class="why-card why-card-anim">
+            <div class="why-icon why-icon-orange">
+              <mat-icon>verified</mat-icon>
+            </div>
+            <h3>Expert Lab</h3>
+            <p>Every sample is processed at our NABL-accredited facility and reviewed by MD pathologists.</p>
           </div>
-          <div class="feature-item">
-            <div class="feature-icon green"><mat-icon>verified</mat-icon></div>
-            <h4>Expert Pathologists</h4>
-            <p>Every report is cross-certified by MD pathologists to ensure the clinical precision you can trust.</p>
+          <div class="why-card why-card-anim">
+            <div class="why-icon why-icon-green">
+              <mat-icon>speed</mat-icon>
+            </div>
+            <h3>Same Day Reports</h3>
+            <p>Most results are delivered digitally within hours — no waiting, no follow-up calls.</p>
+          </div>
+          <div class="why-card why-card-anim">
+            <div class="why-icon why-icon-purple">
+              <mat-icon>workspace_premium</mat-icon>
+            </div>
+            <h3>Certified Results</h3>
+            <p>ISO 9001:2015 and NABL certified. Every report carries the quality mark your doctor trusts.</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Quality section -->
-    <section class="quality-section">
-      <div class="section-inner quality-inner">
-        <div class="quality-text">
-          <h2>Committed to Quality</h2>
-          <p>SRI Lab operates across 12 major districts, bringing highest clinical standards to your neighbourhood.</p>
-          <div class="quality-stats">
-            <div class="qs-item">
-              <span class="qs-num">12+</span>
-              <span class="qs-label">Districts</span>
-            </div>
-            <div class="qs-item">
-              <span class="qs-num">2M+</span>
-              <span class="qs-label">Tests</span>
-            </div>
+    <!-- ══════════════════════════════════════════
+         POPULAR TESTS
+    ══════════════════════════════════════════ -->
+    <section class="section popular-section" aria-labelledby="popular-heading">
+      <div class="section-inner">
+        <div class="popular-header">
+          <div>
+            <div class="section-eyebrow">Most Booked</div>
+            <h2 id="popular-heading" class="section-heading">Popular Tests</h2>
           </div>
-          <div class="quality-badges">
-            <span class="qb"><mat-icon>verified</mat-icon> NABL Accredited</span>
-            <span class="qb"><mat-icon>workspace_premium</mat-icon> ISO 9001:2015</span>
-            <span class="qb"><mat-icon>star</mat-icon> CAP Certified</span>
-          </div>
+          <a routerLink="/tests" class="link-arrow">Browse all tests <mat-icon>arrow_forward</mat-icon></a>
         </div>
-        <div class="quality-map">
-          <div class="map-circle">
-            <mat-icon>location_on</mat-icon>
-            <span>All Collection Centres Active</span>
+        <div class="tests-grid">
+          <a routerLink="/tests" class="test-chip">
+            <div class="test-chip-icon"><mat-icon>bloodtype</mat-icon></div>
+            <div>
+              <div class="test-chip-name">CBC</div>
+              <div class="test-chip-full">Complete Blood Count</div>
+            </div>
+          </a>
+          <a routerLink="/tests" class="test-chip">
+            <div class="test-chip-icon"><mat-icon>science</mat-icon></div>
+            <div>
+              <div class="test-chip-name">LFT</div>
+              <div class="test-chip-full">Liver Function Test</div>
+            </div>
+          </a>
+          <a routerLink="/tests" class="test-chip">
+            <div class="test-chip-icon"><mat-icon>water_drop</mat-icon></div>
+            <div>
+              <div class="test-chip-name">KFT</div>
+              <div class="test-chip-full">Kidney Function Test</div>
+            </div>
+          </a>
+          <a routerLink="/tests" class="test-chip">
+            <div class="test-chip-icon"><mat-icon>monitor_heart</mat-icon></div>
+            <div>
+              <div class="test-chip-name">Thyroid</div>
+              <div class="test-chip-full">T3 / T4 / TSH Panel</div>
+            </div>
+          </a>
+          <a routerLink="/tests" class="test-chip">
+            <div class="test-chip-icon"><mat-icon>favorite</mat-icon></div>
+            <div>
+              <div class="test-chip-name">Lipid Profile</div>
+              <div class="test-chip-full">Cholesterol Panel</div>
+            </div>
+          </a>
+          <a routerLink="/tests" class="test-chip">
+            <div class="test-chip-icon"><mat-icon>vaccines</mat-icon></div>
+            <div>
+              <div class="test-chip-name">HbA1c</div>
+              <div class="test-chip-full">Diabetes Marker</div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════
+         HOW IT WORKS
+    ══════════════════════════════════════════ -->
+    <section class="section how-section" aria-labelledby="how-heading">
+      <div class="section-inner">
+        <div class="section-eyebrow">Simple Process</div>
+        <h2 id="how-heading" class="section-heading">How it works</h2>
+        <p class="section-sub">From booking to report, everything happens in four steps.</p>
+        <div class="steps-row">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-icon"><mat-icon>checklist</mat-icon></div>
+            <h4>Choose Tests</h4>
+            <p>Pick individual tests or a health package that suits your needs.</p>
+          </div>
+          <div class="step-connector" aria-hidden="true"></div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-icon"><mat-icon>calendar_today</mat-icon></div>
+            <h4>Book a Slot</h4>
+            <p>Select a date and time that works for you — early morning slots available.</p>
+          </div>
+          <div class="step-connector" aria-hidden="true"></div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-icon"><mat-icon>vaccines</mat-icon></div>
+            <h4>Sample Collected</h4>
+            <p>Our phlebotomist arrives at your door and collects the sample hygienically.</p>
+          </div>
+          <div class="step-connector" aria-hidden="true"></div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-icon"><mat-icon>description</mat-icon></div>
+            <h4>Get Reports</h4>
+            <p>Reports are sent to your phone and available in your dashboard same day.</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Footer -->
+    <!-- ══════════════════════════════════════════
+         CTA BANNER
+    ══════════════════════════════════════════ -->
+    <section class="cta-banner" aria-label="Call to action">
+      <div class="cta-banner-inner">
+        <div class="cta-text">
+          <h2>Get tested from the<br>comfort of your home</h2>
+          <p>Shivamogga's most trusted diagnostic lab — now at your doorstep.</p>
+        </div>
+        <a routerLink="/booking" class="btn-primary btn-primary-large">
+          <mat-icon>calendar_today</mat-icon>
+          Book Now
+        </a>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════
+         FOOTER
+    ══════════════════════════════════════════ -->
     <footer class="home-footer">
-      <div class="section-inner footer-inner">
+      <div class="footer-inner">
         <div class="footer-brand">
           <img src="assets/logo.png" alt="SRI Diagnostic Laboratory" class="footer-logo" />
           <strong>SRI Diagnostic Laboratory & Health Care</strong>
-          <p>Setting new standards in diagnostic excellence. Your partner in health precision.</p>
+          <p>Setting new standards in diagnostic excellence across Shivamogga.</p>
           <div class="footer-contact">
-            <span><mat-icon>location_on</mat-icon> Shiva jyothi complex, Kuvempu road near Hosmane 2nd cross, Shivamogga 577201</span>
-            <span><mat-icon>phone</mat-icon> 7795***207</span>
+            <span>
+              <mat-icon>location_on</mat-icon>
+              Shiva jyothi complex, Kuvempu road near Hosmane 2nd cross, Shivamogga 577201
+            </span>
+            <span>
+              <mat-icon>phone</mat-icon>
+              7795***207
+            </span>
           </div>
           <div class="footer-social">
-            <a href="https://instagram.com" target="_blank" aria-label="Instagram">
-              <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+            <a href="https://instagram.com" target="_blank" rel="noopener" aria-label="Instagram">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
             </a>
-            <a href="https://facebook.com" target="_blank" aria-label="Facebook">
-              <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+            <a href="https://facebook.com" target="_blank" rel="noopener" aria-label="Facebook">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
             </a>
-            <a href="https://twitter.com" target="_blank" aria-label="Twitter / X">
-              <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            <a href="https://twitter.com" target="_blank" rel="noopener" aria-label="Twitter / X">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
             </a>
           </div>
         </div>
@@ -193,6 +313,7 @@ import { Package } from '../../core/api/api.types';
           <a routerLink="/tests">Thyroid Profile (T3, T4, TSH)</a>
           <a routerLink="/tests">HbA1c Fasting Panel</a>
           <a routerLink="/tests">Lipid Profile</a>
+          <a routerLink="/tests">Kidney Function Test</a>
         </div>
         <div class="footer-col">
           <strong>Quick Links</strong>
@@ -205,10 +326,14 @@ import { Package } from '../../core/api/api.types';
         </div>
         <div class="footer-col">
           <strong>Newsletter</strong>
-          <p class="footer-nl-desc">Get health tips and package updates</p>
+          <p class="footer-nl-desc">Health tips and package offers, straight to your inbox.</p>
           <div class="footer-nl">
-            <input placeholder="Email address" />
-            <button>Join</button>
+            <input placeholder="Email address" aria-label="Email address for newsletter" />
+            <button type="button">Join</button>
+          </div>
+          <div class="footer-badges">
+            <span class="footer-badge"><mat-icon>verified</mat-icon> NABL</span>
+            <span class="footer-badge"><mat-icon>workspace_premium</mat-icon> ISO 9001</span>
           </div>
         </div>
       </div>
@@ -222,259 +347,844 @@ import { Package } from '../../core/api/api.types';
     </footer>
   `,
   styles: [`
-    /* ── Hero ── */
+    /* ──────────────────────────────────────────
+       TOKENS
+    ────────────────────────────────────────── */
+    :host {
+      --indigo:       #6366F1;
+      --indigo-dark:  #4F46E5;
+      --indigo-xdark: #3730A3;
+      --indigo-light: #EEF2FF;
+      --indigo-mid:   #C7D2FE;
+      --orange:       #F97316;
+      --orange-dark:  #EA580C;
+      --orange-light: #FFF7ED;
+      --green:        #22C55E;
+      --green-light:  #DCFCE7;
+      --purple:       #A855F7;
+      --purple-light: #F3E8FF;
+      --bg:           #F8F9FF;
+      --surface:      #FFFFFF;
+      --text:         #0F172A;
+      --text-2:       #475569;
+      --muted:        #94A3B8;
+      --border:       #E2E8F0;
+      --r:            12px;
+      --r-lg:         16px;
+      --r-xl:         20px;
+      --r-pill:       999px;
+
+      display: block;
+      background: var(--bg);
+      font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ──────────────────────────────────────────
+       HERO
+    ────────────────────────────────────────── */
     .hero {
-      background: linear-gradient(135deg, #f0fdf9 0%, #e0f2f1 100%);
-      padding: 4rem 1.5rem 3rem;
+      position: relative;
+      min-height: 600px;
+      background: linear-gradient(135deg, #312e81 0%, #4338ca 35%, #6366f1 65%, #7c3aed 100%);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      padding: 5rem 1.5rem 4rem;
     }
-    .hero-content {
-      max-width: 1100px; margin: 0 auto;
-      display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center;
+
+    .hero-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
     }
-    .hero-badge {
-      display: inline-flex; align-items: center; gap: .5rem;
-      background: #c6f6d5; color: #276749; padding: .3rem .8rem;
-      border-radius: 999px; font-size: .8rem; font-weight: 600; margin-bottom: 1rem;
-      .dot { width: 8px; height: 8px; background: #38a169; border-radius: 50%; }
+
+    .hero-inner {
+      position: relative;
+      z-index: 1;
+      max-width: 1140px;
+      margin: 0 auto;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 4rem;
+      align-items: center;
     }
-    .hero-text h1 {
-      font-size: 2.8rem; font-weight: 800; line-height: 1.15; color: #1a202c; margin-bottom: 1rem;
-      .accent { color: #00796b; }
+
+    /* Trust badge */
+    .trust-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.25);
+      backdrop-filter: blur(8px);
+      border-radius: var(--r-pill);
+      padding: .35rem 1rem;
+      font-size: .82rem;
+      font-weight: 600;
+      color: rgba(255,255,255,.95);
+      margin-bottom: 1.25rem;
+      width: fit-content;
     }
-    .hero-text p { color: #4a5568; font-size: 1rem; line-height: 1.7; margin-bottom: 1.5rem; }
-    .hero-search {
-      display: flex; align-items: center; gap: .5rem;
-      background: #fff; border: 1.5px solid #e2e8f0; border-radius: 12px;
-      padding: .5rem .75rem; margin-bottom: 1.25rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,.06);
-      mat-icon { color: #a0aec0; }
-      input { flex: 1; border: none; outline: none; font-size: .95rem; color: #2d3748; background: transparent; }
+    .trust-stars {
+      color: #FBBF24;
+      letter-spacing: .05em;
+      font-size: .9rem;
     }
-    .btn-find {
-      background: #00796b; color: #fff; border: none; border-radius: 8px;
-      padding: .45rem 1rem; font-size: .875rem; font-weight: 600; cursor: pointer; white-space: nowrap;
-      &:hover { background: #00695c; }
+
+    /* Headline */
+    .hero-headline {
+      font-size: clamp(2.4rem, 5vw, 3.5rem);
+      font-weight: 800;
+      line-height: 1.1;
+      color: #fff;
+      margin: 0 0 1.25rem;
+      text-wrap: balance;
     }
+    .hero-headline-accent {
+      color: #FBBF24;
+    }
+
+    .hero-sub {
+      font-size: 1.05rem;
+      color: rgba(255,255,255,.82);
+      line-height: 1.7;
+      max-width: 48ch;
+      margin: 0 0 2rem;
+    }
+
+    /* CTAs */
     .hero-ctas {
-      display: flex; flex-wrap: wrap; gap: .75rem; margin-bottom: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: .875rem;
+      margin-bottom: 1.5rem;
     }
-    .hero-cta-primary {
-      display: inline-flex; align-items: center; gap: .5rem;
-      background: #00796b; color: #fff; border: none; border-radius: 12px;
-      padding: .8rem 1.5rem; font-size: .95rem; font-weight: 700;
-      text-decoration: none; transition: all .15s; min-height: 48px;
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      background: var(--orange);
+      color: #fff;
+      border: none;
+      border-radius: var(--r);
+      padding: .875rem 1.75rem;
+      font-size: .975rem;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background .18s, transform .18s, box-shadow .18s;
+      box-shadow: 0 4px 20px rgba(249,115,22,.4);
+      min-height: 52px;
       mat-icon { font-size: 1.1rem; width: 1.1rem; height: 1.1rem; }
-      &:hover { background: #00695c; box-shadow: 0 4px 16px rgba(0,121,107,.35); text-decoration: none; }
     }
-    .hero-cta-secondary {
-      display: inline-flex; align-items: center; gap: .5rem;
-      background: #fff; color: #00796b; border: 1.5px solid #00796b; border-radius: 12px;
-      padding: .75rem 1.25rem; font-size: .9rem; font-weight: 700;
-      text-decoration: none; transition: all .15s; min-height: 48px;
+    .btn-primary:hover {
+      background: var(--orange-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(249,115,22,.5);
+      text-decoration: none;
+    }
+    .btn-primary:active { transform: translateY(0); }
+
+    .btn-primary-large {
+      padding: 1rem 2.25rem;
+      font-size: 1.05rem;
+      border-radius: var(--r-lg);
+    }
+
+    .btn-outline {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      background: rgba(255,255,255,.1);
+      color: #fff;
+      border: 1.5px solid rgba(255,255,255,.45);
+      border-radius: var(--r);
+      padding: .875rem 1.75rem;
+      font-size: .975rem;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background .18s, border-color .18s, transform .18s;
+      min-height: 52px;
+      backdrop-filter: blur(4px);
       mat-icon { font-size: 1.1rem; width: 1.1rem; height: 1.1rem; }
-      &:hover { background: #e0f2f1; text-decoration: none; }
     }
-    .hero-action-chips {
-      display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1.25rem;
-    }
-    .hac {
-      display: inline-flex; align-items: center; gap: .35rem;
-      background: #fff; border: 1.5px solid #e2e8f0; border-radius: 999px;
-      padding: .4rem .9rem; font-size: .82rem; font-weight: 600; color: #2d3748;
-      text-decoration: none; transition: all .15s; min-height: 36px;
-      mat-icon { font-size: .95rem; width: .95rem; height: .95rem; color: #00796b; }
-      &:hover { border-color: #00796b; color: #00796b; text-decoration: none; }
-    }
-    .hero-stat {
-      display: flex; flex-direction: column;
-      .stat-num { font-size: 2rem; font-weight: 800; color: #00796b; }
-      .stat-label { font-size: .75rem; font-weight: 600; color: #718096; letter-spacing: .08em; }
-    }
-    .hero-visual { display: flex; justify-content: center; align-items: center; }
-    .hero-img-wrap { position: relative; width: 320px; height: 320px; }
-    .hero-circle {
-      width: 280px; height: 280px; border-radius: 50%;
-      background: linear-gradient(135deg, #00796b22, #26a69a44);
-      position: absolute; top: 20px; left: 20px;
-    }
-    .hero-icon-grid {
-      position: absolute; inset: 0; display: grid;
-      grid-template-columns: 1fr 1fr; gap: 1rem; padding: 3rem;
-    }
-    .hig-item {
-      background: #fff; border-radius: 16px; display: flex; align-items: center;
-      justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,.1);
-      mat-icon { font-size: 2rem; width: 2rem; height: 2rem; color: #00796b; }
+    .btn-outline:hover {
+      background: rgba(255,255,255,.18);
+      border-color: rgba(255,255,255,.7);
+      transform: translateY(-2px);
+      text-decoration: none;
     }
 
-    /* ── Sections ── */
-    .section { padding: 4rem 1.5rem; }
-    .section-inner { max-width: 1100px; margin: 0 auto; }
-    .section-header {
-      display: flex; justify-content: space-between; align-items: flex-start;
-      margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;
-      h2 { font-size: 1.75rem; font-weight: 800; color: #1a202c; }
-      p { color: #718096; margin-top: .25rem; }
+    /* Quick chips */
+    .hero-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
     }
-    .view-all {
-      color: #00796b; font-size: .875rem; font-weight: 600; text-decoration: none; white-space: nowrap;
-      &:hover { text-decoration: underline; }
+    .hero-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: var(--r-pill);
+      padding: .4rem .9rem;
+      font-size: .82rem;
+      font-weight: 600;
+      color: rgba(255,255,255,.9);
+      text-decoration: none;
+      transition: background .15s;
+      mat-icon { font-size: .95rem; width: .95rem; height: .95rem; }
     }
-
-    /* ── Packages ── */
-    .pkg-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem;
-    }
-    .pkg-card {
-      background: #fff; border-radius: 14px; padding: 1.5rem;
-      border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,.05);
-      display: flex; flex-direction: column; gap: .75rem;
-      transition: box-shadow .2s, transform .2s;
-      &:hover { box-shadow: 0 6px 20px rgba(0,0,0,.1); transform: translateY(-2px); }
-      &.empty-pkg { align-items: center; justify-content: center; color: #a0aec0; min-height: 180px; }
-    }
-    .pkg-icon {
-      width: 44px; height: 44px; background: #e0f2f1; border-radius: 12px;
-      display: flex; align-items: center; justify-content: center;
-      mat-icon { color: #00796b; }
-    }
-    .pkg-card h3 { font-size: 1rem; font-weight: 700; color: #1a202c; }
-    .pkg-desc { font-size: .85rem; color: #718096; line-height: 1.5; }
-    .pkg-tests { display: flex; flex-direction: column; gap: .3rem; }
-    .pkg-test-chip {
-      display: inline-flex; align-items: center; gap: .3rem;
-      font-size: .8rem; color: #4a5568;
-      mat-icon { font-size: .9rem; width: .9rem; height: .9rem; color: #38a169; }
-      &.more { color: #718096; }
-    }
-    .pkg-footer { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: .75rem; border-top: 1px solid #f0f4f8; }
-    .pkg-price { display: flex; flex-direction: column; }
-    .pkg-orig { font-size: .8rem; color: #a0aec0; text-decoration: line-through; }
-    .pkg-eff { font-size: 1rem; font-weight: 700; color: #00796b; }
-    .btn-book {
-      background: #00796b; color: #fff; border: none; border-radius: 8px;
-      padding: .45rem 1rem; font-size: .85rem; font-weight: 600; cursor: pointer;
-      &:hover { background: #00695c; }
+    .hero-chip:hover {
+      background: rgba(255,255,255,.2);
+      text-decoration: none;
     }
 
-    /* ── Features ── */
-    .features-section { background: #f7fafc; padding: 4rem 1.5rem; }
-    .features-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem;
+    /* Visual column */
+    .hero-visual-col {
+      display: flex;
+      justify-content: center;
     }
-    .feature-item { display: flex; flex-direction: column; gap: .75rem; }
-    .feature-icon {
-      width: 52px; height: 52px; border-radius: 14px;
-      display: flex; align-items: center; justify-content: center;
+    .hero-card-stack {
+      position: relative;
+      width: 340px;
+      height: 360px;
+    }
+    .hv-card {
+      position: absolute;
+      background: rgba(255,255,255,.12);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,.22);
+      border-radius: var(--r-xl);
+      padding: 1.25rem;
+      color: #fff;
+    }
+    .hv-card-main {
+      top: 0; left: 0; right: 0;
+      padding: 1.75rem;
+    }
+    .hvc-icon-row {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .hvc-icon-box {
+      width: 68px;
+      height: 68px;
+      border-radius: var(--r-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      mat-icon { font-size: 2rem; width: 2rem; height: 2rem; }
+    }
+    .hvc-ib-1 { background: rgba(99,102,241,.45); }
+    .hvc-ib-2 { background: rgba(168,85,247,.45); }
+    .hvc-ib-3 { background: rgba(249,115,22,.45); }
+    .hvc-ib-4 { background: rgba(34,197,94,.35); }
+    .hvc-label {
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.7);
+      margin-top: .5rem;
+    }
+    .hv-card-stat {
+      bottom: 60px; right: -20px;
+      background: #fff;
+      border-radius: var(--r-lg);
+      padding: 1rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: .15rem;
+      box-shadow: 0 8px 32px rgba(0,0,0,.18);
+    }
+    .hvs-num {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--indigo);
+    }
+    .hvs-label {
+      font-size: .72rem;
+      font-weight: 600;
+      color: var(--text-2);
+      letter-spacing: .04em;
+    }
+    .hv-card-report {
+      bottom: 0; left: -10px;
+      background: var(--orange);
+      border-radius: var(--r-lg);
+      padding: .875rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: .65rem;
+      box-shadow: 0 8px 24px rgba(249,115,22,.5);
       mat-icon { font-size: 1.5rem; width: 1.5rem; height: 1.5rem; }
-      &.teal { background: #e0f2f1; mat-icon { color: #00796b; } }
-      &.blue { background: #ebf8ff; mat-icon { color: #3182ce; } }
-      &.green { background: #c6f6d5; mat-icon { color: #276749; } }
     }
-    .feature-item h4 { font-size: 1rem; font-weight: 700; color: #1a202c; }
-    .feature-item p { font-size: .875rem; color: #718096; line-height: 1.6; }
-
-    /* ── Quality ── */
-    .quality-section { padding: 4rem 1.5rem; }
-    .quality-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; }
-    .quality-text h2 { font-size: 1.75rem; font-weight: 800; color: #1a202c; margin-bottom: .75rem; }
-    .quality-text p { color: #718096; line-height: 1.7; margin-bottom: 1.5rem; }
-    .quality-stats { display: flex; gap: 2rem; margin-bottom: 1.5rem; }
-    .qs-item { display: flex; flex-direction: column;
-      .qs-num { font-size: 2rem; font-weight: 800; color: #00796b; }
-      .qs-label { font-size: .8rem; color: #718096; font-weight: 600; }
+    .hvr-title {
+      font-size: .875rem;
+      font-weight: 700;
+      color: #fff;
     }
-    .quality-badges { display: flex; flex-wrap: wrap; gap: .75rem; }
-    .qb {
-      display: inline-flex; align-items: center; gap: .3rem;
-      background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 8px;
-      padding: .35rem .75rem; font-size: .8rem; font-weight: 600; color: #4a5568;
-      mat-icon { font-size: .9rem; width: .9rem; height: .9rem; color: #00796b; }
-    }
-    .quality-map { display: flex; justify-content: center; }
-    .map-circle {
-      width: 240px; height: 240px; border-radius: 50%;
-      background: linear-gradient(135deg, #00796b, #26a69a);
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      color: #fff; gap: .5rem; text-align: center; padding: 1.5rem;
-      mat-icon { font-size: 2.5rem; width: 2.5rem; height: 2.5rem; }
-      span { font-size: .85rem; font-weight: 600; }
+    .hvr-sub {
+      font-size: .75rem;
+      color: rgba(255,255,255,.75);
     }
 
-    /* ── Footer ── */
-    .home-footer { background: #1a202c; color: #a0aec0; padding: 3rem 1.5rem 1.5rem; }
+    /* ──────────────────────────────────────────
+       STATS BAR
+    ────────────────────────────────────────── */
+    .stats-bar {
+      background: var(--indigo-xdark);
+      padding: 1.25rem 1.5rem;
+    }
+    .stats-inner {
+      max-width: 1140px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      flex-wrap: wrap;
+    }
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      padding: .75rem 2.5rem;
+      flex: 1;
+      min-width: 140px;
+      justify-content: center;
+    }
+    .stat-icon {
+      width: 40px;
+      height: 40px;
+      background: rgba(255,255,255,.12);
+      border-radius: var(--r);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      mat-icon { color: var(--indigo-mid); font-size: 1.2rem; width: 1.2rem; height: 1.2rem; }
+    }
+    .stat-item > div {
+      display: flex;
+      flex-direction: column;
+    }
+    .stat-num {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.2;
+      font-variant-numeric: tabular-nums;
+    }
+    .stat-label {
+      font-size: .72rem;
+      font-weight: 600;
+      color: rgba(255,255,255,.6);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+    .stat-divider {
+      width: 1px;
+      height: 36px;
+      background: rgba(255,255,255,.15);
+      flex-shrink: 0;
+    }
+
+    /* ──────────────────────────────────────────
+       SHARED SECTION STYLES
+    ────────────────────────────────────────── */
+    .section {
+      padding: 5rem 1.5rem;
+    }
+    .section-inner {
+      max-width: 1140px;
+      margin: 0 auto;
+    }
+    .section-eyebrow {
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--indigo);
+      margin-bottom: .6rem;
+    }
+    .section-heading {
+      font-size: clamp(1.6rem, 3vw, 2.25rem);
+      font-weight: 800;
+      color: var(--text);
+      margin: 0 0 .75rem;
+      text-wrap: balance;
+    }
+    .section-sub {
+      font-size: 1rem;
+      color: var(--text-2);
+      line-height: 1.7;
+      max-width: 54ch;
+      margin: 0 0 2.75rem;
+    }
+
+    /* ──────────────────────────────────────────
+       WHY SECTION
+    ────────────────────────────────────────── */
+    .why-section {
+      background: var(--surface);
+    }
+    .why-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+    }
+    .why-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 1.75rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: .875rem;
+      transition: transform .2s, box-shadow .2s, border-color .2s;
+    }
+    .why-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(99,102,241,.1);
+      border-color: var(--indigo-mid);
+    }
+    .why-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin: 0;
+    }
+    .why-card p {
+      font-size: .875rem;
+      color: var(--text-2);
+      line-height: 1.65;
+      margin: 0;
+    }
+    .why-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: var(--r);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      mat-icon { font-size: 1.4rem; width: 1.4rem; height: 1.4rem; }
+    }
+    .why-icon-indigo {
+      background: var(--indigo-light);
+      mat-icon { color: var(--indigo); }
+    }
+    .why-icon-orange {
+      background: var(--orange-light);
+      mat-icon { color: var(--orange); }
+    }
+    .why-icon-green {
+      background: var(--green-light);
+      mat-icon { color: var(--green); }
+    }
+    .why-icon-purple {
+      background: var(--purple-light);
+      mat-icon { color: var(--purple); }
+    }
+
+    /* ──────────────────────────────────────────
+       POPULAR TESTS
+    ────────────────────────────────────────── */
+    .popular-section {
+      background: var(--bg);
+    }
+    .popular-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .popular-header .section-heading {
+      margin-bottom: 0;
+    }
+    .link-arrow {
+      display: inline-flex;
+      align-items: center;
+      gap: .3rem;
+      font-size: .9rem;
+      font-weight: 600;
+      color: var(--indigo);
+      text-decoration: none;
+      transition: gap .15s;
+      mat-icon { font-size: 1rem; width: 1rem; height: 1rem; transition: transform .15s; }
+    }
+    .link-arrow:hover {
+      text-decoration: none;
+      mat-icon { transform: translateX(3px); }
+    }
+    .tests-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+    .test-chip {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 1.1rem 1.25rem;
+      text-decoration: none;
+      color: var(--text);
+      transition: border-color .18s, box-shadow .18s, transform .18s;
+    }
+    .test-chip:hover {
+      border-color: var(--indigo);
+      box-shadow: 0 4px 16px rgba(99,102,241,.12);
+      transform: translateY(-2px);
+      text-decoration: none;
+    }
+    .test-chip-icon {
+      width: 44px;
+      height: 44px;
+      background: var(--indigo-light);
+      border-radius: var(--r);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      mat-icon { font-size: 1.2rem; width: 1.2rem; height: 1.2rem; color: var(--indigo); }
+    }
+    .test-chip-name {
+      font-size: .95rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .test-chip-full {
+      font-size: .78rem;
+      color: var(--muted);
+      margin-top: .1rem;
+    }
+
+    /* ──────────────────────────────────────────
+       HOW IT WORKS
+    ────────────────────────────────────────── */
+    .how-section {
+      background: var(--surface);
+    }
+    .steps-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 0;
+    }
+    .step {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: .875rem;
+      padding: 0 1rem;
+    }
+    .step-num {
+      width: 36px;
+      height: 36px;
+      background: var(--indigo);
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .875rem;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+    .step-icon {
+      width: 64px;
+      height: 64px;
+      background: var(--indigo-light);
+      border-radius: var(--r-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      mat-icon { font-size: 1.6rem; width: 1.6rem; height: 1.6rem; color: var(--indigo); }
+    }
+    .step h4 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin: 0;
+    }
+    .step p {
+      font-size: .875rem;
+      color: var(--text-2);
+      line-height: 1.65;
+      margin: 0;
+    }
+    .step-connector {
+      flex-shrink: 0;
+      width: 60px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--indigo-mid), var(--indigo));
+      margin-top: 82px;
+      position: relative;
+    }
+    .step-connector::after {
+      content: '';
+      position: absolute;
+      right: -5px;
+      top: -4px;
+      border: 5px solid transparent;
+      border-left-color: var(--indigo);
+    }
+
+    /* ──────────────────────────────────────────
+       CTA BANNER
+    ────────────────────────────────────────── */
+    .cta-banner {
+      background: linear-gradient(135deg, #312e81 0%, #4F46E5 60%, #7c3aed 100%);
+      padding: 5rem 1.5rem;
+    }
+    .cta-banner-inner {
+      max-width: 1140px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+    .cta-text h2 {
+      font-size: clamp(1.6rem, 3.5vw, 2.25rem);
+      font-weight: 800;
+      color: #fff;
+      margin: 0 0 .75rem;
+      text-wrap: balance;
+      line-height: 1.2;
+    }
+    .cta-text p {
+      font-size: 1rem;
+      color: rgba(255,255,255,.75);
+      margin: 0;
+    }
+
+    /* ──────────────────────────────────────────
+       FOOTER
+    ────────────────────────────────────────── */
+    .home-footer {
+      background: #0F172A;
+      color: #94A3B8;
+      padding: 4rem 1.5rem 1.5rem;
+    }
     .footer-inner {
-      display: grid; grid-template-columns: 2fr 1fr 1fr 1.5fr; gap: 2rem; margin-bottom: 2rem;
+      max-width: 1140px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1.5fr;
+      gap: 2.5rem;
+      margin-bottom: 3rem;
     }
-    .footer-brand strong { color: #fff; font-size: 1.1rem; display: block; margin-bottom: .5rem; }
-    .footer-brand p { font-size: .85rem; line-height: 1.6; }
-    .footer-logo { height: 56px; width: auto; object-fit: contain; margin-bottom: .5rem; display: block; }
+    .footer-brand strong {
+      color: #fff;
+      font-size: 1rem;
+      display: block;
+      margin-bottom: .5rem;
+    }
+    .footer-brand p {
+      font-size: .85rem;
+      line-height: 1.65;
+      margin: 0 0 .75rem;
+    }
+    .footer-logo {
+      height: 52px;
+      width: auto;
+      object-fit: contain;
+      margin-bottom: .75rem;
+      display: block;
+    }
     .footer-contact {
-      display: flex; flex-direction: column; gap: .35rem; margin: .75rem 0;
-      span { display: flex; align-items: flex-start; gap: .4rem; font-size: .8rem; color: #a0aec0; line-height: 1.5;
-        mat-icon { font-size: 1rem; width: 1rem; height: 1rem; color: #00796b; flex-shrink: 0; margin-top: .1rem; }
-      }
+      display: flex;
+      flex-direction: column;
+      gap: .4rem;
+      margin-bottom: .875rem;
     }
-    .footer-social { display: flex; gap: .75rem; margin-top: .5rem;
-      a { color: #a0aec0; display: flex; align-items: center; transition: color .15s;
-        &:hover { color: #fff; }
-      }
+    .footer-contact span {
+      display: flex;
+      align-items: flex-start;
+      gap: .4rem;
+      font-size: .8rem;
+      line-height: 1.5;
+      mat-icon { font-size: .95rem; width: .95rem; height: .95rem; color: var(--indigo); flex-shrink: 0; margin-top: .1rem; }
     }
-    .footer-col { display: flex; flex-direction: column; gap: .5rem;
-      strong { color: #fff; font-size: .9rem; margin-bottom: .25rem; }
-      a { font-size: .85rem; color: #a0aec0; text-decoration: none; cursor: pointer;
-        &:hover { color: #fff; }
-      }
+    .footer-social {
+      display: flex;
+      gap: .75rem;
     }
-    .footer-nl-desc { font-size: .8rem; margin-bottom: .5rem; }
+    .footer-social a {
+      color: #64748B;
+      display: flex;
+      align-items: center;
+      transition: color .15s;
+    }
+    .footer-social a:hover { color: #fff; }
+
+    .footer-col {
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+    }
+    .footer-col strong {
+      color: #fff;
+      font-size: .875rem;
+      margin-bottom: .35rem;
+    }
+    .footer-col a {
+      font-size: .84rem;
+      color: #64748B;
+      text-decoration: none;
+      cursor: pointer;
+      transition: color .15s;
+    }
+    .footer-col a:hover { color: #fff; }
+
+    .footer-nl-desc {
+      font-size: .8rem;
+      margin: 0 0 .6rem;
+      line-height: 1.55;
+    }
     .footer-nl {
-      display: flex; gap: .5rem;
-      input { flex: 1; background: #2d3748; border: 1px solid #4a5568; border-radius: 8px;
-        padding: .45rem .75rem; color: #fff; font-size: .85rem; outline: none;
-        &::placeholder { color: #718096; }
-      }
-      button { background: #00796b; color: #fff; border: none; border-radius: 8px;
-        padding: .45rem .9rem; font-size: .85rem; font-weight: 600; cursor: pointer;
-        &:hover { background: #00695c; }
-      }
+      display: flex;
+      gap: .5rem;
+      margin-bottom: 1rem;
     }
+    .footer-nl input {
+      flex: 1;
+      background: #1E293B;
+      border: 1px solid #334155;
+      border-radius: var(--r);
+      padding: .5rem .75rem;
+      color: #fff;
+      font-size: .84rem;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .footer-nl input::placeholder { color: #475569; }
+    .footer-nl input:focus { border-color: var(--indigo); }
+    .footer-nl button {
+      background: var(--indigo);
+      color: #fff;
+      border: none;
+      border-radius: var(--r);
+      padding: .5rem 1rem;
+      font-size: .84rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s;
+      white-space: nowrap;
+    }
+    .footer-nl button:hover { background: var(--indigo-dark); }
+
+    .footer-badges {
+      display: flex;
+      gap: .5rem;
+      flex-wrap: wrap;
+    }
+    .footer-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .25rem;
+      background: #1E293B;
+      border: 1px solid #334155;
+      border-radius: var(--r);
+      padding: .25rem .6rem;
+      font-size: .72rem;
+      font-weight: 600;
+      color: #94A3B8;
+      mat-icon { font-size: .8rem; width: .8rem; height: .8rem; color: var(--indigo); }
+    }
+
     .footer-bottom {
-      border-top: 1px solid #2d3748; padding-top: 1.25rem;
-      display: flex; justify-content: space-between; align-items: center;
-      font-size: .8rem; flex-wrap: wrap; gap: .5rem;
+      max-width: 1140px;
+      margin: 0 auto;
+      border-top: 1px solid #1E293B;
+      padding-top: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: .8rem;
+      flex-wrap: wrap;
+      gap: .5rem;
     }
-    .footer-links { display: flex; gap: 1.5rem;
-      a { color: #718096; cursor: pointer; &:hover { color: #fff; } }
+    .footer-links {
+      display: flex;
+      gap: 1.5rem;
+    }
+    .footer-links a {
+      color: #475569;
+      cursor: pointer;
+      text-decoration: none;
+      transition: color .15s;
+    }
+    .footer-links a:hover { color: #fff; }
+
+    /* ──────────────────────────────────────────
+       RESPONSIVE
+    ────────────────────────────────────────── */
+    @media (max-width: 1024px) {
+      .why-grid { grid-template-columns: repeat(2, 1fr); }
+      .hero-inner { grid-template-columns: 1fr; }
+      .hero-visual-col { display: none; }
     }
 
     @media (max-width: 768px) {
-      .hero-content { grid-template-columns: 1fr; }
-      .hero-visual { display: none; }
-      .hero { padding: 2rem 1rem 1.75rem; }
-      .hero-text h1 { font-size: 1.9rem; }
-      .hero-text p { font-size: .9rem; }
-      .section { padding: 2.5rem 1rem; }
-      .quality-inner { grid-template-columns: 1fr; }
-      .quality-map { display: none; }
+      .hero { padding: 3.5rem 1.25rem 3rem; }
+      .section { padding: 3.5rem 1.25rem; }
+      .tests-grid { grid-template-columns: repeat(2, 1fr); }
+      .steps-row { flex-direction: column; align-items: center; gap: 2rem; }
+      .step-connector { width: 2px; height: 40px; margin-top: 0; }
+      .step-connector::after {
+        right: -4px;
+        top: auto;
+        bottom: -5px;
+        border-left-color: transparent;
+        border-top-color: var(--indigo);
+      }
+      .cta-banner-inner { flex-direction: column; align-items: flex-start; }
       .footer-inner { grid-template-columns: 1fr 1fr; }
-      .section-header { flex-direction: column; align-items: flex-start; }
+      .stat-divider { display: none; }
+      .stat-item { padding: .75rem 1.25rem; }
     }
 
     @media (max-width: 480px) {
-      .hero { padding: 1.5rem 1rem 1.5rem; }
-      .hero-text h1 { font-size: 1.6rem; }
-      .hero-badge { font-size: .75rem; }
-      .hero-search { flex-wrap: wrap; gap: .4rem; }
-      .hero-search input { min-width: 0; width: 100%; }
-      .btn-find { width: 100%; justify-content: center; padding: .55rem 1rem; }
+      .hero { padding: 2.5rem 1rem 2.5rem; }
+      .hero-headline { font-size: 2rem; }
       .hero-ctas { flex-direction: column; }
-      .hero-cta-primary, .hero-cta-secondary { width: 100%; justify-content: center; }
+      .btn-primary, .btn-outline { width: 100%; justify-content: center; }
+      .why-grid { grid-template-columns: 1fr; }
+      .tests-grid { grid-template-columns: 1fr; }
       .footer-inner { grid-template-columns: 1fr; }
+      .stats-inner { justify-content: flex-start; }
+    }
+
+    /* ──────────────────────────────────────────
+       REDUCED MOTION
+    ────────────────────────────────────────── */
+    @media (prefers-reduced-motion: reduce) {
+      .why-card, .test-chip, .btn-primary, .btn-outline { transition: none; }
     }
   `],
 })
-export class HomeComponent implements OnInit {
-  searchCtrl = new FormControl('');
+export class HomeComponent implements OnInit, AfterViewInit {
+  @ViewChild('heroCanvas') heroCanvasRef!: ElementRef<HTMLCanvasElement>;
+
   packages = signal<Package[]>([]);
   pkgLoading = signal(true);
 
@@ -487,12 +1197,52 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  goSearch() {
-    const q = this.searchCtrl.value;
-    this.router.navigate(['/tests'], q ? { queryParams: { q } } : {});
+  ngAfterViewInit() {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) return;
+    this.startHeroCanvas();
   }
 
-  bookPackage(pkg: Package) {
-    this.router.navigate(['/booking'], { queryParams: { package_id: pkg.id } });
+  private startHeroCanvas() {
+    const canvas = this.heroCanvasRef?.nativeElement;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const orbs = [
+      { x: 0.15, y: 0.2, r: 320, color: 'rgba(99,102,241,0.35)', dx: 0.00012, dy: 0.00007 },
+      { x: 0.75, y: 0.6, r: 280, color: 'rgba(124,58,237,0.3)', dx: -0.0001, dy: 0.00008 },
+      { x: 0.55, y: 0.1, r: 200, color: 'rgba(249,115,22,0.18)', dx: 0.00008, dy: -0.00006 },
+      { x: 0.35, y: 0.75, r: 240, color: 'rgba(139,92,246,0.22)', dx: -0.00007, dy: -0.0001 },
+    ];
+
+    let animId: number;
+    const resize = () => {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    };
+    resize();
+    window.addEventListener('resize', resize);
+
+    const draw = () => {
+      const w = canvas.width;
+      const h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+      for (const o of orbs) {
+        o.x += o.dx;
+        o.y += o.dy;
+        if (o.x < 0 || o.x > 1) o.dx *= -1;
+        if (o.y < 0 || o.y > 1) o.dy *= -1;
+        const grad = ctx.createRadialGradient(o.x * w, o.y * h, 0, o.x * w, o.y * h, o.r);
+        grad.addColorStop(0, o.color);
+        grad.addColorStop(1, 'transparent');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(o.x * w, o.y * h, o.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      animId = requestAnimationFrame(draw);
+    };
+    draw();
   }
 }
