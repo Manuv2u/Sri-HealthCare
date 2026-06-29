@@ -1,1014 +1,498 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { MatTableModule } from '@angular/material/table';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatCardModule } from '@angular/material/card';
-import { MatDialogModule } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { Booking, Technician } from '../../../core/api/api.types';
-import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner.component';
-import { ErrorBannerComponent } from '../../../shared/components/error-banner.component';
-import { EmptyStateComponent } from '../../../shared/components/empty-state.component';
-import { PaginationComponent } from '../../../shared/components/pagination.component';
+import { BookingApiService } from '../../../core/api/services/booking-api.service';
 import { AdminApiService } from '../../../core/api/services/admin-api.service';
+import { Booking, Technician } from '../../../core/api/api.types';
+import { BadgeComponent } from '../../../shared/components/badge/badge.component';
+import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
+import { AlertComponent } from '../../../shared/components/alert/alert.component';
 
-const BOOKING_STATUSES = [
-  'booked', 'technician_assigned', 'accepted', 'on_the_way',
-  'sample_collected', 'reached_lab', 'sample_delivered',
-  'processing', 'report_ready', 'completed', 'cancelled',
+const STATUS_OPTIONS = [
+  'booked',
+  'technician_assigned',
+  'accepted',
+  'on_the_way',
+  'sample_collected',
+  'reached_lab',
+  'sample_delivered',
+  'processing',
+  'report_ready',
+  'completed',
+  'cancelled',
 ];
-
-const CANCELLATION_REASONS = [
-  'Schedule changed',
-  'Booked by mistake',
-  'Test no longer required',
-  'Found another diagnostic center',
-  'Unable to visit',
-  'Other',
-];
-
-const CANCELLABLE_STATUSES = new Set(['booked', 'technician_assigned', 'accepted']);
 
 @Component({
   selector: 'app-admin-bookings',
   standalone: true,
-  imports: [
-    CommonModule, FormsModule,
-    MatTableModule, MatButtonModule, MatIconModule,
-    MatFormFieldModule, MatInputModule, MatSelectModule,
-    MatCardModule, MatDialogModule, MatSnackBarModule,
-    LoadingSpinnerComponent, ErrorBannerComponent, EmptyStateComponent, PaginationComponent,
-  ],
+  imports: [CommonModule, FormsModule, BadgeComponent, SpinnerComponent, AlertComponent],
   template: `
-    <!-- Cancellation dialog -->
-    @if (cancelDialog()) {
-      <div class="dialog-backdrop" (click)="closeCancelDialog()">
-        <div class="dialog-panel" (click)="$event.stopPropagation()">
-          <div class="dialog-header">
-            <div class="dialog-title-group">
-              <div class="dialog-icon-wrap">
-                <mat-icon>cancel</mat-icon>
-              </div>
-              <div>
-                <h3 class="dialog-title">Cancel Booking</h3>
-                @if (cancelTarget()) {
-                  <p class="dialog-subtitle">{{ cancelTarget()!.reference_number }}</p>
-                }
-              </div>
-            </div>
-            <button class="dialog-close-btn" (click)="closeCancelDialog()" aria-label="Close">
-              <mat-icon>close</mat-icon>
-            </button>
-          </div>
+<div class="page">
+  <div class="page-header">
+    <div><h1 class="page-title">All Bookings</h1><p class="page-sub">View and manage all patient appointment bookings</p></div>
+  </div>
 
-          @if (cancellationFee() !== null) {
-            <div class="fee-notice">
-              <mat-icon class="fee-icon">info</mat-icon>
-              <div>
-                <span class="fee-label">Cancellation fee applies</span>
-                <span class="fee-amount">₹{{ cancellationFee() | number:'1.0-2' }} will be deducted from the refund.</span>
-              </div>
-            </div>
+  @if (error()) { <app-alert type="error" [dismissible]="true" (dismissed)="error.set('')">{{ error() }}</app-alert> }
+  @if (toast()) { <app-alert type="success" [dismissible]="true" (dismissed)="toast.set('')">{{ toast() }}</app-alert> }
+
+  <!-- Filters -->
+  <div class="filter-bar">
+    <div class="search-field">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input placeholder="Search reference number…" [(ngModel)]="searchQ" (input)="applyFilter()" />
+    </div>
+    <select class="filter-sel" [(ngModel)]="statusFilter" (change)="applyFilter()">
+      <option value="">All Status</option>
+      <option value="booked">Booked</option>
+      <option value="technician_assigned">Technician Assigned</option>
+      <option value="accepted">Accepted</option>
+      <option value="on_the_way">On The Way</option>
+      <option value="sample_collected">Sample Collected</option>
+      <option value="reached_lab">Reached Lab</option>
+      <option value="sample_delivered">Sample Delivered</option>
+      <option value="processing">Processing</option>
+      <option value="report_ready">Report Ready</option>
+      <option value="completed">Completed</option>
+      <option value="cancelled">Cancelled</option>
+    </select>
+    <select class="filter-sel" [(ngModel)]="typeFilter" (change)="applyFilter()">
+      <option value="">All Types</option>
+      <option value="home">Home Collection</option>
+      <option value="lab">Lab Visit</option>
+    </select>
+    <span class="count-badge">{{ filtered().length }} bookings</span>
+  </div>
+
+  @if (loading()) {
+    <div class="load-wrap"><app-spinner size="md" /></div>
+  } @else {
+    <div class="table-wrap">
+      <table class="tbl">
+        <thead>
+          <tr><th>Reference</th><th>Date</th><th>Type</th><th>Amount</th><th>Status</th><th>Payment</th><th>Created</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          @if (filtered().length === 0) { <tr><td colspan="8" class="empty-td">No bookings found.</td></tr> }
+          @for (b of paged(); track b.id) {
+            <tr>
+              <td class="mono ref-cell">{{ b.reference_number }}</td>
+              <td class="text-sm">{{ b.booking_date | date:'dd MMM yyyy' }}</td>
+              <td>
+                <span class="type-chip" [class.home]="b.collection_type === 'home'">
+                  {{ b.collection_type === 'home' ? '🏠 Home' : '🏥 Lab' }}
+                </span>
+              </td>
+              <td class="fw-med">₹{{ (b.total_amount || 0).toLocaleString('en-IN') }}</td>
+              <td><app-badge [color]="statusColor(b.status)" size="sm">{{ fmtStatus(b.status) }}</app-badge></td>
+              <td><app-badge [color]="payColor(b.payment_status)" size="sm">{{ fmtStatus(b.payment_status) }}</app-badge></td>
+              <td class="text-sm text-muted">{{ b.created_at | date:'dd MMM' }}</td>
+              <td><button class="manage-btn" (click)="openManage(b)">Manage</button></td>
+            </tr>
           }
+        </tbody>
+      </table>
+    </div>
 
-          <div class="dialog-body">
-            <div class="field-group">
-              <label class="field-label">Cancellation Reason <span class="required">*</span></label>
-              <div class="select-wrapper">
-                <select class="styled-select" [(ngModel)]="cancelReasonSelect" (ngModelChange)="onReasonSelect($event)">
-                  <option value="">Select a reason</option>
-                  @for (r of cancelReasons; track r) {
-                    <option [value]="r">{{ r }}</option>
-                  }
-                </select>
-                <mat-icon class="select-chevron">expand_more</mat-icon>
-              </div>
-            </div>
-
-            @if (cancelReasonSelect === 'Other') {
-              <div class="field-group">
-                <label class="field-label">Specify reason <span class="required">*</span></label>
-                <textarea
-                  class="styled-textarea"
-                  [(ngModel)]="cancelReasonCustom"
-                  rows="3"
-                  placeholder="Please describe the reason for cancellation…"
-                ></textarea>
-              </div>
-            }
-          </div>
-
-          @if (cancelError()) {
-            <div class="alert-error">
-              <mat-icon>error_outline</mat-icon>
-              <span>{{ cancelError() }}</span>
-            </div>
-          }
-
-          <div class="dialog-actions">
-            <button class="btn-ghost" (click)="closeCancelDialog()" [disabled]="cancelling()">Keep Booking</button>
-            <button class="btn-danger" (click)="confirmCancel()" [disabled]="cancelling() || !cancelReasonFinal()">
-              @if (cancelling()) {
-                <span class="btn-spinner"></span>
-                Cancelling…
-              } @else {
-                Cancel Booking
-              }
-            </button>
-          </div>
-        </div>
+    @if (totalPages() > 1) {
+      <div class="pagination">
+        <button class="pg-btn" [disabled]="page() === 1" (click)="page.set(page()-1)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <span class="pg-info">Page {{ page() }} of {{ totalPages() }}</span>
+        <button class="pg-btn" [disabled]="page() >= totalPages()" (click)="page.set(page()+1)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
       </div>
     }
+  }
+</div>
 
-    <div class="bookings-page">
-      <!-- Page header -->
-      <div class="page-header">
-        <div class="page-title-row">
-          <h1 class="page-title">All Bookings</h1>
-          @if (total() > 0) {
-            <span class="count-badge">{{ total() }}</span>
-          }
-        </div>
-        <p class="page-subtitle">Manage and track diagnostic bookings across all patients</p>
+<!-- ═══ MANAGE DRAWER ═══ -->
+@if (selected(); as b) {
+  <div class="drawer-backdrop" (click)="closeManage()"></div>
+  <aside class="drawer">
+    <div class="drawer-head">
+      <div>
+        <h2 class="drawer-title">{{ b.reference_number }}</h2>
+        <span class="drawer-sub">{{ b.booking_date | date:'dd MMM yyyy' }} · {{ b.collection_type === 'home' ? 'Home Collection' : 'Lab Visit' }}</span>
+      </div>
+      <button class="drawer-close" (click)="closeManage()">&times;</button>
+    </div>
+
+    <div class="drawer-body">
+      @if (formErr()) { <app-alert type="error" [dismissible]="true" (dismissed)="formErr.set('')">{{ formErr() }}</app-alert> }
+
+      <!-- Summary -->
+      <div class="summary-grid">
+        <div class="sum-item"><span class="sum-lbl">Amount</span><span class="sum-val">₹{{ (b.total_amount || 0).toLocaleString('en-IN') }}</span></div>
+        <div class="sum-item"><span class="sum-lbl">Payment</span><app-badge [color]="payColor(b.payment_status)" size="sm">{{ fmtStatus(b.payment_status) }}</app-badge></div>
+        <div class="sum-item"><span class="sum-lbl">Current Status</span><app-badge [color]="statusColor(b.status)" size="sm">{{ fmtStatus(b.status) }}</app-badge></div>
       </div>
 
-      <!-- Filter bar -->
-      <div class="filter-bar">
-        <div class="filter-left">
-          <div class="filter-field">
-            <mat-icon class="filter-icon">filter_list</mat-icon>
-            <div class="select-wrapper filter-select-wrapper">
-              <select class="styled-select filter-select" [(ngModel)]="statusFilter" (ngModelChange)="loadBookings()">
-                <option value="">All Statuses</option>
-                @for (s of statuses; track s) {
-                  <option [value]="s">{{ formatStatus(s) }}</option>
-                }
-              </select>
-              <mat-icon class="select-chevron">expand_more</mat-icon>
+      @if (detailLoading()) {
+        <div class="detail-loading"><app-spinner size="sm" /> <span>Loading details…</span></div>
+      }
+
+      @if (detail(); as d) {
+        <!-- Patient & contact -->
+        <div class="block">
+          <h3 class="block-title">Patient & Contact</h3>
+          <div class="kv-grid">
+            <div class="kv"><span class="k">Patient</span><span class="v">{{ d.patient_name || '—' }}<span class="rel" *ngIf="d.patient_relationship"> ({{ d.patient_relationship }})</span></span></div>
+            <div class="kv"><span class="k">Booked by</span><span class="v">{{ d.contact_name || '—' }}</span></div>
+            <div class="kv"><span class="k">Phone</span><span class="v">{{ d.contact_phone || '—' }}</span></div>
+            <div class="kv"><span class="k">Email</span><span class="v">{{ d.contact_email || '—' }}</span></div>
+          </div>
+        </div>
+
+        <!-- Address (home collection) -->
+        @if (d.address) {
+          <div class="block">
+            <h3 class="block-title">Collection Address</h3>
+            <p class="addr-text">
+              <strong>{{ d.address.label }}</strong><br/>
+              {{ d.address.address_line1 }}<span *ngIf="d.address.address_line2">, {{ d.address.address_line2 }}</span><br/>
+              {{ d.address.city }}, {{ d.address.state }} - {{ d.address.pincode }}
+            </p>
+          </div>
+        }
+
+        <!-- Schedule -->
+        <div class="block">
+          <h3 class="block-title">Schedule</h3>
+          <div class="kv-grid">
+            <div class="kv"><span class="k">Date</span><span class="v">{{ b.booking_date | date:'dd MMM yyyy' }}</span></div>
+            @if (d.time_slot) { <div class="kv"><span class="k">Time Slot</span><span class="v">{{ d.time_slot.start_time }} – {{ d.time_slot.end_time }}</span></div> }
+            <div class="kv"><span class="k">Type</span><span class="v">{{ b.collection_type === 'home' ? 'Home Collection' : 'Lab Visit' }}</span></div>
+            @if (d.lab_branch) { <div class="kv"><span class="k">Lab Branch</span><span class="v">{{ d.lab_branch.name }}</span></div> }
+          </div>
+          @if (d.lab_branch) { <p class="addr-text muted-text">{{ d.lab_branch.address }}, {{ d.lab_branch.city }} - {{ d.lab_branch.pincode }} · ☎ {{ d.lab_branch.phone }}</p> }
+        </div>
+
+        <!-- Payment -->
+        @if (d.payment) {
+          <div class="block">
+            <h3 class="block-title">Payment</h3>
+            <div class="kv-grid">
+              <div class="kv"><span class="k">Method</span><span class="v">{{ fmtStatus(d.payment.method) }}</span></div>
+              <div class="kv"><span class="k">Status</span><span class="v">{{ fmtStatus(d.payment.status) }}</span></div>
+              <div class="kv"><span class="k">Amount</span><span class="v">₹{{ (d.payment.amount || 0).toLocaleString('en-IN') }}</span></div>
+              <div class="kv"><span class="k">GST</span><span class="v">₹{{ (d.payment.gst_amount || 0).toLocaleString('en-IN') }}</span></div>
+              @if (d.payment.invoice_number) { <div class="kv"><span class="k">Invoice</span><span class="v">{{ d.payment.invoice_number }}</span></div> }
             </div>
           </div>
+        }
+
+        <!-- Assigned technician -->
+        @if (d.assigned_technician) {
+          <div class="block">
+            <h3 class="block-title">Assigned Technician</h3>
+            <div class="kv-grid">
+              <div class="kv"><span class="k">Name</span><span class="v">{{ d.assigned_technician.name || '—' }}</span></div>
+              <div class="kv"><span class="k">Phone</span><span class="v">{{ d.assigned_technician.phone || '—' }}</span></div>
+              <div class="kv"><span class="k">Response</span><span class="v">{{ fmtStatus(d.assigned_technician.assignment_status) }}</span></div>
+            </div>
+          </div>
+        }
+      }
+
+      <!-- Items -->
+      @if (b.items && b.items.length) {
+        <div class="block">
+          <h3 class="block-title">Tests / Packages ({{ b.items.length }})</h3>
+          <ul class="item-list">
+            @for (it of b.items; track it.id) {
+              <li><span>{{ it.item_name || it.item_type }}</span><span class="item-price">₹{{ (it.unit_price || 0).toLocaleString('en-IN') }}</span></li>
+            }
+          </ul>
         </div>
-        <div class="filter-right">
-          <span class="results-label">
-            @if (loading()) { Loading… } @else { {{ bookings().length }} of {{ total() }} results }
-          </span>
+      }
+
+      <!-- Notes -->
+      @if (b.technician_notes) {
+        <div class="block">
+          <h3 class="block-title">Notes</h3>
+          <p class="addr-text">{{ b.technician_notes }}</p>
+        </div>
+      }
+
+      <!-- Update status -->
+      <div class="block">
+        <h3 class="block-title">Update Status</h3>
+        <div class="row-actions">
+          <select class="field" [(ngModel)]="newStatus">
+            @for (s of statusOptions; track s) { <option [value]="s">{{ fmtStatus(s) }}</option> }
+          </select>
+          <button class="btn-primary" [disabled]="busy() || newStatus === b.status" (click)="saveStatus(b)">
+            {{ busy() ? 'Saving…' : 'Update' }}
+          </button>
         </div>
       </div>
 
-      <!-- Content -->
-      @if (loading()) {
-        <div class="state-container">
-          <app-loading-spinner />
+      <!-- Assign technician -->
+      <div class="block">
+        <h3 class="block-title">Assign Technician</h3>
+        <div class="row-actions">
+          <select class="field" [(ngModel)]="selectedTechId">
+            <option value="">Select technician…</option>
+            @for (t of technicians(); track t.id) { <option [value]="t.id">{{ t.name }} ({{ t.phone }})</option> }
+          </select>
+          <button class="btn-primary" [disabled]="busy() || !selectedTechId" (click)="assignTech(b)">
+            {{ busy() ? 'Assigning…' : 'Assign' }}
+          </button>
         </div>
-      } @else if (error()) {
-        <div class="state-container">
-          <app-error-banner [message]="error()!" retryLabel="Retry" (retry)="loadBookings()" />
+        <button class="btn-ghost" [disabled]="busy()" (click)="autoAssign(b)">⚡ Auto-assign nearest technician</button>
+        @if (technicians().length === 0) { <p class="hint">No technicians available. Add one under Technicians.</p> }
+      </div>
+
+      <!-- Lifecycle timeline -->
+      @if (detail()?.status_history?.length) {
+        <div class="block">
+          <h3 class="block-title">Lifecycle Timeline</h3>
+          <ul class="timeline">
+            @for (h of detail()!.status_history!; track $index) {
+              <li class="tl-item">
+                <span class="tl-dot"></span>
+                <div class="tl-body">
+                  <span class="tl-status">{{ fmtStatus(h.to_status) }}</span>
+                  @if (h.changed_at) { <span class="tl-time">{{ h.changed_at | date:'dd MMM yyyy, HH:mm' }}</span> }
+                  @if (h.reason) { <span class="tl-reason">{{ h.reason }}</span> }
+                </div>
+              </li>
+            }
+          </ul>
         </div>
-      } @else if (bookings().length === 0) {
-        <div class="state-container">
-          <app-empty-state message="No bookings found" />
-        </div>
-      } @else {
-        <div class="table-surface">
-          <div class="table-scroll">
-            <table class="bookings-table">
-              <thead>
-                <tr>
-                  <th class="th-reference">Reference</th>
-                  <th class="th-date">Date</th>
-                  <th class="th-collection">Collection</th>
-                  <th class="th-status">Status</th>
-                  <th class="th-cancellation">Cancellation</th>
-                  <th class="th-actions">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (b of bookings(); track b.id; let odd = $odd) {
-                  <tr class="booking-row" [class.row-odd]="odd">
-                    <td class="td-reference">
-                      <span class="ref-link">{{ b.reference_number }}</span>
-                    </td>
-                    <td class="td-date">
-                      <span class="date-value">{{ b.booking_date | date:'d MMM y' }}</span>
-                      <span class="time-value">{{ b.booking_date | date:'h:mm a' }}</span>
-                    </td>
-                    <td class="td-collection">
-                      <span class="collection-badge" [class]="'collection-' + b.collection_type">
-                        <mat-icon class="badge-icon">{{ b.collection_type === 'home' ? 'home' : 'science' }}</mat-icon>
-                        {{ b.collection_type | titlecase }}
-                      </span>
-                    </td>
-                    <td class="td-status">
-                      <span class="status-chip" [class]="'status-' + b.status">
-                        {{ formatStatus(b.status) }}
-                      </span>
-                    </td>
-                    <td class="td-cancellation">
-                      @if (b.status === 'cancelled' && b.cancellation_reason) {
-                        <div class="cancel-info">
-                          <span class="cancel-reason" [title]="b.cancellation_reason">
-                            {{ b.cancellation_reason | slice:0:32 }}{{ b.cancellation_reason.length > 32 ? '…' : '' }}
-                          </span>
-                          @if (b.cancellation_fee) {
-                            <span class="cancel-fee">₹{{ b.cancellation_fee }}</span>
-                          }
-                        </div>
-                      } @else {
-                        <span class="cell-empty">—</span>
-                      }
-                    </td>
-                    <td class="td-actions">
-                      <div class="row-actions">
-                        <!-- Assign Technician -->
-                        <div class="action-select-wrap" title="Assign technician">
-                          <mat-icon class="action-icon">person_add</mat-icon>
-                          <div class="select-wrapper action-select-wrapper">
-                            <select class="styled-select action-select" (change)="assignTechnician(b, $any($event.target).value)" [ngModel]="null">
-                              <option value="" disabled selected>Assign Tech</option>
-                              @for (t of technicians(); track t.id) {
-                                <option [value]="t.id">{{ t.name }}</option>
-                              }
-                            </select>
-                            <mat-icon class="select-chevron">expand_more</mat-icon>
-                          </div>
-                        </div>
+      }
 
-                        <!-- Update Status -->
-                        <div class="action-select-wrap" title="Update status">
-                          <mat-icon class="action-icon">sync</mat-icon>
-                          <div class="select-wrapper action-select-wrapper">
-                            <select class="styled-select action-select" [ngModel]="b.status" (ngModelChange)="updateStatus(b, $event)">
-                              @for (s of statuses; track s) {
-                                <option [value]="s">{{ formatStatus(s) }}</option>
-                              }
-                            </select>
-                            <mat-icon class="select-chevron">expand_more</mat-icon>
-                          </div>
-                        </div>
-
-                        <!-- Cancel -->
-                        @if (isCancellable(b)) {
-                          <button class="btn-cancel-row" (click)="openCancelDialog(b)" title="Cancel booking">
-                            <mat-icon>cancel</mat-icon>
-                          </button>
-                        }
-                      </div>
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-
-          <div class="pagination-wrap">
-            <app-pagination
-              [page]="page()"
-              [total]="total()"
-              [pageSize]="pageSize"
-              (pageChange)="onPageChange($event)"
-            />
-          </div>
+      <!-- Cancel booking -->
+      @if (b.status !== 'cancelled' && b.status !== 'completed') {
+        <div class="block cancel-block">
+          <h3 class="block-title danger-title">Cancel Booking</h3>
+          @if (!showCancel()) {
+            <button class="btn-danger-ghost" (click)="showCancel.set(true)">Cancel this booking</button>
+          } @else {
+            <textarea class="field textarea" [(ngModel)]="cancelReason" rows="3" placeholder="Reason for cancellation (required)…"></textarea>
+            <div class="row-actions">
+              <button class="btn-ghost" (click)="showCancel.set(false)">Keep booking</button>
+              <button class="btn-danger" [disabled]="busy() || !cancelReason.trim()" (click)="cancelBooking(b)">
+                {{ busy() ? 'Cancelling…' : 'Confirm Cancellation' }}
+              </button>
+            </div>
+          }
         </div>
       }
     </div>
-  `,
+  </aside>
+}`,
   styles: [`
-    /* ── Tokens ─────────────────────────────────────────────── */
-    :host {
-      --primary:        #6366F1;
-      --primary-dark:   #4F46E5;
-      --primary-light:  #EEF2FF;
-      --accent:         #F97316;
-      --accent-dark:    #EA580C;
-      --success:        #22C55E;
-      --success-bg:     #F0FDF4;
-      --warning:        #F59E0B;
-      --warning-bg:     #FFFBEB;
-      --error:          #EF4444;
-      --error-bg:       #FEF2F2;
-      --bg:             #F8F9FF;
-      --surface:        #FFFFFF;
-      --text:           #0F172A;
-      --text-secondary: #475569;
-      --muted:          #94A3B8;
-      --border:         #E2E8F0;
-      --radius:         12px;
-      --radius-lg:      16px;
-      --radius-pill:    999px;
-      --shadow-sm:      0 1px 3px rgba(15,23,42,.06), 0 1px 2px rgba(15,23,42,.04);
-      --shadow-md:      0 4px 12px rgba(15,23,42,.08), 0 2px 4px rgba(15,23,42,.04);
-      --shadow-lg:      0 10px 30px rgba(15,23,42,.10), 0 4px 10px rgba(15,23,42,.05);
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      display: block;
-    }
+    .page { display:flex; flex-direction:column; gap:1.25rem; }
+    .page-header { display:flex; justify-content:space-between; align-items:flex-start; }
+    .page-title { font-size:1.5rem; font-weight:700; color:#0F172A; margin:0 0 0.25rem 0; }
+    .page-sub { font-size:0.875rem; color:#475569; margin:0; }
+    .filter-bar { display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap; }
+    .search-field { display:flex; align-items:center; gap:0.5rem; background:#FFFFFF; border:1px solid #E2E8F0; border-radius:0.75rem; padding:0.625rem 1rem; flex:1; min-width:200px; svg { width:18px; height:18px; color:#94A3B8; flex-shrink:0; } input { border:none; outline:none; font-size:0.875rem; color:#0F172A; background:transparent; width:100%; } &:focus-within { border-color:#319795; box-shadow:0 0 0 3px rgba(49,151,149,.1); } }
+    .filter-sel { height:40px; padding:0 1rem; font-size:0.875rem; color:#0F172A; background:#FFFFFF; border:1px solid #E2E8F0; border-radius:0.75rem; cursor:pointer; &:focus { outline:none; border-color:#319795; } }
+    .count-badge { font-size:0.875rem; color:#94A3B8; white-space:nowrap; font-weight:500; }
+    .load-wrap { display:flex; justify-content:center; padding:3rem; }
+    .table-wrap { background:#FFFFFF; border:1px solid #F1F5F9; border-radius:1rem; overflow:hidden; overflow-x:auto; }
+    .tbl { width:100%; border-collapse:collapse; min-width:780px; thead tr { background:#F8FAFC; } th { padding:0.75rem 1rem; text-align:left; font-size:0.75rem; font-weight:600; color:#94A3B8; text-transform:uppercase; letter-spacing:0.025em; border-bottom:1px solid #F1F5F9; } td { padding:0.875rem 1rem; border-bottom:1px solid #F1F5F9; font-size:0.875rem; color:#0F172A; } tbody tr:last-child td { border-bottom:none; } tbody tr:hover td { background:#F8FAFC; } }
+    .ref-cell { font-family:'JetBrains Mono','SF Mono','Fira Code',monospace; font-size:0.75rem; font-weight:600; color:#285E61; }
+    .mono { font-family:'JetBrains Mono','SF Mono','Fira Code',monospace; }
+    .fw-med { font-weight:600; }
+    .text-sm { font-size:0.875rem; }
+    .text-muted { color:#94A3B8; }
+    .empty-td { text-align:center; color:#94A3B8; padding:3rem !important; }
+    .type-chip { font-size:0.75rem; font-weight:500; padding:0.25rem 0.5rem; border-radius:0.5rem; background:#F8FAFC; &.home { background:#E6FFFA; color:#285E61; } }
+    .manage-btn { font-size:0.8125rem; font-weight:600; color:#285E61; background:#E6FFFA; border:1px solid #B2F5EA; border-radius:0.5rem; padding:0.375rem 0.875rem; cursor:pointer; transition:all 150ms; &:hover { background:#B2F5EA; } }
+    .pagination { display:flex; align-items:center; justify-content:center; gap:1rem; }
+    .pg-btn { display:flex; align-items:center; justify-content:center; width:36px; height:36px; border:1px solid #E2E8F0; border-radius:0.5rem; background:#FFFFFF; cursor:pointer; transition:all 150ms; &:hover:not(:disabled) { border-color:#38B2AC; color:#2C7A7B; } &:disabled { opacity:.4; cursor:not-allowed; } }
+    .pg-info { font-size:0.875rem; color:#475569; }
 
-    /* ── Layout ─────────────────────────────────────────────── */
-    .bookings-page {
-      padding: 2rem 2rem 3rem;
-      background: var(--bg);
-      min-height: 100vh;
-    }
+    /* Drawer */
+    .drawer-backdrop { position:fixed; inset:0; background:rgba(15,23,42,.5); z-index:400; backdrop-filter:blur(2px); }
+    .drawer { position:fixed; top:0; right:0; bottom:0; width:min(440px,92vw); background:#fff; z-index:401; display:flex; flex-direction:column; box-shadow:-8px 0 32px rgba(15,23,42,.25); animation:slideIn .22s ease; }
+    @keyframes slideIn { from { transform:translateX(100%); } to { transform:translateX(0); } }
+    .drawer-head { display:flex; align-items:flex-start; justify-content:space-between; padding:1.25rem 1.5rem; border-bottom:1px solid #F1F5F9; }
+    .drawer-title { font-size:1.125rem; font-weight:700; color:#0F172A; margin:0; font-family:'JetBrains Mono',monospace; }
+    .drawer-sub { font-size:0.8125rem; color:#64748B; }
+    .drawer-close { background:none; border:none; font-size:1.75rem; line-height:1; color:#94A3B8; cursor:pointer; padding:0; &:hover { color:#0F172A; } }
+    .drawer-body { padding:1.5rem; overflow-y:auto; display:flex; flex-direction:column; gap:1.5rem; }
+    .summary-grid { display:flex; gap:1rem; flex-wrap:wrap; }
+    .sum-item { display:flex; flex-direction:column; gap:0.25rem; }
+    .sum-lbl { font-size:0.6875rem; text-transform:uppercase; letter-spacing:0.05em; color:#94A3B8; font-weight:600; }
+    .sum-val { font-size:1rem; font-weight:700; color:#0F172A; }
+    .block { display:flex; flex-direction:column; gap:0.625rem; }
+    .block-title { font-size:0.875rem; font-weight:600; color:#0F172A; margin:0; }
+    .item-list { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:0.375rem; }
+    .item-list li { display:flex; justify-content:space-between; font-size:0.8125rem; color:#475569; padding:0.5rem 0.75rem; background:#F8FAFC; border-radius:0.5rem; }
+    .item-price { font-weight:600; color:#0F172A; }
+    .row-actions { display:flex; gap:0.5rem; }
+    .field { flex:1; height:40px; padding:0 0.75rem; font-size:0.875rem; color:#0F172A; background:#fff; border:1px solid #E2E8F0; border-radius:0.5rem; cursor:pointer; &:focus { outline:none; border-color:#319795; } }
+    .btn-primary { height:40px; padding:0 1.25rem; font-size:0.875rem; font-weight:600; color:#fff; background:linear-gradient(135deg,#319795,#2C7A7B); border:none; border-radius:0.5rem; cursor:pointer; white-space:nowrap; &:disabled { opacity:.5; cursor:not-allowed; } }
+    .btn-ghost { align-self:flex-start; font-size:0.8125rem; font-weight:600; color:#5A67D8; background:#EEF2FF; border:1px solid #C7D2FE; border-radius:0.5rem; padding:0.5rem 0.875rem; cursor:pointer; &:disabled { opacity:.5; cursor:not-allowed; } }
+    .hint { font-size:0.75rem; color:#94A3B8; margin:0; }
 
-    /* ── Page header ─────────────────────────────────────────── */
-    .page-header {
-      margin-bottom: 1.75rem;
-    }
-    .page-title-row {
-      display: flex;
-      align-items: center;
-      gap: .75rem;
-      margin-bottom: .35rem;
-    }
-    .page-title {
-      margin: 0;
-      font-size: 1.5rem;
-      font-weight: 700;
-      letter-spacing: -.02em;
-      color: var(--text);
-    }
-    .count-badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 28px;
-      height: 24px;
-      padding: 0 8px;
-      background: var(--primary-light);
-      color: var(--primary-dark);
-      font-size: .75rem;
-      font-weight: 700;
-      letter-spacing: .01em;
-      border-radius: var(--radius-pill);
-      font-variant-numeric: tabular-nums;
-    }
-    .page-subtitle {
-      margin: 0;
-      font-size: .875rem;
-      color: var(--text-secondary);
-    }
-
-    /* ── Filter bar ──────────────────────────────────────────── */
-    .filter-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-      margin-bottom: 1.25rem;
-      flex-wrap: wrap;
-    }
-    .filter-left {
-      display: flex;
-      align-items: center;
-      gap: .75rem;
-    }
-    .filter-field {
-      display: flex;
-      align-items: center;
-      gap: .5rem;
-    }
-    .filter-icon {
-      color: var(--muted);
-      font-size: 1.1rem;
-      width: 1.1rem;
-      height: 1.1rem;
-      flex-shrink: 0;
-    }
-    .filter-select-wrapper {
-      min-width: 200px;
-    }
-    .filter-select {
-      font-size: .875rem;
-    }
-    .results-label {
-      font-size: .8125rem;
-      color: var(--muted);
-      font-variant-numeric: tabular-nums;
-    }
-
-    /* ── Select wrapper (shared) ─────────────────────────────── */
-    .select-wrapper {
-      position: relative;
-      display: inline-flex;
-      align-items: center;
-    }
-    .styled-select {
-      appearance: none;
-      -webkit-appearance: none;
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius);
-      padding: .5rem 2.25rem .5rem .75rem;
-      font-size: .8125rem;
-      color: var(--text);
-      background: var(--surface);
-      cursor: pointer;
-      width: 100%;
-      transition: border-color .15s ease, box-shadow .15s ease;
-      font-family: inherit;
-    }
-    .styled-select:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(99,102,241,.12);
-    }
-    .styled-select:hover:not(:focus) {
-      border-color: var(--primary);
-    }
-    .select-chevron {
-      position: absolute;
-      right: .5rem;
-      pointer-events: none;
-      font-size: 1rem;
-      width: 1rem;
-      height: 1rem;
-      color: var(--muted);
-    }
-
-    /* ── State containers ────────────────────────────────────── */
-    .state-container {
-      padding: 3rem 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    /* ── Table surface ───────────────────────────────────────── */
-    .table-surface {
-      background: var(--surface);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-md);
-      border: 1px solid var(--border);
-      overflow: hidden;
-    }
-    .table-scroll {
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    /* ── Table ───────────────────────────────────────────────── */
-    .bookings-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: .8125rem;
-      white-space: nowrap;
-    }
-
-    /* Headers */
-    .bookings-table thead tr {
-      background: #F1F5F9;
-      border-bottom: 1.5px solid var(--border);
-    }
-    .bookings-table th {
-      padding: .75rem 1rem;
-      text-align: left;
-      font-size: .6875rem;
-      font-weight: 700;
-      letter-spacing: .07em;
-      text-transform: uppercase;
-      color: var(--text-secondary);
-      white-space: nowrap;
-    }
-    .th-actions { text-align: right; }
-
-    /* Rows */
-    .booking-row {
-      border-bottom: 1px solid var(--border);
-      transition: background .1s ease;
-    }
-    .booking-row:last-child {
-      border-bottom: none;
-    }
-    .booking-row:hover {
-      background: var(--primary-light) !important;
-    }
-    .booking-row.row-odd {
-      background: #FAFBFF;
-    }
-
-    /* Cells */
-    .bookings-table td {
-      padding: .875rem 1rem;
-      vertical-align: middle;
-    }
-
-    /* Reference */
-    .td-reference { min-width: 140px; }
-    .ref-link {
-      font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
-      font-size: .8rem;
-      font-weight: 600;
-      color: var(--primary-dark);
-      letter-spacing: .01em;
-    }
-
-    /* Date */
-    .td-date { min-width: 110px; }
-    .date-value {
-      display: block;
-      font-weight: 500;
-      color: var(--text);
-      font-variant-numeric: tabular-nums;
-    }
-    .time-value {
-      display: block;
-      font-size: .74rem;
-      color: var(--muted);
-      font-variant-numeric: tabular-nums;
-      margin-top: .1rem;
-    }
-
-    /* Collection badge */
-    .td-collection { min-width: 110px; }
-    .collection-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: .3rem;
-      padding: .25rem .6rem;
-      border-radius: var(--radius-pill);
-      font-size: .72rem;
-      font-weight: 600;
-      letter-spacing: .01em;
-    }
-    .badge-icon {
-      font-size: .85rem;
-      width: .85rem;
-      height: .85rem;
-    }
-    .collection-home {
-      background: var(--primary-light);
-      color: var(--primary-dark);
-    }
-    .collection-lab {
-      background: #ECFDF5;
-      color: #065F46;
-    }
-
-    /* Status chip */
-    .td-status { min-width: 140px; }
-    .status-chip {
-      display: inline-flex;
-      align-items: center;
-      padding: .25rem .65rem;
-      border-radius: var(--radius-pill);
-      font-size: .72rem;
-      font-weight: 600;
-      letter-spacing: .01em;
-      white-space: nowrap;
-    }
-    .status-booked             { background: #EFF6FF; color: #1D4ED8; }
-    .status-technician_assigned { background: #EDE9FE; color: #5B21B6; }
-    .status-accepted           { background: #F0FDFA; color: #0F766E; }
-    .status-on_the_way         { background: #FFF7ED; color: var(--accent-dark); }
-    .status-sample_collected   { background: #FEF9C3; color: #854D0E; }
-    .status-reached_lab        { background: #ECFDF5; color: #065F46; }
-    .status-sample_delivered   { background: #F0FDF4; color: #15803D; }
-    .status-processing         { background: #EDE9FE; color: #6D28D9; }
-    .status-report_ready       { background: #EFF6FF; color: #1E40AF; }
-    .status-completed          { background: #F0FDF4; color: #166534; }
-    .status-cancelled          { background: #FEF2F2; color: #B91C1C; }
-
-    /* Cancellation */
-    .td-cancellation { min-width: 160px; max-width: 200px; }
-    .cancel-info { display: flex; flex-direction: column; gap: .2rem; }
-    .cancel-reason {
-      font-size: .78rem;
-      color: var(--text-secondary);
-      white-space: normal;
-      line-height: 1.35;
-    }
-    .cancel-fee {
-      font-size: .72rem;
-      font-weight: 700;
-      color: var(--error);
-      font-variant-numeric: tabular-nums;
-    }
-    .cell-empty { color: var(--muted); }
-
-    /* Actions */
-    .td-actions { min-width: 280px; }
-    .row-actions {
-      display: flex;
-      align-items: center;
-      gap: .5rem;
-      justify-content: flex-end;
-    }
-    .action-select-wrap {
-      display: flex;
-      align-items: center;
-      gap: .3rem;
-    }
-    .action-icon {
-      color: var(--muted);
-      font-size: .95rem;
-      width: .95rem;
-      height: .95rem;
-      flex-shrink: 0;
-    }
-    .action-select-wrapper {
-      width: 130px;
-    }
-    .action-select {
-      font-size: .75rem;
-      padding: .4rem 2rem .4rem .6rem;
-    }
-
-    .btn-cancel-row {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 32px;
-      height: 32px;
-      border: 1.5px solid #FECACA;
-      border-radius: var(--radius);
-      background: #FEF2F2;
-      color: var(--error);
-      cursor: pointer;
-      transition: background .15s ease, border-color .15s ease, transform .1s ease;
-      flex-shrink: 0;
-    }
-    .btn-cancel-row mat-icon {
-      font-size: 1rem;
-      width: 1rem;
-      height: 1rem;
-    }
-    .btn-cancel-row:hover {
-      background: var(--error);
-      border-color: var(--error);
-      color: #fff;
-      transform: scale(1.05);
-    }
-
-    /* Pagination */
-    .pagination-wrap {
-      padding: .75rem 1rem;
-      border-top: 1px solid var(--border);
-      background: #FAFBFF;
-    }
-
-    /* ── Dialog ──────────────────────────────────────────────── */
-    .dialog-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(15, 23, 42, .5);
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
-      z-index: 1000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
-      animation: backdrop-in .15s ease;
-    }
-    @keyframes backdrop-in {
-      from { opacity: 0; }
-      to   { opacity: 1; }
-    }
-
-    .dialog-panel {
-      background: var(--surface);
-      border-radius: var(--radius-lg);
-      width: 100%;
-      max-width: 460px;
-      box-shadow: var(--shadow-lg), 0 0 0 1px rgba(15,23,42,.06);
-      animation: panel-in .18s ease;
-      overflow: hidden;
-    }
-    @keyframes panel-in {
-      from { opacity: 0; transform: translateY(8px) scale(.98); }
-      to   { opacity: 1; transform: translateY(0) scale(1); }
-    }
-
-    .dialog-header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      padding: 1.25rem 1.25rem 1rem;
-      border-bottom: 1px solid var(--border);
-    }
-    .dialog-title-group {
-      display: flex;
-      align-items: flex-start;
-      gap: .75rem;
-    }
-    .dialog-icon-wrap {
-      width: 40px;
-      height: 40px;
-      border-radius: var(--radius);
-      background: var(--error-bg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .dialog-icon-wrap mat-icon {
-      color: var(--error);
-      font-size: 1.15rem;
-      width: 1.15rem;
-      height: 1.15rem;
-    }
-    .dialog-title {
-      margin: 0 0 .15rem;
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--text);
-      letter-spacing: -.01em;
-    }
-    .dialog-subtitle {
-      margin: 0;
-      font-size: .78rem;
-      color: var(--muted);
-      font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
-    }
-    .dialog-close-btn {
-      background: none;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      cursor: pointer;
-      padding: .25rem;
-      display: flex;
-      align-items: center;
-      color: var(--muted);
-      transition: color .15s ease, background .15s ease;
-      flex-shrink: 0;
-    }
-    .dialog-close-btn mat-icon { font-size: 1.1rem; width: 1.1rem; height: 1.1rem; }
-    .dialog-close-btn:hover { color: var(--text); background: var(--bg); }
-
-    .fee-notice {
-      display: flex;
-      align-items: flex-start;
-      gap: .6rem;
-      padding: .8rem 1.25rem;
-      background: var(--warning-bg);
-      border-bottom: 1px solid #FDE68A;
-    }
-    .fee-icon {
-      color: var(--warning);
-      font-size: 1rem;
-      width: 1rem;
-      height: 1rem;
-      flex-shrink: 0;
-      margin-top: .1rem;
-    }
-    .fee-label {
-      display: block;
-      font-size: .8rem;
-      font-weight: 700;
-      color: #78350F;
-    }
-    .fee-amount {
-      display: block;
-      font-size: .78rem;
-      color: #92400E;
-      margin-top: .1rem;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .dialog-body {
-      display: flex;
-      flex-direction: column;
-      gap: .9rem;
-      padding: 1.25rem;
-    }
-
-    .field-group {
-      display: flex;
-      flex-direction: column;
-      gap: .4rem;
-    }
-    .field-label {
-      font-size: .78rem;
-      font-weight: 600;
-      color: var(--text-secondary);
-      letter-spacing: .01em;
-    }
-    .required { color: var(--error); }
-    .field-group .select-wrapper {
-      width: 100%;
-      display: flex;
-    }
-    .field-group .styled-select {
-      width: 100%;
-    }
-    .styled-textarea {
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius);
-      padding: .6rem .75rem;
-      font-size: .875rem;
-      color: var(--text);
-      background: var(--surface);
-      resize: vertical;
-      font-family: inherit;
-      line-height: 1.5;
-      transition: border-color .15s ease, box-shadow .15s ease;
-      width: 100%;
-      box-sizing: border-box;
-    }
-    .styled-textarea:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(99,102,241,.12);
-    }
-
-    .alert-error {
-      display: flex;
-      align-items: center;
-      gap: .5rem;
-      padding: .7rem 1.25rem;
-      background: var(--error-bg);
-      border-top: 1px solid #FECACA;
-      color: #991B1B;
-      font-size: .8125rem;
-    }
-    .alert-error mat-icon { font-size: 1rem; width: 1rem; height: 1rem; flex-shrink: 0; }
-
-    .dialog-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: .625rem;
-      padding: 1rem 1.25rem;
-      border-top: 1px solid var(--border);
-      background: #FAFBFF;
-    }
-
-    .btn-ghost {
-      background: var(--surface);
-      border: 1.5px solid var(--border);
-      border-radius: 10px;
-      padding: .5rem 1.1rem;
-      font-size: .875rem;
-      font-weight: 500;
-      cursor: pointer;
-      color: var(--text-secondary);
-      font-family: inherit;
-      transition: border-color .15s ease, color .15s ease;
-    }
-    .btn-ghost:hover:not(:disabled) {
-      border-color: var(--primary);
-      color: var(--primary-dark);
-    }
-    .btn-ghost:disabled { opacity: .5; cursor: not-allowed; }
-
-    .btn-danger {
-      display: inline-flex;
-      align-items: center;
-      gap: .4rem;
-      background: var(--error);
-      color: #fff;
-      border: none;
-      border-radius: 10px;
-      padding: .5rem 1.25rem;
-      font-size: .875rem;
-      font-weight: 600;
-      cursor: pointer;
-      font-family: inherit;
-      transition: background .15s ease, transform .1s ease;
-    }
-    .btn-danger:hover:not(:disabled) {
-      background: #DC2626;
-      transform: translateY(-1px);
-    }
-    .btn-danger:disabled { opacity: .5; cursor: not-allowed; transform: none; }
-
-    .btn-spinner {
-      display: inline-block;
-      width: 14px;
-      height: 14px;
-      border: 2px solid rgba(255,255,255,.35);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin .7s linear infinite;
-    }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .dialog-backdrop, .dialog-panel, .btn-cancel-row, .btn-danger, .booking-row { animation: none; transition: none; }
-    }
-  `],
+    /* Detail sections */
+    .detail-loading { display:flex; align-items:center; gap:0.5rem; font-size:0.8125rem; color:#64748B; padding:0.5rem 0; }
+    .kv-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:0.625rem 1rem; }
+    .kv { display:flex; flex-direction:column; gap:0.125rem; }
+    .kv .k { font-size:0.6875rem; text-transform:uppercase; letter-spacing:0.04em; color:#94A3B8; font-weight:600; }
+    .kv .v { font-size:0.875rem; color:#0F172A; font-weight:500; word-break:break-word; }
+    .kv .rel { color:#64748B; font-weight:400; }
+    .addr-text { font-size:0.8125rem; color:#475569; line-height:1.5; margin:0; }
+    .muted-text { color:#94A3B8; margin-top:0.375rem; }
+    .timeline { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:0.875rem; }
+    .tl-item { display:flex; gap:0.625rem; }
+    .tl-dot { width:10px; height:10px; border-radius:50%; background:#319795; flex-shrink:0; margin-top:0.25rem; box-shadow:0 0 0 3px rgba(49,151,149,.15); }
+    .tl-body { display:flex; flex-direction:column; gap:0.125rem; }
+    .tl-status { font-size:0.8125rem; font-weight:600; color:#0F172A; }
+    .tl-time { font-size:0.6875rem; color:#94A3B8; }
+    .tl-reason { font-size:0.75rem; color:#64748B; font-style:italic; }
+    .cancel-block { border-top:1px solid #FEE2E2; padding-top:1rem; }
+    .danger-title { color:#B91C1C; }
+    .textarea { width:100%; resize:vertical; padding:0.625rem 0.75rem; font-family:inherit; }
+    .btn-danger { height:40px; padding:0 1.25rem; font-size:0.875rem; font-weight:600; color:#fff; background:#DC2626; border:none; border-radius:0.5rem; cursor:pointer; white-space:nowrap; &:disabled { opacity:.5; cursor:not-allowed; } }
+    .btn-danger-ghost { font-size:0.8125rem; font-weight:600; color:#DC2626; background:#FEF2F2; border:1px solid #FECACA; border-radius:0.5rem; padding:0.5rem 0.875rem; cursor:pointer; }
+  `]
 })
 export class AdminBookingsComponent implements OnInit {
-  displayedColumns = ['reference_number', 'booking_date', 'collection_type', 'status', 'cancellation_info', 'actions'];
-  statuses = BOOKING_STATUSES;
-  cancelReasons = CANCELLATION_REASONS;
-  pageSize = 20;
-
+  readonly PS = 25;
+  readonly statusOptions = STATUS_OPTIONS;
   loading = signal(false);
-  error = signal<string | null>(null);
-  bookings = signal<Booking[]>([]);
-  total = signal(0);
-  page = signal(1);
+  error = signal('');
+  toast = signal('');
+  formErr = signal('');
+  busy = signal(false);
+  all = signal<Booking[]>([]);
+  filtered = signal<Booking[]>([]);
   technicians = signal<Technician[]>([]);
-  statusFilter = '';
+  selected = signal<Booking | null>(null);
+  detail = signal<Booking | null>(null);
+  detailLoading = signal(false);
+  page = signal(1);
+  searchQ = ''; statusFilter = ''; typeFilter = '';
+  newStatus = ''; selectedTechId = '';
+  cancelReason = ''; showCancel = signal(false);
 
-  // Cancel dialog state
-  cancelDialog = signal(false);
-  cancelTarget = signal<Booking | null>(null);
-  cancelReasonSelect = '';
-  cancelReasonCustom = '';
-  cancellationFee = signal<number | null>(null);
-  cancelError = signal<string | null>(null);
-  cancelling = signal(false);
+  totalPages = () => Math.ceil(this.filtered().length / this.PS);
+  paged = () => { const s = (this.page() - 1) * this.PS; return this.filtered().slice(s, s + this.PS); };
 
-  get cancelReasonFinal(): () => string {
-    return () => this.cancelReasonSelect === 'Other' ? this.cancelReasonCustom.trim() : this.cancelReasonSelect;
-  }
-
-  constructor(private http: HttpClient, private adminApi: AdminApiService, private snack: MatSnackBar) {}
-
+  constructor(private bookingApi: BookingApiService, private adminApi: AdminApiService) {}
   ngOnInit() {
-    this.loadBookings();
+    this.load();
     this.adminApi.getTechnicians().subscribe({
-      next: (res: any) => this.technicians.set(res.items ?? res),
-      error: () => {},
-    });
-    this.loadCancellationFee();
-  }
-
-  loadCancellationFee() {
-    this.http.get<any>('/admin/settings/cancellation').subscribe({
-      next: (cfg) => this.cancellationFee.set(cfg ? cfg.charge_value : null),
-      error: () => {},
+      next: (r: any) => this.technicians.set(r.items ?? r ?? []),
+      error: () => this.technicians.set([]),
     });
   }
 
-  loadBookings() {
+  load() {
     this.loading.set(true);
-    this.error.set(null);
-    let params = new HttpParams().set('page', this.page()).set('page_size', this.pageSize);
-    if (this.statusFilter) params = params.set('status', this.statusFilter);
-    this.http.get<any>('/bookings', { params }).subscribe({
-      next: (res: any) => { this.bookings.set(res.items ?? res); this.total.set(res.total ?? res.length); this.loading.set(false); },
-      error: (err: any) => { this.error.set(err.message || 'Failed to load bookings'); this.loading.set(false); },
+    this.bookingApi.list({ page_size: 500 }).subscribe({
+      next: r => { this.all.set(r.items); this.applyFilter(); this.loading.set(false); },
+      error: () => { this.error.set('Failed to load bookings.'); this.loading.set(false); }
     });
   }
 
-  onPageChange(p: number) { this.page.set(p); this.loadBookings(); }
-
-  isCancellable(b: Booking): boolean {
-    return CANCELLABLE_STATUSES.has(b.status);
+  applyFilter() {
+    let list = this.all();
+    if (this.statusFilter) list = list.filter(b => b.status === this.statusFilter);
+    if (this.typeFilter) list = list.filter(b => b.collection_type === this.typeFilter);
+    const q = this.searchQ.toLowerCase();
+    if (q) list = list.filter(b => b.reference_number.toLowerCase().includes(q));
+    this.filtered.set(list);
+    this.page.set(1);
   }
 
-  formatStatus(s: string): string {
-    return s.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  openManage(b: Booking) {
+    this.selected.set(b);
+    this.newStatus = b.status;
+    this.selectedTechId = '';
+    this.cancelReason = '';
+    this.showCancel.set(false);
+    this.formErr.set('');
+    // Fetch enriched detail (patient, contact, address, slot, lab, payment, timeline)
+    this.detail.set(null);
+    this.detailLoading.set(true);
+    this.bookingApi.get(b.id).subscribe({
+      next: (d) => { this.detail.set(d); this.detailLoading.set(false); },
+      error: () => { this.detailLoading.set(false); },
+    });
+  }
+  closeManage() { this.selected.set(null); this.detail.set(null); this.showCancel.set(false); }
+
+  cancelBooking(b: Booking) {
+    if (!this.cancelReason.trim()) { this.formErr.set('Cancellation reason is required.'); return; }
+    this.busy.set(true);
+    this.formErr.set('');
+    this.bookingApi.cancel(b.id, this.cancelReason.trim()).subscribe({
+      next: (updated) => {
+        this.busy.set(false);
+        this.applyUpdated(updated, b.id);
+        this.toast.set('Booking cancelled.');
+        this.closeManage();
+      },
+      error: (err) => { this.busy.set(false); this.formErr.set(this.errMsg(err, 'Failed to cancel booking.')); }
+    });
   }
 
-  openCancelDialog(b: Booking) {
-    this.cancelTarget.set(b);
-    this.cancelReasonSelect = '';
-    this.cancelReasonCustom = '';
-    this.cancelError.set(null);
-    this.cancelDialog.set(true);
+  saveStatus(b: Booking) {
+    if (this.newStatus === b.status) return;
+    this.busy.set(true);
+    this.formErr.set('');
+    this.bookingApi.updateStatus(b.id, this.newStatus).subscribe({
+      next: (updated) => {
+        this.busy.set(false);
+        this.applyUpdated(updated, b.id);
+        this.toast.set(`Status updated to "${this.fmtStatus(this.newStatus)}".`);
+        this.closeManage();
+      },
+      error: (err) => { this.busy.set(false); this.formErr.set(this.errMsg(err, 'Failed to update status.')); }
+    });
   }
 
-  closeCancelDialog() {
-    this.cancelDialog.set(false);
-    this.cancelTarget.set(null);
-  }
-
-  onReasonSelect(val: string) {
-    if (val !== 'Other') this.cancelReasonCustom = '';
-  }
-
-  confirmCancel() {
-    const reason = this.cancelReasonSelect === 'Other' ? this.cancelReasonCustom.trim() : this.cancelReasonSelect;
-    if (!reason) { this.cancelError.set('Please provide a cancellation reason.'); return; }
-    const b = this.cancelTarget();
-    if (!b) return;
-
-    this.cancelling.set(true);
-    this.cancelError.set(null);
-    this.http.post(`/bookings/${b.id}/cancel`, { reason }).subscribe({
+  assignTech(b: Booking) {
+    if (!this.selectedTechId) return;
+    this.busy.set(true);
+    this.formErr.set('');
+    this.adminApi.assignTechnician(this.selectedTechId, b.id).subscribe({
       next: () => {
-        this.cancelling.set(false);
-        this.closeCancelDialog();
-        this.loadBookings();
-        this.snack.open('Booking cancelled successfully.', 'OK', { duration: 3000 });
+        this.busy.set(false);
+        this.toast.set('Technician assigned successfully.');
+        this.closeManage();
+        this.load();
       },
-      error: (err: any) => {
-        this.cancelling.set(false);
-        this.cancelError.set(err.error?.detail?.message || err.error?.message || 'Failed to cancel booking.');
-      },
+      error: (err) => { this.busy.set(false); this.formErr.set(this.errMsg(err, 'Failed to assign technician.')); }
     });
   }
 
-  assignTechnician(booking: Booking, technicianId: string) {
-    this.http.post(`/technicians/${technicianId}/assign`, { booking_id: booking.id }).subscribe({
-      next: () => { this.snack.open('Technician assigned successfully.', 'OK', { duration: 3000 }); this.loadBookings(); },
-      error: (err: any) => { const msg = err?.error?.detail?.message ?? err?.message ?? 'Failed to assign'; this.error.set(msg); this.snack.open(msg, 'OK', { duration: 4000 }); },
+  autoAssign(b: Booking) {
+    this.busy.set(true);
+    this.formErr.set('');
+    this.adminApi.autoAssignTechnician(b.id).subscribe({
+      next: () => {
+        this.busy.set(false);
+        this.toast.set('Technician auto-assigned successfully.');
+        this.closeManage();
+        this.load();
+      },
+      error: (err) => { this.busy.set(false); this.formErr.set(this.errMsg(err, 'Auto-assign failed. No technician available.')); }
     });
   }
 
-  updateStatus(booking: Booking, status: string) {
-    this.http.put(`/bookings/${booking.id}/status`, { status }).subscribe({
-      next: () => { this.snack.open('Status updated.', 'OK', { duration: 3000 }); this.loadBookings(); },
-      error: (err: any) => { const msg = err?.error?.detail?.message ?? err?.message ?? 'Failed to update status'; this.error.set(msg); this.snack.open(msg, 'OK', { duration: 4000 }); },
-    });
+  private applyUpdated(updated: Booking, id: string) {
+    this.all.set(this.all().map(x => x.id === id ? { ...x, ...updated } : x));
+    this.applyFilter();
   }
+
+  private errMsg(err: any, fallback: string): string {
+    const d = err?.error?.detail;
+    if (typeof d === 'string') return d;
+    if (d?.message) return d.message;
+    return fallback;
+  }
+
+  fmtStatus(s: string) { return (s || '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()); }
+  statusColor(s: string) { const m: Record<string,string> = { booked:'warning', technician_assigned:'info', accepted:'info', on_the_way:'primary', sample_collected:'primary', reached_lab:'primary', sample_delivered:'primary', processing:'primary', report_ready:'info', completed:'success', cancelled:'error', collected:'primary' }; return m[s] ?? 'default'; }
+  payColor(s: string) { const m: Record<string,string> = { paid:'success', pending:'warning', failed:'error', refunded:'info' }; return m[s] ?? 'default'; }
 }

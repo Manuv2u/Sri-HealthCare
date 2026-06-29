@@ -38,8 +38,10 @@ export class BookingApiService {
     return this.http.get<PaginatedResponse<Booking>>('/bookings/my-assigned', { params: p });
   }
 
-  updateStatus(id: string, bookingStatus: string): Observable<Booking> {
-    return this.http.put<Booking>(`/bookings/${id}/status`, { status: bookingStatus });
+  updateStatus(id: string, bookingStatus: string, reason?: string): Observable<Booking> {
+    const body: { status: string; reason?: string } = { status: bookingStatus };
+    if (reason && reason.trim()) body.reason = reason.trim();
+    return this.http.put<Booking>(`/bookings/${id}/status`, body);
   }
 
   addRemarks(id: string, notes: string): Observable<Booking> {

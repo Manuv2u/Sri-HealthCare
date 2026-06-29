@@ -4,22 +4,17 @@ import { authGuard } from '../../core/auth/auth.guard';
 export const PROFILE_ROUTES: Routes = [
   {
     path: '',
-    loadComponent: () => import('./profile/profile.component').then((m) => m.ProfileComponent),
-    canActivate: [authGuard],
-  },
-  {
-    path: 'edit',
-    loadComponent: () => import('./profile-edit/profile-edit.component').then((m) => m.ProfileEditComponent),
+    loadComponent: () => import('./profile-new/profile-new.component').then(m => m.ProfileNewComponent),
     canActivate: [authGuard],
   },
   {
     path: 'family',
-    loadComponent: () => import('./family-members/family-members.component').then((m) => m.FamilyMembersComponent),
+    loadComponent: () => import('./family-members-new/family-members-new.component').then(m => m.FamilyMembersNewComponent),
     canActivate: [authGuard],
   },
   {
     path: 'addresses',
-    loadComponent: () => import('./address-book/address-book.component').then((m) => m.AddressBookComponent),
+    loadComponent: () => import('./address-book-new/address-book-new.component').then(m => m.AddressBookNewComponent),
     canActivate: [authGuard],
   },
 ];

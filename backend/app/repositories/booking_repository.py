@@ -19,14 +19,16 @@ from app.models.service import TimeSlot
 # Admin can bypass these and set any status
 _VALID_TRANSITIONS: dict[str, list[str]] = {
     "booked": ["technician_assigned", "cancelled"],
-    "technician_assigned": ["accepted", "cancelled"],
+    "technician_assigned": ["accepted", "on_the_way", "cancelled"],
     "accepted": ["on_the_way", "cancelled"],
-    "on_the_way": ["sample_collected"],
-    "sample_collected": ["reached_lab"],
+    "on_the_way": ["sample_collected", "unable_to_collect"],
+    "sample_collected": ["reached_lab", "completed"],
     "reached_lab": ["sample_delivered"],
     "sample_delivered": ["processing"],
     "processing": ["report_ready"],
     "report_ready": ["completed"],
+    # Technician could not collect the sample — terminal, admin may reassign
+    "unable_to_collect": ["technician_assigned", "cancelled"],
     # Legacy statuses for backwards compatibility
     "collected": ["processing"],
     "completed": [],
@@ -49,6 +51,7 @@ ALL_VALID_STATUSES = {
     "booked", "technician_assigned", "accepted", "on_the_way",
     "sample_collected", "reached_lab", "sample_delivered",
     "processing", "report_ready", "completed", "cancelled",
+    "unable_to_collect",
     # legacy
     "collected",
 }

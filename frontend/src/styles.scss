@@ -607,3 +607,71 @@ img { max-width: 100%; height: auto; display: block; }
   .page-container { padding: .75rem; }
   .card-grid { grid-template-columns: 1fr; }
 }
+
+
+// ── Material Menu Dropdown Fix ────────────────────────────────────────────────
+// Fix for mat-menu dropdown positioning - ensure proper z-index stacking
+// The CDK overlay container must be positioned at the document level with high z-index
+
+html, body {
+  // Ensure body doesn't have transforms that would affect overlay positioning
+  transform: none !important;
+}
+
+.cdk-overlay-container {
+  position: fixed !important;
+  z-index: 99999 !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  pointer-events: none;
+}
+
+.cdk-global-overlay-wrapper,
+.cdk-overlay-connected-position-bounding-box {
+  z-index: 99999 !important;
+  pointer-events: none;
+}
+
+.cdk-overlay-pane {
+  z-index: 99999 !important;
+  pointer-events: auto;
+}
+
+.cdk-overlay-backdrop {
+  z-index: 99998 !important;
+  pointer-events: auto;
+}
+
+// Ensure the mat-menu panel is properly styled
+.mat-mdc-menu-panel {
+  max-width: 320px !important;
+  z-index: 99999 !important;
+}
+
+.mat-mdc-menu-panel.user-dropdown {
+  margin-top: 8px;
+  min-width: 220px;
+  border-radius: var(--radius) !important;
+  box-shadow: var(--shadow-lg) !important;
+  border: 1px solid var(--color-border);
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    right: 16px;
+    width: 12px;
+    height: 12px;
+    background: var(--color-surface);
+    border-left: 1px solid var(--color-border);
+    border-top: 1px solid var(--color-border);
+    transform: rotate(45deg);
+    z-index: 1;
+  }
+}
+
+.mat-mdc-menu-content {
+  padding: 0.5rem 0 !important;
+}

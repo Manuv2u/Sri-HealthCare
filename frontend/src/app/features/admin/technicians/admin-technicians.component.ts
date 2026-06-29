@@ -1,300 +1,184 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
-import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AdminApiService } from '../../../core/api/services/admin-api.service';
 import { Technician } from '../../../core/api/api.types';
-import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner.component';
-import { ErrorBannerComponent } from '../../../shared/components/error-banner.component';
+import { BadgeComponent } from '../../../shared/components/badge/badge.component';
+import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
+import { ButtonComponent } from '../../../shared/components/button/button.component';
+import { ModalComponent } from '../../../shared/components/modal/modal.component';
+import { AlertComponent } from '../../../shared/components/alert/alert.component';
+import { AvatarComponent } from '../../../shared/components/avatar/avatar.component';
 
 @Component({
   selector: 'app-admin-technicians',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatIconModule, MatSnackBarModule, LoadingSpinnerComponent, ErrorBannerComponent],
+  imports: [CommonModule, FormsModule, BadgeComponent, SpinnerComponent, ButtonComponent, ModalComponent, AlertComponent, AvatarComponent],
   template: `
-    <div class="admin-page">
-      <div class="page-header">
-        <div>
-          <h2>Technicians</h2>
-          <p>Manage field technicians for sample collection</p>
-        </div>
-        <button class="btn-primary" (click)="startCreate()">
-          <mat-icon>add</mat-icon> Add Technician
-        </button>
-      </div>
+<div class="page">
+  <div class="page-header">
+    <div><h1 class="page-title">Technicians</h1><p class="page-sub">Manage field staff and lab technicians</p></div>
+    <app-button variant="primary" (click)="openCreate()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add Technician
+    </app-button>
+  </div>
 
-      @if (formMode()) {
-        <div class="form-panel">
-          <h3>{{ editId() ? 'Edit Technician' : 'Create Technician Account' }}</h3>
+  @if (error()) { <app-alert type="error" [dismissible]="true" (dismissed)="error.set('')">{{ error() }}</app-alert> }
+  @if (success()) { <app-alert type="success" [dismissible]="true" (dismissed)="success.set('')">{{ success() }}</app-alert> }
 
-          @if (formError()) {
-            <div class="alert-error">
-              <mat-icon>error_outline</mat-icon>
-              <span>{{ formError() }}</span>
-            </div>
-          }
-
-          <div class="form-grid">
-            <div class="field">
-              <label>Full Name *</label>
-              <input [(ngModel)]="form.name" placeholder="e.g. Ravi Kumar" />
-            </div>
-            <div class="field">
-              <label>Phone Number *</label>
-              <input [(ngModel)]="form.phone" placeholder="10-digit mobile" maxlength="10" />
-            </div>
-            <div class="field">
-              <label>Email Address *</label>
-              <input [(ngModel)]="form.email" type="email" placeholder="ravi@srilab.in" />
-            </div>
-            <div class="field">
-              <label>Role</label>
-              <select [(ngModel)]="form.role" disabled>
-                <option value="technician">Technician</option>
-              </select>
-            </div>
-            @if (!editId()) {
-              <div class="field">
-                <label>Temporary Password *</label>
-                <div class="password-input">
-                  <input [(ngModel)]="form.password" [type]="showPwd() ? 'text' : 'password'"
-                         placeholder="Set initial password" autocomplete="new-password" />
-                  <button type="button" class="pwd-toggle" (click)="showPwd.set(!showPwd())">
-                    <mat-icon>{{ showPwd() ? 'visibility_off' : 'visibility' }}</mat-icon>
+  @if (loading()) {
+    <div class="load-wrap"><app-spinner size="md" /></div>
+  } @else {
+    <div class="table-wrap">
+      <table class="tbl">
+        <thead><tr><th>Technician</th><th>Phone</th><th>Email</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead>
+        <tbody>
+          @if (techs().length === 0) { <tr><td colspan="6" class="empty-td">No technicians found.</td></tr> }
+          @for (t of techs(); track t.id) {
+            <tr>
+              <td>
+                <div class="user-cell">
+                  <app-avatar [name]="t.name" size="sm" />
+                  <span class="user-name">{{ t.name }}</span>
+                </div>
+              </td>
+              <td class="mono">{{ t.phone }}</td>
+              <td class="text-sm">{{ t.email }}</td>
+              <td><app-badge [color]="t.is_active ? 'success' : 'error'" size="sm">{{ t.is_active ? 'Active' : 'Inactive' }}</app-badge></td>
+              <td class="text-sm text-muted">{{ t.created_at | date:'dd MMM yyyy' }}</td>
+              <td>
+                <div class="row-acts">
+                  <button class="act-btn" (click)="openEdit(t)" title="Edit">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  </button>
+                  <button class="act-btn danger" (click)="remove(t)" title="Delete">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
                   </button>
                 </div>
-                <span class="field-hint">Technician must change this on first login</span>
-              </div>
-            }
-          </div>
-
-          <div class="form-actions">
-            <button class="btn-ghost" (click)="cancelEdit()">Cancel</button>
-            <button class="btn-primary" (click)="save()" [disabled]="saving()">
-              {{ saving() ? 'Saving…' : (editId() ? 'Update' : 'Create Account') }}
-            </button>
-          </div>
-        </div>
-      }
-
-      @if (loading()) { <app-loading-spinner /> }
-      @else if (error()) { <app-error-banner [message]="error()!" retryLabel="Retry" (retry)="load()" /> }
-      @else {
-        <div class="table-card">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Phone</th>
-                <th>Email</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              @if (technicians().length === 0) {
-                <tr><td colspan="5" class="empty-row">No technicians yet. Add one to get started.</td></tr>
-              }
-              @for (t of technicians(); track t.id) {
-                <tr>
-                  <td><span class="fw-600">{{ t.name }}</span></td>
-                  <td>{{ t.phone }}</td>
-                  <td>{{ t.email || '—' }}</td>
-                  <td>
-                    <span class="badge" [class]="t.is_active ? 'badge-success' : 'badge-danger'">
-                      {{ t.is_active ? 'Active' : 'Inactive' }}
-                    </span>
-                  </td>
-                  <td>
-                    <div class="row-actions">
-                      <button class="action-btn" (click)="startEdit(t)" title="Edit"><mat-icon>edit</mat-icon></button>
-                      <button class="action-btn danger" (click)="remove(t)" title="Delete"><mat-icon>delete</mat-icon></button>
-                    </div>
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
     </div>
-  `,
+  }
+
+  <!-- Modal -->
+  <app-modal [isOpen]="showModal()" [title]="editId() ? 'Edit Technician' : 'Add Technician'" size="md" (close)="closeModal()">
+    <div class="form-grid">
+      <div class="field span2"><label>Full Name *</label><input [(ngModel)]="f.name" class="inp" placeholder="Enter full name" /></div>
+      <div class="field"><label>Phone *</label><input [(ngModel)]="f.phone" class="inp" placeholder="+91 XXXXX XXXXX" /></div>
+      <div class="field"><label>Email *</label><input type="email" [(ngModel)]="f.email" class="inp" placeholder="email@example.com" /></div>
+      @if (!editId()) {
+        <div class="field span2">
+          <label>Temporary Password *</label>
+          <input [(ngModel)]="f.password" class="inp" placeholder="Min 8 chars: 1 upper, 1 lower, 1 digit, 1 special" />
+          <span class="field-hint">The technician must change this password on first login.</span>
+        </div>
+      }
+      <div class="field span2">
+        <label>Status</label>
+        <div class="radio-group">
+          <label class="radio-opt" [class.checked]="f.is_active === true"><input type="radio" [(ngModel)]="f.is_active" [value]="true" /><span>Active</span></label>
+          <label class="radio-opt" [class.checked]="f.is_active === false"><input type="radio" [(ngModel)]="f.is_active" [value]="false" /><span>Inactive</span></label>
+        </div>
+      </div>
+    </div>
+    @if (formErr()) { <p class="form-err">{{ formErr() }}</p> }
+    <div modal-footer>
+      <app-button variant="outline" (click)="closeModal()">Cancel</app-button>
+      <app-button variant="primary" [loading]="saving()" (click)="save()">{{ editId() ? 'Update' : 'Add' }} Technician</app-button>
+    </div>
+  </app-modal>
+</div>`,
   styles: [`
-    .admin-page { display: flex; flex-direction: column; gap: 1.25rem; }
-    .page-header {
-      display: flex; justify-content: space-between; align-items: flex-start;
-      h2 { font-size: 1.25rem; font-weight: 700; color: #1a202c; margin: 0; }
-      p  { font-size: .875rem; color: #718096; margin: .2rem 0 0; }
-    }
-    .btn-primary {
-      display: inline-flex; align-items: center; gap: .4rem;
-      background: #00796b; color: #fff; border: none; border-radius: 8px;
-      padding: .55rem 1.1rem; font-size: .875rem; font-weight: 600; cursor: pointer;
-      mat-icon { font-size: 1.1rem; width: 1.1rem; height: 1.1rem; }
-      &:hover { background: #00695c; }
-      &:disabled { opacity: .6; cursor: not-allowed; }
-    }
-    .btn-ghost {
-      background: none; border: 1px solid #e2e8f0; border-radius: 8px;
-      padding: .55rem 1.1rem; font-size: .875rem; cursor: pointer; color: #4a5568;
-      &:hover { background: #f7fafc; }
-    }
-    .alert-error {
-      display: flex; align-items: center; gap: .5rem;
-      padding: .75rem 1rem; border-radius: 8px; background: #fed7d7; color: #9b2c2c;
-      font-size: .875rem; margin-bottom: 1rem;
-      mat-icon { font-size: 1.1rem; width: 1.1rem; height: 1.1rem; }
-    }
-    .form-panel {
-      background: #fff; border-radius: 12px; padding: 1.5rem;
-      border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,.06);
-      h3 { font-size: 1rem; font-weight: 700; margin: 0 0 1.25rem; }
-    }
-    .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
-    .field {
-      display: flex; flex-direction: column; gap: .35rem;
-      label { font-size: .8rem; font-weight: 600; color: #4a5568; }
-      input, select {
-        border: 1px solid #e2e8f0; border-radius: 8px; padding: .5rem .75rem;
-        font-size: .875rem; color: #2d3748; background: #fff;
-        &:focus { outline: none; border-color: #00796b; box-shadow: 0 0 0 3px rgba(0,121,107,.1); }
-        &:disabled { background: #f7fafc; color: #a0aec0; }
-      }
-    }
-    .password-input { position: relative; display: flex;
-      input { flex: 1; padding-right: 2.5rem; }
-      .pwd-toggle { position: absolute; right: .4rem; top: 50%; transform: translateY(-50%);
-        background: none; border: none; cursor: pointer; padding: .2rem; color: #718096; display: flex;
-        mat-icon { font-size: 1.1rem; width: 1.1rem; height: 1.1rem; }
-      }
-    }
-    .field-hint { font-size: .75rem; color: #718096; }
-    .form-actions { display: flex; gap: .75rem; justify-content: flex-end; margin-top: 1.25rem; }
-    .table-card { background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; }
-    .data-table {
-      width: 100%; border-collapse: collapse;
-      th {
-        background: #f7fafc; padding: .7rem 1rem; text-align: left;
-        font-size: .78rem; font-weight: 600; color: #718096; text-transform: uppercase;
-        letter-spacing: .05em; border-bottom: 1px solid #e2e8f0;
-      }
-      td { padding: .8rem 1rem; border-bottom: 1px solid #f0f4f8; font-size: .875rem; color: #2d3748; }
-      tr:last-child td { border-bottom: none; }
-      tr:hover td { background: #f7fafc; }
-    }
-    .fw-600 { font-weight: 600; }
-    .empty-row { text-align: center; color: #a0aec0; padding: 2rem !important; }
-    .badge {
-      display: inline-flex; padding: .2rem .6rem; border-radius: 999px; font-size: .75rem; font-weight: 600;
-      &.badge-success { background: #c6f6d5; color: #276749; }
-      &.badge-danger  { background: #fed7d7; color: #9b2c2c; }
-    }
-    .row-actions { display: flex; gap: .25rem; }
-    .action-btn {
-      background: none; border: none; cursor: pointer; padding: .3rem; border-radius: 6px;
-      display: inline-flex; align-items: center; color: #718096;
-      mat-icon { font-size: 1.1rem; width: 1.1rem; height: 1.1rem; }
-      &:hover { background: #f0f4f8; color: #2d3748; }
-      &.danger:hover { background: #fed7d7; color: #e53e3e; }
-    }
-  `],
+    .page { display:flex; flex-direction:column; gap:1.25rem; }
+    .page-header { display:flex; justify-content:space-between; align-items:flex-start; }
+    .page-title { font-size:1.5rem; font-weight:700; color:#0F172A; margin:0 0 0.25rem 0; }
+    .page-sub { font-size:0.875rem; color:#475569; margin:0; }
+    .load-wrap { display:flex; justify-content:center; padding:3rem; }
+    .table-wrap { background:#FFFFFF; border:1px solid #F1F5F9; border-radius:1rem; overflow:hidden; }
+    .tbl { width:100%; border-collapse:collapse; thead tr { background:#F8FAFC; } th { padding:0.75rem 1rem; text-align:left; font-size:0.75rem; font-weight:600; color:#94A3B8; text-transform:uppercase; letter-spacing:0.025em; border-bottom:1px solid #F1F5F9; } td { padding:0.875rem 1rem; border-bottom:1px solid #F1F5F9; font-size:0.875rem; color:#0F172A; } tbody tr:last-child td { border-bottom:none; } tbody tr:hover td { background:#F8FAFC; } }
+    .user-cell { display:flex; align-items:center; gap:0.75rem; }
+    .user-name { font-weight:500; }
+    .mono { font-family:'JetBrains Mono','SF Mono','Fira Code',monospace; font-size:0.75rem; }
+    .text-sm { font-size:0.875rem; }
+    .text-muted { color:#94A3B8; }
+    .empty-td { text-align:center; color:#94A3B8; padding:3rem !important; }
+    .row-acts { display:flex; gap:0.5rem; }
+    .act-btn { display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border:1px solid #E2E8F0; border-radius:0.5rem; background:#FFFFFF; cursor:pointer; transition:all 150ms; color:#475569; svg { width:15px; height:15px; } &:hover { background:#E6FFFA; border-color:#4FD1C5; color:#2C7A7B; } &.danger:hover { background:#FEF2F2; border-color:#FCA5A5; color:#DC2626; } }
+    .form-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:1rem; }
+    .field { display:flex; flex-direction:column; gap:0.375rem; &.span2 { grid-column:span 2; } label { font-size:0.875rem; font-weight:500; color:#0F172A; } }
+    .inp { border:1px solid #E2E8F0; border-radius:0.75rem; padding:0.625rem 0.875rem; font-size:0.875rem; color:#0F172A; background:#FFFFFF; width:100%; box-sizing:border-box; &:focus { outline:none; border-color:#319795; box-shadow:0 0 0 3px rgba(49,151,149,.1); } }
+    .radio-group { display:flex; gap:0.75rem; }
+    .radio-opt { display:flex; align-items:center; gap:0.5rem; padding:0.625rem 1rem; border:1px solid #E2E8F0; border-radius:0.75rem; cursor:pointer; font-size:0.875rem; transition:all 150ms; input { accent-color:#2C7A7B; } &:hover, &.checked { border-color:#319795; background:#E6FFFA; color:#285E61; } }
+    .form-err { font-size:0.875rem; color:#DC2626; margin:0.5rem 0 0 0; }
+    .field-hint { font-size:0.75rem; color:#94A3B8; }
+  `]
 })
 export class AdminTechniciansComponent implements OnInit {
   loading = signal(false);
   saving = signal(false);
-  error = signal<string | null>(null);
-  formError = signal<string | null>(null);
-  technicians = signal<Technician[]>([]);
-  formMode = signal(false);
+  error = signal('');
+  success = signal('');
+  formErr = signal('');
+  techs = signal<Technician[]>([]);
+  showModal = signal(false);
   editId = signal<string | null>(null);
-  showPwd = signal(false);
+  f = { name:'', phone:'', email:'', password:'', is_active:true };
 
-  form: any = { name: '', phone: '', email: '', role: 'technician', password: '' };
-
-  constructor(
-    private adminApi: AdminApiService,
-    private http: HttpClient,
-    private snack: MatSnackBar,
-  ) {}
-
+  constructor(private adminApi: AdminApiService) {}
   ngOnInit() { this.load(); }
 
   load() {
     this.loading.set(true);
     this.adminApi.getTechnicians().subscribe({
-      next: (res: any) => { this.technicians.set(res.items ?? res); this.loading.set(false); },
-      error: (err: any) => { this.error.set(err.error?.message || 'Failed to load'); this.loading.set(false); },
+      next: (r: any) => { this.techs.set(r.items || r); this.loading.set(false); },
+      error: () => { this.error.set('Failed to load technicians.'); this.loading.set(false); }
     });
   }
 
-  startCreate() {
-    this.form = { name: '', phone: '', email: '', role: 'technician', password: '' };
-    this.editId.set(null);
-    this.formError.set(null);
-    this.formMode.set(true);
-  }
-
-  startEdit(t: Technician) {
-    this.form = { name: t.name, phone: t.phone, email: t.email || '', role: 'technician', password: '' };
-    this.editId.set(t.id);
-    this.formError.set(null);
-    this.formMode.set(true);
-  }
-
-  cancelEdit() {
-    this.formMode.set(false);
-    this.editId.set(null);
-    this.formError.set(null);
-  }
+  openCreate() { this.editId.set(null); this.f = { name:'', phone:'', email:'', password:'', is_active:true }; this.formErr.set(''); this.showModal.set(true); }
+  openEdit(t: Technician) { this.editId.set(t.id); this.f = { name:t.name, phone:t.phone, email:t.email, password:'', is_active:t.is_active }; this.formErr.set(''); this.showModal.set(true); }
+  closeModal() { this.showModal.set(false); this.editId.set(null); }
 
   save() {
-    if (!this.form.name?.trim() || !this.form.phone?.trim() || !this.form.email?.trim()) {
-      this.formError.set('Name, phone, and email are required.');
+    if (!this.f.name.trim()) { this.formErr.set('Name is required.'); return; }
+    if (!this.f.phone.trim()) { this.formErr.set('Phone is required.'); return; }
+    if (!this.f.email.trim()) { this.formErr.set('Email is required.'); return; }
+    const id = this.editId();
+    if (!id && this.f.password.trim().length < 8) {
+      this.formErr.set('Temporary password must be at least 8 characters.');
       return;
     }
-    if (!this.editId() && !this.form.password?.trim()) {
-      this.formError.set('Password is required for new technician accounts.');
-      return;
-    }
-
     this.saving.set(true);
-    this.formError.set(null);
-
-    if (this.editId()) {
-      this.adminApi.updateTechnician(this.editId()!, {
-        name: this.form.name, phone: this.form.phone, email: this.form.email,
-      }).subscribe({
-        next: () => { this.saving.set(false); this.cancelEdit(); this.load(); this.snack.open('Technician updated.', 'OK', { duration: 3000 }); },
-        error: (err: any) => { this.formError.set(err.error?.message || 'Failed to save'); this.saving.set(false); },
+    this.formErr.set('');
+    if (id) {
+      this.adminApi.updateTechnician(id, { name: this.f.name, phone: this.f.phone, email: this.f.email, is_active: this.f.is_active }).subscribe({
+        next: () => { this.saving.set(false); this.closeModal(); this.load(); },
+        error: err => { this.formErr.set(this.errMsg(err, 'Failed to save.')); this.saving.set(false); }
       });
     } else {
-      this.http.post('/technicians/create-account', {
-        name: this.form.name,
-        phone: this.form.phone,
-        email: this.form.email,
-        password: this.form.password,
-      }).subscribe({
-        next: () => { this.saving.set(false); this.cancelEdit(); this.load(); this.snack.open('Technician account created.', 'OK', { duration: 3000 }); },
-        error: (err: any) => { this.formError.set(this.extractError(err)); this.saving.set(false); },
+      this.adminApi.createTechnicianAccount({ name: this.f.name.trim(), phone: this.f.phone.trim(), email: this.f.email.trim().toLowerCase(), password: this.f.password }).subscribe({
+        next: () => {
+          this.saving.set(false);
+          this.success.set(`Technician account created for ${this.f.name.trim()}. They can sign in with their email/phone and the temporary password, and will be asked to change it on first login.`);
+          this.closeModal();
+          this.load();
+        },
+        error: err => { this.formErr.set(this.errMsg(err, 'Failed to create account.')); this.saving.set(false); }
       });
     }
   }
 
-  private extractError(err: any): string {
-    const detail = err.error?.detail;
-    if (Array.isArray(detail) && detail.length > 0) {
-      return detail.map((d: any) => d.msg?.replace(/^Value error,\s*/i, '') ?? d.type).join('; ');
-    }
-    return detail?.message || err.error?.message || 'Failed to create account';
+  private errMsg(err: any, fallback: string): string {
+    const d = err?.error?.detail;
+    if (typeof d === 'string') return d;
+    if (Array.isArray(d) && d[0]?.msg) return d[0].msg;
+    if (d?.message) return d.message;
+    return fallback;
   }
 
-  remove(t: Technician) {
-    if (!confirm(`Delete technician "${t.name}"? This cannot be undone.`)) return;
-    this.adminApi.deleteTechnician(t.id).subscribe({
-      next: () => { this.load(); this.snack.open('Technician deleted.', 'OK', { duration: 3000 }); },
-      error: (err: any) => this.error.set(err.error?.message || 'Failed to delete'),
-    });
-  }
+  remove(t: Technician) { if (!confirm(`Delete ${t.name}?`)) return; this.adminApi.deleteTechnician(t.id).subscribe({ next: () => this.load() }); }
 }

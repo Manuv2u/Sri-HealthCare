@@ -1,0 +1,147 @@
+// Register Component Styles
+// Inherits from global auth-styles.scss
+
+// Additional component-specific animations
+@keyframes brandFeatureEnter {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes formFieldEnter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes strengthBarEnter {
+  from {
+    opacity: 0;
+    transform: scaleY(0);
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+// Staggered animations for features
+.auth-brand__feature {
+  animation: brandFeatureEnter 0.4s cubic-bezier(0, 0, 0.2, 1) both;
+  
+  @for $i from 1 through 4 {
+    &:nth-child(#{$i}) {
+      animation-delay: #{0.1 + ($i * 0.08)}s;
+    }
+  }
+}
+
+// Staggered animations for form fields
+.auth-form__group,
+.auth-form__terms,
+.auth-form__submit {
+  animation: formFieldEnter 0.35s cubic-bezier(0, 0, 0.2, 1) both;
+}
+
+.auth-form__group:nth-child(1) { animation-delay: 0.05s; }
+.auth-form__group:nth-child(2) { animation-delay: 0.1s; }
+.auth-form__group:nth-child(3) { animation-delay: 0.15s; }
+.auth-form__group:nth-child(4) { animation-delay: 0.2s; }
+.auth-form__group:nth-child(5) { animation-delay: 0.25s; }
+.auth-form__terms { animation-delay: 0.3s; }
+.auth-form__submit { animation-delay: 0.35s; }
+
+// Password strength indicator animation
+.password-strength {
+  animation: strengthBarEnter 0.3s cubic-bezier(0, 0, 0.2, 1) both;
+  transform-origin: top;
+}
+
+// Testimonial card animation
+.auth-brand__testimonial-card {
+  animation: brandFeatureEnter 0.5s cubic-bezier(0, 0, 0.2, 1) both;
+  animation-delay: 0.5s;
+}
+
+// Enhanced hover states
+.auth-brand__feature:hover {
+  .auth-brand__feature-icon {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px) scale(1.05);
+  }
+}
+
+// Footer animation
+.auth-footer {
+  animation: formFieldEnter 0.35s cubic-bezier(0, 0, 0.2, 1) both;
+  animation-delay: 0.4s;
+}
+
+// Register card specific - slightly more padding on top to account for more fields
+.auth-card--register {
+  .auth-card__header {
+    margin-bottom: var(--space-6);
+  }
+}
+
+// Focus improvements for accessibility
+.auth-form__terms-checkbox input:focus-visible {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: 2px;
+}
+
+.auth-footer__link:focus-visible {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.auth-form__terms-text a:focus-visible {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+// Responsive adjustments
+@media (max-width: 480px) {
+  .auth-card--register {
+    padding: var(--space-5);
+  }
+  
+  .auth-card__title {
+    font-size: var(--text-xl);
+  }
+  
+  .auth-form {
+    gap: var(--space-4);
+  }
+  
+  .auth-form__terms-text {
+    font-size: var(--text-xs);
+  }
+}
+
+// For tablets - adjust form padding
+@media (min-width: 481px) and (max-width: 1023px) {
+  .auth-card--register {
+    max-width: 520px;
+    margin: 0 auto;
+  }
+}
+
+// Large screens - ensure content stays centered
+@media (min-width: 1440px) {
+  .auth-content__inner {
+    max-width: 520px;
+  }
+}

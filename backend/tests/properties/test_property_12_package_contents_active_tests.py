@@ -14,8 +14,6 @@ For any package P containing a set of tests T, after soft-deleting a subset S âŠ
 """
 from __future__ import annotations
 
-import sys
-import types
 import uuid
 from datetime import datetime, timezone
 
@@ -39,7 +37,7 @@ class Base(DeclarativeBase):
     pass
 
 
-class Test(Base):
+class LabTest(Base):
     __tablename__ = "tests"
 
     id: Mapped[uuid.UUID] = mapped_column(PG_UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -54,7 +52,7 @@ class Test(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=datetime.utcnow)
 
-    package_tests: Mapped[list["PackageTest"]] = relationship("PackageTest", back_populates="test")
+    package_tests: Mapped[list["PackageTest"]] = relationship("PackageTest", back_populates="lab_test")
 
 
 class Package(Base):
@@ -84,23 +82,13 @@ class PackageTest(Base):
     )
 
     package: Mapped["Package"] = relationship("Package", back_populates="package_tests")
-    test: Mapped["Test"] = relationship("Test", back_populates="package_tests")
+    lab_test: Mapped["LabTest"] = relationship("LabTest", back_populates="package_tests")
 
 
 # ---------------------------------------------------------------------------
-# Inject test models into sys.modules so repositories import them correctly
+# Note: This test uses standalone SQLite models that don't interfere with 
+# the actual app models. The models are only used within this test file.
 # ---------------------------------------------------------------------------
-
-_base_module = types.ModuleType("app.models.base")
-_base_module.Base = Base
-_base_module.TimestampMixin = object
-sys.modules.setdefault("app.models.base", _base_module)
-
-_test_model_module = types.ModuleType("app.models.test")
-_test_model_module.Test = Test
-_test_model_module.Package = Package
-_test_model_module.PackageTest = PackageTest
-sys.modules["app.models.test"] = _test_model_module
 
 
 # ---------------------------------------------------------------------------
@@ -127,9 +115,9 @@ async def pkg_db_session():
 # Helpers
 # ---------------------------------------------------------------------------
 
-async def _create_test(db: AsyncSession, name: str) -> Test:
-    """Insert a Test row directly (SQLite-compatible)."""
-    t = Test(
+async def _create_test(db: AsyncSession, name: str) -> LabTest:
+    """Insert a LabTest row directly (SQLite-compatible)."""
+    t = LabTest(
         id=uuid.uuid4(),
         name=name,
         category="blood",
@@ -172,21 +160,21 @@ async def _soft_delete_test(db: AsyncSession, test_id: uuid.UUID) -> None:
     """Soft-delete a test by setting deleted_at and is_active=False."""
     from sqlalchemy import update
     await db.execute(
-        update(Test)
-        .where(Test.id == test_id)
+        update(LabTest)
+        .where(LabTest.id == test_id)
         .values(deleted_at=datetime.now(timezone.utc), is_active=False)
     )
     await db.flush()
 
 
-async def _get_active_tests(db: AsyncSession, package_id: uuid.UUID) -> list[Test]:
+async def _get_active_tests(db: AsyncSession, package_id: uuid.UUID) -> list[LabTest]:
     """Return only active (non-deleted) tests for a package."""
     result = await db.execute(
-        select(Test)
-        .join(PackageTest, PackageTest.test_id == Test.id)
+        select(LabTest)
+        .join(PackageTest, PackageTest.test_id == LabTest.id)
         .where(
             PackageTest.package_id == package_id,
-            Test.deleted_at.is_(None),
+            LabTest.deleted_at.is_(None),
         )
     )
     return list(result.scalars().all())
@@ -218,7 +206,7 @@ test_names_strategy = st.lists(
 # ---------------------------------------------------------------------------
 
 
-@settings(max_examples=100, suppress_health_check=[HealthCheck.too_slow])
+@settings(max_examples=100, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
 @given(test_names=test_names_strategy, delete_fraction=st.floats(min_value=0.0, max_value=1.0))
 @pytest.mark.asyncio
 async def test_soft_deleted_tests_excluded_from_package_contents(

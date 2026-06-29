@@ -1,197 +1,142 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { AdminApiService } from '../../../core/api/services/admin-api.service';
-import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner.component';
-import { ErrorBannerComponent } from '../../../shared/components/error-banner.component';
-import { PaginationComponent } from '../../../shared/components/pagination.component';
+import { BadgeComponent } from '../../../shared/components/badge/badge.component';
+import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
+import { ButtonComponent } from '../../../shared/components/button/button.component';
+import { AvatarComponent } from '../../../shared/components/avatar/avatar.component';
 
 @Component({
   selector: 'app-admin-users',
   standalone: true,
-  imports: [
-    CommonModule, FormsModule,
-    MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule, MatSelectModule,
-    LoadingSpinnerComponent, ErrorBannerComponent, PaginationComponent,
-  ],
+  imports: [CommonModule, FormsModule, BadgeComponent, SpinnerComponent, ButtonComponent, AvatarComponent],
   template: `
-    <div class="admin-page">
-      <!-- Stats row -->
-      @if (stats()) {
-        <div class="stats-row">
-          <div class="stat-card">
-            <span class="stat-value">{{ stats().total }}</span>
-            <span class="stat-label">Total Users</span>
-          </div>
-          <div class="stat-card success">
-            <span class="stat-value">{{ stats().active }}</span>
-            <span class="stat-label">Active</span>
-          </div>
-          <div class="stat-card warn">
-            <span class="stat-value">{{ stats().inactive }}</span>
-            <span class="stat-label">Inactive</span>
-          </div>
-          @for (entry of roleEntries(); track entry.role) {
-            <div class="stat-card info">
-              <span class="stat-value">{{ entry.count }}</span>
-              <span class="stat-label">{{ entry.role | titlecase }}</span>
-            </div>
-          }
-        </div>
-      }
+<div class="page">
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">User Management</h1>
+      <p class="page-sub">Manage patient accounts and access control</p>
+    </div>
+  </div>
 
-      <!-- Filters -->
-      <div class="filter-bar">
-        <div class="search-wrap">
-          <mat-icon class="search-icon">search</mat-icon>
-          <input class="search-input" placeholder="Search name, phone, email…" [(ngModel)]="searchQ" (input)="onSearch()" />
-        </div>
-        <select class="filter-select" [(ngModel)]="roleFilter" (change)="load()">
-          <option value="">All Roles</option>
-          <option value="user">User</option>
-          <option value="admin">Admin</option>
-          <option value="technician">Technician</option>
-        </select>
-        <select class="filter-select" [(ngModel)]="activeFilter" (change)="load()">
-          <option value="">All Status</option>
-          <option value="true">Active</option>
-          <option value="false">Inactive</option>
-        </select>
-      </div>
-
-      @if (loading()) {
-        <app-loading-spinner />
-      } @else if (error()) {
-        <app-error-banner [message]="error()!" retryLabel="Retry" (retry)="load()" />
-      } @else {
-        <div class="table-card">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Phone</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Status</th>
-                <th>Joined</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              @if (users().length === 0) {
-                <tr><td colspan="7" class="empty-row">No users found</td></tr>
-              }
-              @for (u of users(); track u.id) {
-                <tr>
-                  <td><span class="user-name">{{ u.name }}</span></td>
-                  <td>{{ u.phone || '—' }}</td>
-                  <td>{{ u.email || '—' }}</td>
-                  <td><span class="badge" [class]="'badge-' + u.role">{{ u.role }}</span></td>
-                  <td>
-                    <span class="badge" [class]="u.is_active ? 'badge-success' : 'badge-danger'">
-                      {{ u.is_active ? 'Active' : 'Inactive' }}
-                    </span>
-                  </td>
-                  <td>{{ u.created_at | date:'dd MMM yyyy' }}</td>
-                  <td>
-                    @if (u.is_active) {
-                      <button class="action-btn danger" (click)="deactivate(u)" title="Deactivate">
-                        <mat-icon>block</mat-icon>
-                      </button>
-                    } @else {
-                      <button class="action-btn success" (click)="activate(u)" title="Activate">
-                        <mat-icon>check_circle</mat-icon>
-                      </button>
-                    }
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-
-        <app-pagination [page]="page()" [total]="total()" [pageSize]="pageSize" (pageChange)="onPage($event)" />
+  <!-- Stats -->
+  @if (stats()) {
+    <div class="stats-row">
+      <div class="stat-chip"><span class="sc-val">{{ stats().total }}</span><span class="sc-lbl">Total</span></div>
+      <div class="stat-chip success"><span class="sc-val">{{ stats().active }}</span><span class="sc-lbl">Active</span></div>
+      <div class="stat-chip warning"><span class="sc-val">{{ stats().inactive }}</span><span class="sc-lbl">Inactive</span></div>
+      @for (e of roleEntries(); track e.role) {
+        <div class="stat-chip info"><span class="sc-val">{{ e.count }}</span><span class="sc-lbl">{{ e.role | titlecase }}</span></div>
       }
     </div>
-  `,
+  }
+
+  <!-- Filters -->
+  <div class="filter-bar">
+    <div class="search-field">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input placeholder="Search name, phone, email…" [(ngModel)]="searchQ" (input)="onSearch()" />
+    </div>
+    <select class="filter-sel" [(ngModel)]="roleFilter" (change)="load()">
+      <option value="">All Roles</option>
+      <option value="user">Patient</option>
+      <option value="admin">Admin</option>
+      <option value="technician">Technician</option>
+    </select>
+    <select class="filter-sel" [(ngModel)]="activeFilter" (change)="load()">
+      <option value="">All Status</option>
+      <option value="true">Active</option>
+      <option value="false">Inactive</option>
+    </select>
+  </div>
+
+  @if (loading()) {
+    <div class="load-wrap"><app-spinner size="md" /></div>
+  } @else {
+    <!-- Table -->
+    <div class="table-wrap">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>User</th><th>Phone</th><th>Email</th><th>Role</th><th>Status</th><th>Joined</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (users().length === 0) {
+            <tr><td colspan="7" class="empty-td">No users found</td></tr>
+          }
+          @for (u of users(); track u.id) {
+            <tr>
+              <td>
+                <div class="user-cell">
+                  <app-avatar [name]="u.name" size="sm" />
+                  <span class="user-name">{{ u.name }}</span>
+                </div>
+              </td>
+              <td class="mono">{{ u.phone || '—' }}</td>
+              <td class="text-sm">{{ u.email || '—' }}</td>
+              <td><app-badge [color]="roleColor(u.role)" size="sm">{{ u.role | titlecase }}</app-badge></td>
+              <td><app-badge [color]="u.is_active ? 'success' : 'error'" size="sm">{{ u.is_active ? 'Active' : 'Inactive' }}</app-badge></td>
+              <td class="text-sm text-muted">{{ u.created_at | date:'dd MMM yyyy' }}</td>
+              <td>
+                @if (u.is_active) {
+                  <button class="act-btn danger" (click)="deactivate(u)" title="Deactivate">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+                  </button>
+                } @else {
+                  <button class="act-btn success" (click)="activate(u)" title="Activate">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  </button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    @if (total() > pageSize) {
+      <div class="pagination">
+        <button class="pg-btn" [disabled]="page() === 1" (click)="onPage(page()-1)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <span class="pg-info">Page {{ page() }} of {{ totalPages() }}</span>
+        <button class="pg-btn" [disabled]="page() >= totalPages()" (click)="onPage(page()+1)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    }
+  }
+</div>`,
   styles: [`
-    .admin-page { display: flex; flex-direction: column; gap: 1.25rem; }
-
-    .stats-row {
-      display: flex; gap: 1rem; flex-wrap: wrap;
-    }
-    .stat-card {
-      background: #fff; border-radius: 10px; padding: 1rem 1.5rem;
-      border: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: .2rem;
-      min-width: 120px;
-      &.success .stat-value { color: #38a169; }
-      &.warn .stat-value { color: #d69e2e; }
-      &.info .stat-value { color: #3182ce; }
-    }
-    .stat-value { font-size: 1.75rem; font-weight: 700; color: #1a202c; }
-    .stat-label { font-size: .8rem; color: #718096; font-weight: 500; text-transform: uppercase; letter-spacing: .04em; }
-
-    .filter-bar {
-      display: flex; gap: .75rem; align-items: center; flex-wrap: wrap;
-    }
-    .search-wrap {
-      display: flex; align-items: center; gap: .5rem;
-      background: #fff; border: 1px solid #e2e8f0; border-radius: 8px;
-      padding: .4rem .75rem; flex: 1; min-width: 200px;
-      mat-icon { color: #a0aec0; font-size: 1.1rem; width: 1.1rem; height: 1.1rem; }
-    }
-    .search-input {
-      border: none; outline: none; font-size: .9rem; width: 100%; background: transparent;
-    }
-    .filter-select {
-      border: 1px solid #e2e8f0; border-radius: 8px; padding: .5rem .75rem;
-      font-size: .875rem; background: #fff; color: #2d3748; cursor: pointer;
-      &:focus { outline: none; border-color: #00796b; }
-    }
-
-    .table-card {
-      background: #fff; border-radius: 10px; border: 1px solid #e2e8f0; overflow: hidden;
-    }
-    .data-table {
-      width: 100%; border-collapse: collapse;
-      th {
-        background: #f7fafc; padding: .75rem 1rem; text-align: left;
-        font-size: .8rem; font-weight: 600; color: #718096; text-transform: uppercase;
-        letter-spacing: .05em; border-bottom: 1px solid #e2e8f0;
-      }
-      td {
-        padding: .85rem 1rem; border-bottom: 1px solid #f0f4f8;
-        font-size: .875rem; color: #2d3748;
-      }
-      tr:last-child td { border-bottom: none; }
-      tr:hover td { background: #f7fafc; }
-    }
-    .user-name { font-weight: 600; }
-    .empty-row { text-align: center; color: #a0aec0; padding: 2rem !important; }
-
-    .badge {
-      display: inline-flex; align-items: center; padding: .2rem .6rem;
-      border-radius: 999px; font-size: .75rem; font-weight: 600;
-      &.badge-user       { background: #ebf8ff; color: #2b6cb0; }
-      &.badge-admin      { background: #faf5ff; color: #6b46c1; }
-      &.badge-technician { background: #fffaf0; color: #c05621; }
-      &.badge-success    { background: #c6f6d5; color: #276749; }
-      &.badge-danger     { background: #fed7d7; color: #9b2c2c; }
-    }
-
-    .action-btn {
-      background: none; border: none; cursor: pointer; padding: .3rem;
-      border-radius: 6px; display: inline-flex; align-items: center;
-      mat-icon { font-size: 1.1rem; width: 1.1rem; height: 1.1rem; }
-      &.danger { color: #e53e3e; &:hover { background: #fed7d7; } }
-      &.success { color: #38a169; &:hover { background: #c6f6d5; } }
-    }
-  `],
+    .page { display:flex; flex-direction:column; gap:1.25rem; }
+    .page-header { display:flex; justify-content:space-between; align-items:flex-start; }
+    .page-title { font-size:1.5rem; font-weight:700; color:#0F172A; margin:0 0 0.25rem 0; }
+    .page-sub { font-size:0.875rem; color:#475569; margin:0; }
+    .stats-row { display:flex; gap:0.75rem; flex-wrap:wrap; }
+    .stat-chip { background:#FFFFFF; border:1px solid #F1F5F9; border-radius:1rem; padding:0.75rem 1.25rem; display:flex; flex-direction:column; gap:2px; min-width:90px; &.success .sc-val { color:#2F855A; } &.warning .sc-val { color:#D97706; } &.info .sc-val { color:#0284C7; } }
+    .sc-val { font-size:1.5rem; font-weight:700; color:#0F172A; line-height:1; }
+    .sc-lbl { font-size:0.75rem; color:#94A3B8; font-weight:500; text-transform:uppercase; letter-spacing:0.025em; }
+    .filter-bar { display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap; }
+    .search-field { display:flex; align-items:center; gap:0.5rem; background:#FFFFFF; border:1px solid #E2E8F0; border-radius:0.75rem; padding:0.625rem 1rem; flex:1; min-width:220px; svg { width:18px; height:18px; color:#94A3B8; flex-shrink:0; } input { border:none; outline:none; font-size:0.875rem; color:#0F172A; background:transparent; width:100%; &::placeholder { color:#94A3B8; } } &:focus-within { border-color:#319795; box-shadow:0 0 0 3px rgba(49,151,149,.1); } }
+    .filter-sel { height:40px; padding:0 1rem; font-size:0.875rem; color:#0F172A; background:#FFFFFF; border:1px solid #E2E8F0; border-radius:0.75rem; cursor:pointer; &:focus { outline:none; border-color:#319795; } }
+    .load-wrap { display:flex; justify-content:center; padding:3rem; }
+    .table-wrap { background:#FFFFFF; border:1px solid #F1F5F9; border-radius:1rem; overflow:hidden; }
+    .tbl { width:100%; border-collapse:collapse; thead tr { background:#F8FAFC; } th { padding:0.75rem 1rem; text-align:left; font-size:0.75rem; font-weight:600; color:#94A3B8; text-transform:uppercase; letter-spacing:0.025em; border-bottom:1px solid #F1F5F9; } td { padding:0.875rem 1rem; border-bottom:1px solid #F1F5F9; font-size:0.875rem; color:#0F172A; } tbody tr:last-child td { border-bottom:none; } tbody tr:hover td { background:#F8FAFC; } }
+    .user-cell { display:flex; align-items:center; gap:0.75rem; }
+    .user-name { font-weight:500; }
+    .mono { font-family:'JetBrains Mono','SF Mono','Fira Code',monospace; font-size:0.75rem; }
+    .text-sm { font-size:0.875rem; }
+    .text-muted { color:#94A3B8; }
+    .empty-td { text-align:center; color:#94A3B8; padding:3rem !important; }
+    .act-btn { display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border:1px solid #E2E8F0; border-radius:0.5rem; background:#FFFFFF; cursor:pointer; transition:all 150ms; svg { width:16px; height:16px; } &.danger { color:#EF4444; &:hover { background:#FEF2F2; border-color:#FCA5A5; } } &.success { color:#38A169; &:hover { background:#F0FFF4; border-color:#68D391; } } }
+    .pagination { display:flex; align-items:center; justify-content:center; gap:1rem; }
+    .pg-btn { display:flex; align-items:center; justify-content:center; width:36px; height:36px; border:1px solid #E2E8F0; border-radius:0.5rem; background:#FFFFFF; cursor:pointer; transition:all 150ms; &:hover:not(:disabled) { border-color:#38B2AC; color:#2C7A7B; } &:disabled { opacity:.4; cursor:not-allowed; } }
+    .pg-info { font-size:0.875rem; color:#475569; }
+  `]
 })
 export class AdminUsersComponent implements OnInit {
   pageSize = 20;
@@ -199,65 +144,26 @@ export class AdminUsersComponent implements OnInit {
   roleFilter = '';
   activeFilter = '';
   private searchTimer: any;
-
   loading = signal(false);
-  error = signal<string | null>(null);
   users = signal<any[]>([]);
   total = signal(0);
   page = signal(1);
   stats = signal<any>(null);
-
-  roleEntries = () => {
-    const s = this.stats();
-    if (!s?.by_role) return [];
-    return Object.entries(s.by_role).map(([role, count]) => ({ role, count }));
-  };
-
+  totalPages = computed(() => Math.ceil(this.total() / this.pageSize));
+  roleEntries = () => { const s = this.stats(); if (!s?.by_role) return []; return Object.entries(s.by_role).map(([role, count]) => ({ role, count })); };
   constructor(private adminApi: AdminApiService) {}
-
-  ngOnInit() {
-    this.loadStats();
-    this.load();
-  }
-
-  loadStats() {
-    this.adminApi.getUserStats().subscribe({ next: (s) => this.stats.set(s), error: () => {} });
-  }
-
+  ngOnInit() { this.adminApi.getUserStats().subscribe({ next: s => this.stats.set(s), error: () => {} }); this.load(); }
   load() {
     this.loading.set(true);
-    this.error.set(null);
-    const params: any = { page: this.page(), page_size: this.pageSize };
-    if (this.searchQ) params.q = this.searchQ;
-    if (this.roleFilter) params.role = this.roleFilter;
-    if (this.activeFilter !== '') params.is_active = this.activeFilter;
-
-    this.adminApi.getUsers(params).subscribe({
-      next: (res: any) => {
-        this.users.set(res.items);
-        this.total.set(res.total);
-        this.loading.set(false);
-      },
-      error: (err: any) => {
-        this.error.set(err.error?.message || 'Failed to load users');
-        this.loading.set(false);
-      },
-    });
+    const p: any = { page: this.page(), page_size: this.pageSize };
+    if (this.searchQ) p.q = this.searchQ;
+    if (this.roleFilter) p.role = this.roleFilter;
+    if (this.activeFilter !== '') p.is_active = this.activeFilter;
+    this.adminApi.getUsers(p).subscribe({ next: r => { this.users.set(r.items); this.total.set(r.total); this.loading.set(false); }, error: () => this.loading.set(false) });
   }
-
-  onSearch() {
-    clearTimeout(this.searchTimer);
-    this.searchTimer = setTimeout(() => { this.page.set(1); this.load(); }, 400);
-  }
-
+  onSearch() { clearTimeout(this.searchTimer); this.searchTimer = setTimeout(() => { this.page.set(1); this.load(); }, 400); }
   onPage(p: number) { this.page.set(p); this.load(); }
-
-  activate(u: any) {
-    this.adminApi.activateUser(u.id).subscribe({ next: () => { this.load(); this.loadStats(); }, error: () => {} });
-  }
-
-  deactivate(u: any) {
-    if (!confirm(`Deactivate ${u.name}?`)) return;
-    this.adminApi.deactivateUser(u.id).subscribe({ next: () => { this.load(); this.loadStats(); }, error: () => {} });
-  }
+  activate(u: any) { this.adminApi.activateUser(u.id).subscribe({ next: () => this.load() }); }
+  deactivate(u: any) { if (!confirm(`Deactivate ${u.name}?`)) return; this.adminApi.deactivateUser(u.id).subscribe({ next: () => this.load() }); }
+  roleColor(r: string) { const m: Record<string,string> = { user:'primary', admin:'secondary', technician:'accent' }; return m[r] ?? 'default'; }
 }

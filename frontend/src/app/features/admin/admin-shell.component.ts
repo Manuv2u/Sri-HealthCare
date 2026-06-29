@@ -88,7 +88,7 @@ const NAV_ITEMS = NAV_SECTIONS.flatMap(s => s.items);
 
         <!-- Nav sections -->
         <nav class="sidebar-nav">
-          @for (section of navSections; track section.heading ?? 'top'; let first = $first) {
+          @for (section of navSections; track $index; let first = $first) {
             @if (!first) {
               <div class="nav-divider"></div>
             }
@@ -181,7 +181,7 @@ const NAV_ITEMS = NAV_SECTIONS.flatMap(s => s.items);
 
         <!-- Content -->
         <div class="admin-content">
-          <router-outlet />
+          <router-outlet></router-outlet>
         </div>
 
       </div>

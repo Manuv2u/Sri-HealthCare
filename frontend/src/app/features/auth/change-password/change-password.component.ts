@@ -1,10 +1,12 @@
 // TODO(TEMP_PASSWORD_AUTH): Remove this component when replacing password-based auth.
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Location } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthApiService } from '../../../core/api/services/auth-api.service';
+import { AuthStateService } from '../../../core/auth/auth-state.service';
 
 function passwordsMatch(control: AbstractControl): ValidationErrors | null {
   const pw = control.get('newPassword')?.value;
@@ -20,18 +22,27 @@ function passwordsMatch(control: AbstractControl): ValidationErrors | null {
     <div class="auth-page">
       <div class="auth-card">
         <div class="card-header">
-          <button class="btn-back" (click)="goBack()" type="button">
-            <mat-icon>arrow_back</mat-icon>
-          </button>
+          @if (!firstLogin) {
+            <button class="btn-back" (click)="goBack()" type="button">
+              <mat-icon>arrow_back</mat-icon>
+            </button>
+          }
           <div class="title-block">
-            <h2>Change Password</h2>
-            <p>Update your account password</p>
+            <h2>{{ firstLogin ? 'Set Your Password' : 'Change Password' }}</h2>
+            <p>{{ firstLogin ? 'You are using a temporary password. Please set a new password to continue.' : 'Update your account password' }}</p>
           </div>
         </div>
 
+        @if (firstLogin && !success()) {
+          <div class="alert info">
+            <mat-icon>info</mat-icon> Enter the temporary password you were given as your current password.
+          </div>
+        }
+
         @if (success()) {
           <div class="alert success">
-            <mat-icon>check_circle</mat-icon> Password changed successfully!
+            <mat-icon>check_circle</mat-icon>
+            {{ firstLogin ? 'Password set successfully! Redirecting…' : 'Password changed successfully!' }}
           </div>
         } @else {
           @if (error()) {
@@ -107,6 +118,7 @@ function passwordsMatch(control: AbstractControl): ValidationErrors | null {
       mat-icon { font-size:1.1rem; width:1.1rem; height:1.1rem; flex-shrink:0; margin-top:1px; }
       &.error { background:#fed7d7; color:#9b2c2c; }
       &.success { background:#c6f6d5; color:#22543d; }
+      &.info { background:#e0f2fe; color:#075985; }
     }
     .field-wrap { display:flex; flex-direction:column; gap:.4rem; label { font-size:.85rem; font-weight:600; color:#4a5568; } }
     .input-row { display:flex; align-items:center; gap:.6rem; background:#f7fafc; border:1.5px solid #e2e8f0; border-radius:12px; padding:.7rem 1rem; transition:border-color .15s;
@@ -142,7 +154,15 @@ export class ChangePasswordComponent {
     confirmPassword: ['', [Validators.required]],
   }, { validators: passwordsMatch });
 
-  constructor(private fb: FormBuilder, private authApi: AuthApiService, private location: Location) {}
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private authState = inject(AuthStateService);
+  firstLogin = false;
+
+  constructor(private fb: FormBuilder, private authApi: AuthApiService, private location: Location) {
+    this.firstLogin = this.route.snapshot.queryParamMap.get('firstLogin') === '1'
+      || this.authState.mustChangePassword();
+  }
 
   goBack(): void { this.location.back(); }
 
@@ -156,10 +176,22 @@ export class ChangePasswordComponent {
       next: () => {
         this.loading.set(false);
         this.success.set(true);
+        this.authState.clearMustChangePassword();
+        if (this.firstLogin) {
+          const role = this.authState.role();
+          const target = role === 'admin' ? '/admin/dashboard'
+            : role === 'technician' ? '/technician'
+            : '/dashboard';
+          setTimeout(() => this.router.navigateByUrl(target, { replaceUrl: true }), 1200);
+        }
       },
       error: (err) => {
         this.loading.set(false);
-        this.error.set(err.error?.message ?? 'Failed to change password. Check your current password.');
+        const detail = err.error?.detail;
+        const msg = (typeof detail === 'string' ? detail : detail?.message)
+          ?? err.error?.message
+          ?? 'Failed to change password. Check your current password.';
+        this.error.set(msg);
       },
     });
   }

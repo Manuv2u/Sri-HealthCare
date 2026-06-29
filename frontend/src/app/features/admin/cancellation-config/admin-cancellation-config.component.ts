@@ -1,17 +1,10 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { HttpClient } from '@angular/common/http';
-import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner.component';
-import { ErrorBannerComponent } from '../../../shared/components/error-banner.component';
+import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
+import { AlertComponent } from '../../../shared/components/alert/alert.component';
+import { ButtonComponent } from '../../../shared/components/button/button.component';
 
 interface CancellationConfig {
   id: string;
@@ -23,183 +16,162 @@ interface CancellationConfig {
 @Component({
   selector: 'app-admin-cancellation-config',
   standalone: true,
-  imports: [
-    CommonModule, FormsModule,
-    MatCardModule, MatSlideToggleModule,
-    MatFormFieldModule, MatInputModule,
-    MatButtonModule, MatIconModule, MatSelectModule, MatSnackBarModule,
-    LoadingSpinnerComponent, ErrorBannerComponent,
-  ],
+  imports: [CommonModule, FormsModule, SpinnerComponent, AlertComponent, ButtonComponent],
   template: `
-    <div class="container">
-      <div class="page-header">
-        <h1>Cancellation Fee Configuration</h1>
-        <p>Configure cancellation charges applied when a booking is cancelled.</p>
-      </div>
-
-      @if (loading()) { <app-loading-spinner /> }
-      @else if (loadError()) { <app-error-banner [message]="loadError()!" retryLabel="Retry" (retry)="load()" /> }
-      @else {
-        <mat-card class="config-card">
-          <mat-card-content>
-            <div class="setting-row">
-              <div class="setting-info">
-                <div class="setting-label">Enable Cancellation Fee</div>
-                <div class="setting-desc">When enabled, a fee is deducted from the refund amount when a booking is cancelled.</div>
-              </div>
-              <mat-slide-toggle [checked]="feeEnabled()" (change)="onToggle($event.checked)" />
-            </div>
-          </mat-card-content>
-        </mat-card>
-
-        @if (feeEnabled()) {
-          <mat-card class="config-card">
-            <mat-card-header><mat-card-title>Fee Settings</mat-card-title></mat-card-header>
-            <mat-card-content>
-              <form class="settings-form" (ngSubmit)="save()">
-                <div class="fee-type-row">
-                  <mat-form-field appearance="outline">
-                    <mat-label>Fee Type</mat-label>
-                    <mat-select [(ngModel)]="chargeType" name="chargeType">
-                      <mat-option value="fixed">Fixed Amount (₹)</mat-option>
-                      <mat-option value="percentage">Percentage (%)</mat-option>
-                    </mat-select>
-                    <mat-hint>Fixed deducts a flat amount; Percentage deducts from total paid</mat-hint>
-                  </mat-form-field>
-                </div>
-
-                <div class="setting-field">
-                  <mat-form-field appearance="outline">
-                    <mat-label>{{ chargeType === 'fixed' ? 'Fee Amount (₹)' : 'Fee Percentage (%)' }}</mat-label>
-                    <input matInput type="number" [(ngModel)]="chargeValue" name="chargeValue"
-                           [min]="0" [max]="chargeType === 'percentage' ? 100 : 99999" step="0.01" required />
-                    <mat-hint>{{ chargeType === 'fixed' ? 'Rupees deducted from refund' : 'Percentage of total paid deducted' }}</mat-hint>
-                  </mat-form-field>
-                </div>
-
-                <div class="preview-box">
-                  <div class="preview-title">Preview</div>
-                  @for (amt of [500, 1200, 3000]; track amt) {
-                    <div class="preview-row">
-                      <span>For a ₹{{ amt }} paid booking:</span>
-                      <span class="preview-val">₹{{ calcFee(amt) | number:'1.0-2' }} fee, ₹{{ amt - calcFee(amt) | number:'1.0-2' }} refunded</span>
-                    </div>
-                  }
-                </div>
-
-                <div class="form-actions">
-                  <button mat-raised-button color="primary" type="submit" [disabled]="saving()">
-                    <mat-icon>save</mat-icon> {{ saving() ? 'Saving…' : 'Save Settings' }}
-                  </button>
-                </div>
-              </form>
-            </mat-card-content>
-          </mat-card>
-        }
-
-        @if (!feeEnabled() && hadConfig()) {
-          <div class="info-box">
-            <mat-icon>info</mat-icon>
-            <span>Cancellation fee is disabled. Bookings cancelled will receive a full refund.</span>
-          </div>
-        }
-      }
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Cancellation Fee Configuration</h1>
+      <p class="page-sub">Configure the fee deducted when a patient cancels a booking.</p>
     </div>
-  `,
+  </div>
+
+  @if (error()) { <app-alert type="error" [dismissible]="true" (dismissed)="error.set('')">{{ error() }}</app-alert> }
+  @if (success()) { <app-alert type="success" [dismissible]="true" (dismissed)="success.set('')">{{ success() }}</app-alert> }
+
+  @if (loading()) { <div class="load-wrap"><app-spinner size="md" /></div>
+  } @else {
+
+    <!-- Toggle Card -->
+    <div class="setting-card">
+      <div class="setting-row">
+        <div class="setting-text">
+          <h3 class="setting-title">Enable Cancellation Fee</h3>
+          <p class="setting-desc">When enabled, a fee will be deducted from the refund when a booking is cancelled.</p>
+        </div>
+        <button class="toggle-btn" [class.on]="feeEnabled()" (click)="toggleFee()" [disabled]="toggling()" [attr.aria-label]="feeEnabled() ? 'Disable fee' : 'Enable fee'">
+          <span class="toggle-knob"></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Fee Settings -->
+    @if (feeEnabled()) {
+      <div class="setting-card">
+        <h3 class="card-section-title">Fee Settings</h3>
+        <div class="form-grid">
+          <div class="field">
+            <label>Fee Type</label>
+            <div class="radio-group">
+              <label class="radio-opt" [class.checked]="chargeType === 'fixed'">
+                <input type="radio" [(ngModel)]="chargeType" value="fixed" /> Fixed Amount (₹)
+              </label>
+              <label class="radio-opt" [class.checked]="chargeType === 'percentage'">
+                <input type="radio" [(ngModel)]="chargeType" value="percentage" /> Percentage (%)
+              </label>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>{{ chargeType === 'fixed' ? 'Fee Amount (₹)' : 'Fee Percentage (%)' }}</label>
+            <input type="number" [(ngModel)]="chargeValue" [min]="0" [max]="chargeType === 'percentage' ? 100 : 99999" class="inp" />
+            <span class="field-hint">{{ chargeType === 'fixed' ? 'Flat rupees deducted from refund' : 'Percentage of total paid' }}</span>
+          </div>
+        </div>
+
+        <!-- Preview -->
+        <div class="preview-box">
+          <p class="preview-title">Preview</p>
+          @for (amt of [500, 1200, 3000]; track amt) {
+            <div class="preview-row">
+              <span>₹{{ amt }} booking</span>
+              <span class="preview-vals">
+                <span class="fee-val">₹{{ calcFee(amt) | number:'1.0-0' }} fee</span>
+                <span class="refund-val">₹{{ amt - calcFee(amt) | number:'1.0-0' }} refunded</span>
+              </span>
+            </div>
+          }
+        </div>
+
+        <div class="save-row">
+          <app-button variant="primary" [loading]="saving()" (click)="save()">Save Settings</app-button>
+        </div>
+      </div>
+    }
+
+    @if (!feeEnabled()) {
+      <div class="info-banner">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Cancellation fee is disabled. Cancelled bookings will receive a full refund.
+      </div>
+    }
+  }
+</div>`,
   styles: [`
-    .container { padding: 1.5rem; }
-    .page-header { margin-bottom: 1.5rem;
-      h1 { font-size: 1.5rem; font-weight: 700; margin: 0 0 .35rem; }
-      p { color: #718096; font-size: .875rem; margin: 0; }
-    }
-    .config-card { margin-bottom: 1rem; }
-    .setting-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 2rem; flex-wrap: wrap; }
-    .setting-info { flex: 1; }
-    .setting-label { font-size: 1rem; font-weight: 600; color: #1a202c; margin-bottom: .25rem; }
-    .setting-desc { font-size: .875rem; color: #718096; line-height: 1.5; }
-    .settings-form { display: flex; flex-direction: column; gap: 1.25rem; padding-top: .5rem; }
-    .fee-type-row mat-form-field, .setting-field mat-form-field { width: 100%; max-width: 380px; }
-    .preview-box { background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1rem; }
-    .preview-title { font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #718096; margin-bottom: .75rem; }
-    .preview-row { display: flex; justify-content: space-between; font-size: .875rem; padding: .3rem 0; border-bottom: 1px solid #edf2f7;
-      &:last-child { border-bottom: none; }
-    }
-    .preview-val { font-weight: 700; color: #e53e3e; }
-    .form-actions { display: flex; justify-content: flex-end; }
-    .info-box { display: flex; align-items: center; gap: .75rem; padding: 1rem 1.25rem; background: #ebf8ff; border-radius: 10px; color: #2c5282; font-size: .875rem;
-      mat-icon { color: #3182ce; }
-    }
-  `],
+    .page { display:flex; flex-direction:column; gap:1.25rem; max-width:680px; }
+    .page-header { display:flex; justify-content:space-between; align-items:flex-start; }
+    .page-title { font-size:1.5rem; font-weight:700; color:#0F172A; margin:0 0 0.25rem 0; }
+    .page-sub { font-size:0.875rem; color:#475569; margin:0; }
+    .load-wrap { display:flex; justify-content:center; padding:3rem; }
+    .setting-card { background:#FFFFFF; border:1px solid #F1F5F9; border-radius:1rem; padding:1.5rem; }
+    .setting-row { display:flex; justify-content:space-between; align-items:flex-start; gap:1.5rem; }
+    .setting-title { font-size:1rem; font-weight:600; color:#0F172A; margin:0 0 0.25rem 0; }
+    .setting-desc { font-size:0.875rem; color:#475569; margin:0; line-height:1.625; }
+    .card-section-title { font-size:1rem; font-weight:600; color:#0F172A; margin:0 0 1.25rem 0; }
+    .toggle-btn { position:relative; width:52px; height:28px; border-radius:9999px; border:none; cursor:pointer; background:#CBD5E1; transition:background 200ms; flex-shrink:0; &.on { background:#38A169; } &:disabled { opacity:.6; cursor:not-allowed; } }
+    .toggle-knob { position:absolute; top:3px; left:3px; width:22px; height:22px; border-radius:9999px; background:#FFFFFF; transition:transform 200ms; box-shadow:0 1px 3px 0 rgba(0,0,0,.1),0 1px 2px -1px rgba(0,0,0,.1); }
+    .toggle-btn.on .toggle-knob { transform:translateX(24px); }
+    .form-grid { display:flex; flex-direction:column; gap:1.25rem; margin-bottom:1.25rem; }
+    .field { display:flex; flex-direction:column; gap:0.5rem; label { font-size:0.875rem; font-weight:500; color:#0F172A; } }
+    .inp { height:40px; padding:0 0.875rem; border:1px solid #E2E8F0; border-radius:0.75rem; font-size:0.875rem; color:#0F172A; background:#FFFFFF; max-width:240px; &:focus { outline:none; border-color:#319795; box-shadow:0 0 0 3px rgba(49,151,149,.1); } }
+    .field-hint { font-size:0.75rem; color:#94A3B8; }
+    .radio-group { display:flex; gap:0.75rem; flex-wrap:wrap; }
+    .radio-opt { display:flex; align-items:center; gap:0.5rem; padding:0.625rem 1rem; border:1px solid #E2E8F0; border-radius:0.75rem; cursor:pointer; font-size:0.875rem; transition:all 150ms; input { accent-color:#2C7A7B; } &.checked, &:hover { border-color:#319795; background:#E6FFFA; color:#285E61; } }
+    .preview-box { background:#F8FAFC; border:1px solid #F1F5F9; border-radius:0.75rem; padding:1.25rem; margin-bottom:1.25rem; }
+    .preview-title { font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#94A3B8; margin:0 0 0.75rem 0; }
+    .preview-row { display:flex; justify-content:space-between; align-items:center; padding:0.5rem 0; border-bottom:1px solid #F1F5F9; font-size:0.875rem; color:#475569; &:last-child { border-bottom:none; } }
+    .preview-vals { display:flex; gap:1rem; }
+    .fee-val { font-weight:600; color:#DC2626; }
+    .refund-val { font-weight:600; color:#2F855A; }
+    .save-row { display:flex; justify-content:flex-end; }
+    .info-banner { display:flex; align-items:center; gap:0.75rem; padding:1rem 1.25rem; background:#F0F9FF; border:1px solid #BAE6FD; border-radius:1rem; font-size:0.875rem; color:#0369A1; svg { width:20px; height:20px; flex-shrink:0; color:#0EA5E9; } }
+  `]
 })
 export class AdminCancellationConfigComponent implements OnInit {
-  loading = signal(false);
-  saving = signal(false);
-  loadError = signal<string | null>(null);
+  loading = signal(false); saving = signal(false); toggling = signal(false);
+  error = signal(''); success = signal('');
   feeEnabled = signal(false);
-  hadConfig = signal(false);
-
   chargeType: 'percentage' | 'fixed' = 'fixed';
   chargeValue = 100;
+  private configId = '';
 
-  constructor(private http: HttpClient, private snack: MatSnackBar) {}
+  constructor(private http: HttpClient) {}
+  ngOnInit() { this.load(); }
 
-  ngOnInit(): void { this.load(); }
-
-  load(): void {
+  load() {
     this.loading.set(true);
-    this.loadError.set(null);
     this.http.get<CancellationConfig | null>('/admin/settings/cancellation').subscribe({
-      next: (cfg) => {
-        if (cfg) {
-          this.feeEnabled.set(cfg.is_active);
-          this.hadConfig.set(true);
-          this.chargeType = cfg.charge_type;
-          this.chargeValue = cfg.charge_value;
-        } else {
-          this.feeEnabled.set(false);
-          this.hadConfig.set(false);
-        }
+      next: cfg => {
+        if (cfg) { this.feeEnabled.set(cfg.is_active); this.chargeType = cfg.charge_type; this.chargeValue = cfg.charge_value; this.configId = cfg.id; }
+        else { this.feeEnabled.set(false); }
         this.loading.set(false);
       },
-      error: () => { this.loadError.set('Failed to load cancellation configuration.'); this.loading.set(false); },
+      error: () => { this.error.set('Failed to load configuration.'); this.loading.set(false); }
     });
   }
 
-  calcFee(total: number): number {
-    if (!this.feeEnabled()) return 0;
-    if (this.chargeType === 'percentage') {
-      return Math.min(Math.round(total * this.chargeValue) / 100, total);
+  toggleFee() {
+    this.toggling.set(true);
+    if (this.feeEnabled()) {
+      this.http.delete('/admin/settings/cancellation').subscribe({
+        next: () => { this.feeEnabled.set(false); this.toggling.set(false); this.success.set('Cancellation fee disabled.'); setTimeout(() => this.success.set(''), 3000); },
+        error: () => { this.error.set('Failed to update.'); this.toggling.set(false); }
+      });
+    } else {
+      this.feeEnabled.set(true); this.toggling.set(false);
     }
+  }
+
+  calcFee(total: number): number {
+    if (this.chargeType === 'percentage') return Math.min(Math.round(total * this.chargeValue / 100), total);
     return Math.min(this.chargeValue, total);
   }
 
-  onToggle(enabled: boolean): void {
-    if (!enabled) {
-      this.http.delete('/admin/settings/cancellation').subscribe({
-        next: () => { this.feeEnabled.set(false); this.snack.open('Cancellation fee disabled.', 'OK', { duration: 3000 }); },
-        error: () => this.snack.open('Failed to update.', 'OK', { duration: 3000 }),
-      });
-    } else {
-      this.feeEnabled.set(true);
-    }
-  }
-
-  save(): void {
+  save() {
     this.saving.set(true);
-    this.http.put<CancellationConfig>('/admin/settings/cancellation', {
-      charge_type: this.chargeType,
-      charge_value: this.chargeValue,
-    }).subscribe({
-      next: (cfg) => {
-        this.saving.set(false);
-        this.feeEnabled.set(cfg.is_active);
-        this.hadConfig.set(true);
-        this.snack.open('Cancellation fee settings saved.', 'OK', { duration: 3000 });
-      },
-      error: (err) => {
-        this.saving.set(false);
-        this.snack.open(err.error?.message ?? 'Failed to save settings.', 'OK', { duration: 4000 });
-      },
+    this.http.put<CancellationConfig>('/admin/settings/cancellation', { charge_type: this.chargeType, charge_value: this.chargeValue }).subscribe({
+      next: cfg => { this.configId = cfg.id; this.feeEnabled.set(cfg.is_active); this.saving.set(false); this.success.set('Settings saved successfully.'); setTimeout(() => this.success.set(''), 3000); },
+      error: err => { this.error.set(err.error?.message || 'Failed to save.'); this.saving.set(false); }
     });
   }
 }

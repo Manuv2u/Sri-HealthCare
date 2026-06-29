@@ -59,6 +59,8 @@ class User(Base):
     gender: Mapped[str | None] = mapped_column(String(10), nullable=True)
     role: Mapped[str] = mapped_column(String(20), nullable=False, default="user")
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    is_temp_password: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    password_changed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     deletion_requested_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=datetime.utcnow)
@@ -96,6 +98,17 @@ class FamilyMember(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=datetime.utcnow)
 
 
+class PasswordResetToken(Base):
+    __tablename__ = "password_reset_tokens"
+
+    id: Mapped[uuid.UUID] = mapped_column(PG_UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID] = mapped_column(PG_UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    token_hash: Mapped[str] = mapped_column(String(64), nullable=False, unique=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=datetime.utcnow)
+
+
 class AuditLog(Base):
     __tablename__ = "audit_logs"
 
@@ -124,6 +137,7 @@ _user_module = types.ModuleType("app.models.user")
 _user_module.User = User
 _user_module.Session = Session
 _user_module.FamilyMember = FamilyMember
+_user_module.PasswordResetToken = PasswordResetToken
 sys.modules["app.models.user"] = _user_module
 
 _audit_module = types.ModuleType("app.models.audit")
@@ -134,6 +148,7 @@ _models_module = types.ModuleType("app.models")
 _models_module.User = User
 _models_module.Session = Session
 _models_module.FamilyMember = FamilyMember
+_models_module.PasswordResetToken = PasswordResetToken
 _models_module.AuditLog = AuditLog
 _models_module.Base = Base
 sys.modules["app.models"] = _models_module

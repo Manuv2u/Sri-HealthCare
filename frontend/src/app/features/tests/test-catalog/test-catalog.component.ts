@@ -85,7 +85,7 @@ const CATEGORY_ICONS = [
     ════════════════════════════════════════════════ -->
     <div class="cats-bar-wrap">
       <nav class="cats-bar" aria-label="Filter by category">
-        @for (cat of categoryChips(); track cat.key ?? 'all') {
+        @for (cat of categoryChips(); track $index) {
           <button
             class="cat-chip"
             [class.active]="selectedCategory() === cat.key"

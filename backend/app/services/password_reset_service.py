@@ -73,6 +73,6 @@ class PasswordResetService:  # TODO(TEMP_PASSWORD_AUTH)
             )
 
         new_hash = _hash_password(new_password)
-        await self.user_repo.update(token.user_id, password_hash=new_hash)
+        await self.user_repo.update(token.user_id, password_hash=new_hash, is_temp_password=False)
         await self.token_repo.mark_used(token.id)
         return {"message": "Password updated successfully"}

@@ -74,6 +74,10 @@ export class AdminApiService {
     return this.http.post<Technician>('/technicians', data);
   }
 
+  createTechnicianAccount(data: { name: string; phone: string; email: string; password: string }): Observable<any> {
+    return this.http.post<any>('/technicians/create-account', data);
+  }
+
   updateTechnician(id: string, data: Partial<Technician>): Observable<Technician> {
     return this.http.put<Technician>(`/technicians/${id}`, data);
   }
@@ -84,5 +88,14 @@ export class AdminApiService {
 
   getWorkload(date: string): Observable<any[]> {
     return this.http.get<any[]>(`/technicians/workload?date=${date}`);
+  }
+
+  // ── Booking assignment ───────────────────────────────────────────────────────
+  assignTechnician(technicianId: string, bookingId: string): Observable<any> {
+    return this.http.post<any>(`/technicians/${technicianId}/assign`, { booking_id: bookingId });
+  }
+
+  autoAssignTechnician(bookingId: string): Observable<any> {
+    return this.http.post<any>(`/bookings/${bookingId}/auto-assign`, {});
   }
 }

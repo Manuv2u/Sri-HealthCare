@@ -61,6 +61,11 @@ export const routes: Routes = [
     loadChildren: () =>
       import('./features/payments/payments.routes').then((m) => m.PAYMENTS_ROUTES),
   },
+  {
+    path: 'bookings',
+    loadChildren: () =>
+      import('./features/bookings/bookings.routes').then((m) => m.BOOKINGS_ROUTES),
+  },
 
   // ── Admin only ──────────────────────────────────────────────────────────────
   {

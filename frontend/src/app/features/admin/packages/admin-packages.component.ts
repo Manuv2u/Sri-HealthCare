@@ -1,240 +1,205 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatIconModule } from '@angular/material/icon';
 import { PackageApiService } from '../../../core/api/services/package-api.service';
-import { Package } from '../../../core/api/api.types';
-import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner.component';
-import { ErrorBannerComponent } from '../../../shared/components/error-banner.component';
+import { TestApiService } from '../../../core/api/services/test-api.service';
+import { Package, Test } from '../../../core/api/api.types';
+import { BadgeComponent } from '../../../shared/components/badge/badge.component';
+import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
+import { ButtonComponent } from '../../../shared/components/button/button.component';
+import { ModalComponent } from '../../../shared/components/modal/modal.component';
+import { AlertComponent } from '../../../shared/components/alert/alert.component';
 
 @Component({
   selector: 'app-admin-packages',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatIconModule, LoadingSpinnerComponent, ErrorBannerComponent],
+  imports: [CommonModule, FormsModule, BadgeComponent, SpinnerComponent, ButtonComponent, ModalComponent, AlertComponent],
   template: `
-    <div class="admin-page">
-      <div class="page-header">
-        <div>
-          <h2>Packages</h2>
-          <p>Manage health check packages and bundled tests</p>
-        </div>
-        <button class="btn-primary" (click)="startCreate()">
-          <mat-icon>add</mat-icon> Add Package
-        </button>
-      </div>
+<div class="page">
+  <div class="page-header">
+    <div><h1 class="page-title">Health Packages</h1><p class="page-sub">Manage bundled test packages and pricing</p></div>
+    <app-button variant="primary" (click)="openCreate()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add Package
+    </app-button>
+  </div>
 
-      @if (loading()) { <app-loading-spinner /> }
-      @else if (error()) { <app-error-banner [message]="error()!" retryLabel="Retry" (retry)="load()" /> }
-      @else {
-        @if (editMode()) {
-          <div class="form-panel">
-            <h3>{{ form().id ? 'Edit Package' : 'New Package' }}</h3>
-            <div class="form-grid">
-              <div class="field">
-                <label>Package Name *</label>
-                <input [(ngModel)]="form().name" placeholder="e.g. Full Body Checkup" />
-              </div>
-              <div class="field">
-                <label>Original Price (₹) *</label>
-                <input type="number" [(ngModel)]="form().original_price" placeholder="999" />
-              </div>
-              <div class="field">
-                <label>Discounted Price (₹) *</label>
-                <input type="number" [(ngModel)]="form().discounted_price" placeholder="799" />
-              </div>
-              <div class="field">
-                <label>Status</label>
-                <select [(ngModel)]="form().is_active">
-                  <option [ngValue]="true">Active</option>
-                  <option [ngValue]="false">Inactive</option>
-                </select>
-              </div>
-              <div class="field full">
-                <label>Description</label>
-                <textarea [(ngModel)]="form().description" rows="2" placeholder="What's included…"></textarea>
-              </div>
+  @if (error()) { <app-alert type="error" [dismissible]="true" (dismissed)="error.set('')">{{ error() }}</app-alert> }
+
+  @if (loading()) {
+    <div class="load-wrap"><app-spinner size="md" /></div>
+  } @else {
+    <div class="packages-grid">
+      @if (packages().length === 0) {
+        <div class="empty-card">No packages found. Create your first health package.</div>
+      }
+      @for (p of packages(); track p.id) {
+        <div class="pkg-card" [class.inactive]="!p.is_active">
+          <div class="pkg-header">
+            <div class="pkg-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
             </div>
-            <div class="form-actions">
-              <button class="btn-ghost" (click)="cancelEdit()">Cancel</button>
-              <button class="btn-primary" (click)="save()" [disabled]="saving()">
-                {{ saving() ? 'Saving…' : 'Save Package' }}
-              </button>
+            <app-badge [color]="p.is_active ? 'success' : 'default'" size="sm">{{ p.is_active ? 'Active' : 'Inactive' }}</app-badge>
+          </div>
+          <h3 class="pkg-name">{{ p.name }}</h3>
+          @if (p.description) { <p class="pkg-desc">{{ p.description }}</p> }
+          <div class="pkg-price">
+            <span class="discounted">₹{{ p.discounted_price.toLocaleString('en-IN') }}</span>
+            @if (p.original_price > p.discounted_price) {
+              <span class="original">₹{{ p.original_price.toLocaleString('en-IN') }}</span>
+              <span class="savings">{{ getSavings(p) }}% off</span>
+            }
+          </div>
+          <div class="pkg-tests">
+            <span class="tests-lbl">{{ p.tests?.length || 0 }} tests included</span>
+            <div class="tests-chips">
+              @for (t of (p.tests || []).slice(0,3); track t.id) {
+                <span class="test-chip">{{ t.name }}</span>
+              }
+              @if ((p.tests?.length || 0) > 3) {
+                <span class="test-chip more">+{{ (p.tests?.length || 0) - 3 }} more</span>
+              }
             </div>
           </div>
-        }
-
-        <div class="packages-grid">
-          @if (packages().length === 0) {
-            <div class="empty-state">
-              <mat-icon>inventory_2</mat-icon>
-              <p>No packages yet. Create one to get started.</p>
-              <button class="btn-primary" (click)="startCreate()">Add Package</button>
-            </div>
-          }
-          @for (pkg of packages(); track pkg.id) {
-            <div class="pkg-card" [class.inactive]="!pkg.is_active">
-              <div class="pkg-header">
-                <span class="pkg-name">{{ pkg.name }}</span>
-                <span class="badge" [class]="pkg.is_active ? 'badge-success' : 'badge-danger'">
-                  {{ pkg.is_active ? 'Active' : 'Inactive' }}
-                </span>
-              </div>
-              @if (pkg.description) {
-                <p class="pkg-desc">{{ pkg.description }}</p>
-              }
-              <div class="pkg-price">
-                <span class="price-main">₹{{ pkg.discounted_price }}</span>
-                @if (pkg.original_price > pkg.discounted_price) {
-                  <span class="discount-badge" style="text-decoration:line-through;font-size:.8rem;color:#718096">₹{{ pkg.original_price }}</span>
-                }
-              </div>
-              @if (pkg.tests?.length) {
-                <div class="pkg-tests">
-                  <span class="tests-label">{{ pkg.tests.length }} tests included</span>
-                </div>
-              }
-              <div class="pkg-actions">
-                <button class="action-btn" (click)="startEdit(pkg)"><mat-icon>edit</mat-icon> Edit</button>
-                <button class="action-btn" (click)="toggleActive(pkg)">
-                  <mat-icon>{{ pkg.is_active ? 'visibility_off' : 'visibility' }}</mat-icon>
-                  {{ pkg.is_active ? 'Disable' : 'Enable' }}
-                </button>
-                <button class="action-btn danger" (click)="remove(pkg)"><mat-icon>delete</mat-icon></button>
-              </div>
-            </div>
-          }
+          <div class="pkg-actions">
+            <button class="act-btn" (click)="openEdit(p)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Edit
+            </button>
+            <button class="act-btn" (click)="toggleActive(p)">{{ p.is_active ? 'Deactivate' : 'Activate' }}</button>
+            <button class="act-btn danger" (click)="remove(p)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+              Delete
+            </button>
+          </div>
         </div>
       }
     </div>
-  `,
-  styles: [`
-    .admin-page { display: flex; flex-direction: column; gap: 1.25rem; }
-    .page-header {
-      display: flex; justify-content: space-between; align-items: flex-start;
-      h2 { font-size: 1.25rem; font-weight: 700; color: #1a202c; margin: 0; }
-      p  { font-size: .875rem; color: #718096; margin: .2rem 0 0; }
-    }
-    .btn-primary {
-      display: inline-flex; align-items: center; gap: .4rem;
-      background: #00796b; color: #fff; border: none; border-radius: 8px;
-      padding: .55rem 1.1rem; font-size: .875rem; font-weight: 600; cursor: pointer;
-      mat-icon { font-size: 1.1rem; width: 1.1rem; height: 1.1rem; }
-      &:hover { background: #00695c; }
-      &:disabled { opacity: .6; cursor: not-allowed; }
-    }
-    .btn-ghost {
-      background: none; border: 1px solid #e2e8f0; border-radius: 8px;
-      padding: .55rem 1.1rem; font-size: .875rem; cursor: pointer; color: #4a5568;
-      &:hover { background: #f7fafc; }
-    }
-    .form-panel {
-      background: #fff; border-radius: 12px; padding: 1.5rem;
-      border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,.06);
-      h3 { font-size: 1rem; font-weight: 700; margin: 0 0 1.25rem; }
-    }
-    .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
-    .field {
-      display: flex; flex-direction: column; gap: .35rem;
-      &.full { grid-column: 1 / -1; }
-      label { font-size: .8rem; font-weight: 600; color: #4a5568; }
-      input, select, textarea {
-        border: 1px solid #e2e8f0; border-radius: 8px; padding: .5rem .75rem;
-        font-size: .875rem; color: #2d3748; background: #fff;
-        &:focus { outline: none; border-color: #00796b; box-shadow: 0 0 0 3px rgba(0,121,107,.1); }
-      }
-      textarea { resize: vertical; font-family: inherit; }
-    }
-    .form-actions { display: flex; gap: .75rem; justify-content: flex-end; margin-top: 1.25rem; }
+  }
 
-    .packages-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;
-    }
-    .pkg-card {
-      background: #fff; border-radius: 12px; padding: 1.25rem;
-      border: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: .75rem;
-      &.inactive { opacity: .65; }
-    }
-    .pkg-header { display: flex; justify-content: space-between; align-items: flex-start; gap: .5rem; }
-    .pkg-name { font-size: 1rem; font-weight: 700; color: #1a202c; }
-    .pkg-desc { font-size: .85rem; color: #718096; margin: 0; }
-    .pkg-price { display: flex; align-items: center; gap: .5rem; }
-    .price-main { font-size: 1.4rem; font-weight: 700; color: #00796b; }
-    .discount-badge {
-      background: #c6f6d5; color: #276749; font-size: .75rem; font-weight: 600;
-      padding: .15rem .5rem; border-radius: 999px;
-    }
-    .pkg-tests { font-size: .8rem; color: #718096; }
-    .tests-label { background: #f0f4f8; padding: .2rem .6rem; border-radius: 6px; }
-    .pkg-actions { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: .25rem; }
-    .action-btn {
-      display: inline-flex; align-items: center; gap: .3rem;
-      background: none; border: 1px solid #e2e8f0; border-radius: 7px;
-      padding: .3rem .65rem; font-size: .8rem; cursor: pointer; color: #4a5568;
-      mat-icon { font-size: .95rem; width: .95rem; height: .95rem; }
-      &:hover { background: #f7fafc; border-color: #cbd5e0; }
-      &.danger { color: #e53e3e; &:hover { background: #fed7d7; border-color: #fc8181; } }
-    }
-    .badge {
-      display: inline-flex; padding: .2rem .6rem; border-radius: 999px; font-size: .75rem; font-weight: 600;
-      &.badge-success { background: #c6f6d5; color: #276749; }
-      &.badge-danger  { background: #fed7d7; color: #9b2c2c; }
-    }
-    .empty-state {
-      grid-column: 1 / -1; text-align: center; padding: 3rem;
-      background: #fff; border-radius: 12px; border: 1px dashed #e2e8f0;
-      display: flex; flex-direction: column; align-items: center; gap: 1rem;
-      mat-icon { font-size: 3rem; width: 3rem; height: 3rem; color: #cbd5e0; }
-      p { color: #718096; margin: 0; }
-    }
-  `],
+  <!-- Modal -->
+  <app-modal [isOpen]="showModal()" [title]="editId() ? 'Edit Package' : 'New Package'" size="xl" (close)="closeModal()">
+    <div class="form-grid">
+      <div class="field span2"><label>Package Name *</label><input [(ngModel)]="f.name" class="inp" placeholder="e.g. Full Body Checkup" /></div>
+      <div class="field"><label>Original Price (₹) *</label><input type="number" [(ngModel)]="f.original_price" min="0" class="inp" /></div>
+      <div class="field"><label>Discounted Price (₹) *</label><input type="number" [(ngModel)]="f.discounted_price" min="0" class="inp" /></div>
+      <div class="field span2"><label>Description</label><textarea [(ngModel)]="f.description" rows="2" class="inp"></textarea></div>
+      <div class="field span2">
+        <label>Include Tests</label>
+        <div class="test-selector">
+          <div class="test-search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input [(ngModel)]="testSearchQ" placeholder="Search tests to add…" (input)="filterAvailableTests()" />
+          </div>
+          <div class="test-list">
+            @for (t of filteredAvailableTests(); track t.id) {
+              <label class="test-option" [class.checked]="isSelected(t)">
+                <input type="checkbox" [checked]="isSelected(t)" (change)="toggleTest(t)" />
+                <span class="test-opt-name">{{ t.name }}</span>
+                <span class="test-opt-cat">{{ t.category }}</span>
+                <span class="test-opt-price">₹{{ t.price }}</span>
+              </label>
+            }
+            @if (filteredAvailableTests().length === 0) { <p class="no-tests">No tests found</p> }
+          </div>
+        </div>
+        @if (f.selectedTestIds.length > 0) {
+          <p class="sel-count">{{ f.selectedTestIds.length }} test(s) selected</p>
+        }
+      </div>
+    </div>
+    @if (formErr()) { <p class="form-err">{{ formErr() }}</p> }
+    <div modal-footer>
+      <app-button variant="outline" (click)="closeModal()">Cancel</app-button>
+      <app-button variant="primary" [loading]="saving()" (click)="save()">{{ editId() ? 'Update' : 'Create' }} Package</app-button>
+    </div>
+  </app-modal>
+</div>`,
+  styles: [`
+    .page { display:flex; flex-direction:column; gap:1.25rem; }
+    .page-header { display:flex; justify-content:space-between; align-items:flex-start; }
+    .page-title { font-size:1.5rem; font-weight:700; color:#0F172A; margin:0 0 0.25rem 0; }
+    .page-sub { font-size:0.875rem; color:#475569; margin:0; }
+    .load-wrap { display:flex; justify-content:center; padding:3rem; }
+    .packages-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:1.25rem; }
+    .empty-card { grid-column:1/-1; text-align:center; padding:3rem; color:#94A3B8; font-size:0.875rem; background:#FFFFFF; border:2px dashed #E2E8F0; border-radius:1rem; }
+    .pkg-card { background:#FFFFFF; border:1px solid #F1F5F9; border-radius:1rem; padding:1.5rem; display:flex; flex-direction:column; gap:1rem; transition:all 150ms; &:hover { border-color:#4FD1C5; box-shadow:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -2px rgba(0,0,0,.1); } &.inactive { opacity:.7; } }
+    .pkg-header { display:flex; justify-content:space-between; align-items:center; }
+    .pkg-icon { width:44px; height:44px; border-radius:0.75rem; background:#B2F5EA; color:#2C7A7B; display:flex; align-items:center; justify-content:center; svg { width:22px; height:22px; } }
+    .pkg-name { font-size:1.125rem; font-weight:600; color:#0F172A; margin:0; }
+    .pkg-desc { font-size:0.875rem; color:#475569; margin:0; line-height:1.625; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+    .pkg-price { display:flex; align-items:baseline; gap:0.5rem; }
+    .discounted { font-size:1.5rem; font-weight:700; color:#285E61; }
+    .original { font-size:0.875rem; color:#94A3B8; text-decoration:line-through; }
+    .savings { font-size:0.75rem; font-weight:600; background:#C6F6D5; color:#276749; padding:0.125rem 0.5rem; border-radius:9999px; }
+    .pkg-tests { display:flex; flex-direction:column; gap:0.5rem; }
+    .tests-lbl { font-size:0.75rem; color:#94A3B8; font-weight:500; text-transform:uppercase; letter-spacing:0.025em; }
+    .tests-chips { display:flex; flex-wrap:wrap; gap:0.375rem; }
+    .test-chip { font-size:0.75rem; background:#E6FFFA; color:#285E61; padding:2px 0.5rem; border-radius:9999px; font-weight:500; &.more { background:#F8FAFC; color:#94A3B8; } }
+    .pkg-actions { display:flex; gap:0.5rem; margin-top:auto; }
+    .act-btn { display:inline-flex; align-items:center; gap:0.5rem; padding:0.5rem 0.75rem; border:1px solid #E2E8F0; border-radius:0.5rem; background:#FFFFFF; font-size:0.75rem; font-weight:500; color:#475569; cursor:pointer; transition:all 150ms; svg { width:13px; height:13px; } &:hover { background:#E6FFFA; border-color:#4FD1C5; color:#285E61; } &.danger:hover { background:#FEF2F2; border-color:#FCA5A5; color:#DC2626; } }
+    .form-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:1rem; }
+    .field { display:flex; flex-direction:column; gap:0.375rem; &.span2 { grid-column:span 2; } label { font-size:0.875rem; font-weight:500; color:#0F172A; } }
+    .inp { border:1px solid #E2E8F0; border-radius:0.75rem; padding:0.625rem 0.875rem; font-size:0.875rem; color:#0F172A; background:#FFFFFF; width:100%; box-sizing:border-box; &:focus { outline:none; border-color:#319795; box-shadow:0 0 0 3px rgba(49,151,149,.1); } }
+    textarea.inp { resize:vertical; font-family:inherit; }
+    .test-selector { border:1px solid #E2E8F0; border-radius:0.75rem; overflow:hidden; }
+    .test-search { display:flex; align-items:center; gap:0.5rem; padding:0.625rem 0.875rem; border-bottom:1px solid #F1F5F9; svg { width:16px; height:16px; color:#94A3B8; flex-shrink:0; } input { border:none; outline:none; font-size:0.875rem; width:100%; background:transparent; } }
+    .test-list { max-height:220px; overflow-y:auto; }
+    .test-option { display:flex; align-items:center; gap:0.75rem; padding:0.75rem 1rem; cursor:pointer; transition:background 150ms; &:hover, &.checked { background:#E6FFFA; } input[type=checkbox] { accent-color:#2C7A7B; width:16px; height:16px; flex-shrink:0; } }
+    .test-opt-name { flex:1; font-size:0.875rem; font-weight:500; color:#0F172A; }
+    .test-opt-cat { font-size:0.75rem; color:#94A3B8; }
+    .test-opt-price { font-size:0.75rem; font-weight:600; color:#2C7A7B; }
+    .no-tests { padding:1rem; text-align:center; color:#94A3B8; font-size:0.875rem; margin:0; }
+    .sel-count { font-size:0.75rem; color:#2C7A7B; font-weight:500; margin:0.5rem 0 0 0; }
+    .form-err { font-size:0.875rem; color:#DC2626; margin:0.5rem 0 0 0; }
+  `]
 })
 export class AdminPackagesComponent implements OnInit {
   loading = signal(false);
   saving = signal(false);
-  error = signal<string | null>(null);
+  error = signal('');
+  formErr = signal('');
   packages = signal<Package[]>([]);
-  editMode = signal(false);
-  form = signal<any>({});
+  allTests = signal<Test[]>([]);
+  showModal = signal(false);
+  editId = signal<string | null>(null);
+  testSearchQ = '';
+  filteredAvailableTests = signal<Test[]>([]);
+  f = { name:'', description:'', original_price:0, discounted_price:0, selectedTestIds:[] as string[] };
 
-  constructor(private pkgApi: PackageApiService) {}
+  constructor(private pkgApi: PackageApiService, private testApi: TestApiService) {}
 
-  ngOnInit() { this.load(); }
+  ngOnInit() {
+    this.load();
+    this.testApi.list({ page_size: 500 }).subscribe({ next: r => { this.allTests.set(r.items); this.filteredAvailableTests.set(r.items); } });
+  }
 
   load() {
     this.loading.set(true);
     this.pkgApi.list({ include_inactive: true, page_size: 100 }).subscribe({
-      next: (res) => { this.packages.set(res.items); this.loading.set(false); },
-      error: (err) => { this.error.set(err.error?.message || 'Failed to load'); this.loading.set(false); },
+      next: r => { this.packages.set(r.items); this.loading.set(false); },
+      error: () => { this.error.set('Failed to load packages.'); this.loading.set(false); }
     });
   }
 
-  startCreate() { this.form.set({ name: '', original_price: 0, discounted_price: 0, is_active: true, description: '', test_ids: [] }); this.editMode.set(true); }
-  startEdit(p: Package) { this.form.set({ ...p }); this.editMode.set(true); }
-  cancelEdit() { this.editMode.set(false); this.form.set({}); }
+  openCreate() { this.editId.set(null); this.f = { name:'', description:'', original_price:0, discounted_price:0, selectedTestIds:[] }; this.testSearchQ = ''; this.filterAvailableTests(); this.formErr.set(''); this.showModal.set(true); }
+  openEdit(p: Package) { this.editId.set(p.id); this.f = { name:p.name, description:p.description||'', original_price:p.original_price, discounted_price:p.discounted_price, selectedTestIds:(p.tests||[]).map(t=>t.id) }; this.testSearchQ = ''; this.filterAvailableTests(); this.formErr.set(''); this.showModal.set(true); }
+  closeModal() { this.showModal.set(false); this.editId.set(null); }
+  filterAvailableTests() { const q = this.testSearchQ.toLowerCase(); this.filteredAvailableTests.set(q ? this.allTests().filter(t => t.name.toLowerCase().includes(q) || t.category.toLowerCase().includes(q)) : [...this.allTests()]); }
+  isSelected(t: Test) { return this.f.selectedTestIds.includes(t.id); }
+  toggleTest(t: Test) { const idx = this.f.selectedTestIds.indexOf(t.id); idx >= 0 ? this.f.selectedTestIds.splice(idx, 1) : this.f.selectedTestIds.push(t.id); }
+  getSavings(p: Package) { return Math.round(((p.original_price - p.discounted_price) / p.original_price) * 100); }
 
   save() {
-    const f = this.form();
-    if (!f.name || f.original_price == null) return;
+    if (!this.f.name.trim()) { this.formErr.set('Package name is required.'); return; }
+    if (this.f.discounted_price < 0) { this.formErr.set('Price is required.'); return; }
     this.saving.set(true);
-    const obs = f.id ? this.pkgApi.update(f.id, f) : this.pkgApi.create(f);
-    obs.subscribe({
-      next: () => { this.saving.set(false); this.cancelEdit(); this.load(); },
-      error: (err: any) => { this.error.set(err.error?.message || 'Failed to save'); this.saving.set(false); },
-    });
+    const id = this.editId();
+    const payload: any = { name:this.f.name.trim(), description:this.f.description||null, original_price:+this.f.original_price, discounted_price:+this.f.discounted_price, test_ids:this.f.selectedTestIds };
+    const obs = id ? this.pkgApi.update(id, payload) : this.pkgApi.create(payload);
+    obs.subscribe({ next: () => { this.saving.set(false); this.closeModal(); this.load(); }, error: err => { this.formErr.set(err.error?.detail?.message || 'Failed to save.'); this.saving.set(false); } });
   }
 
-  toggleActive(p: Package) {
-    this.pkgApi.update(p.id, { is_active: !p.is_active }).subscribe({
-      next: () => this.load(),
-      error: (err: any) => this.error.set(err.error?.message || 'Failed to update'),
-    });
-  }
-
-  remove(p: Package) {
-    if (!confirm(`Delete package "${p.name}"?`)) return;
-    this.pkgApi.delete(p.id).subscribe({
-      next: () => this.load(),
-      error: (err: any) => this.error.set(err.error?.message || 'Failed to delete'),
-    });
-  }
+  remove(p: Package) { if (!confirm(`Delete "${p.name}"?`)) return; this.pkgApi.delete(p.id).subscribe({ next: () => this.load() }); }
+  toggleActive(p: Package) { this.pkgApi.update(p.id, { is_active: !p.is_active } as any).subscribe({ next: () => this.load() }); }
 }

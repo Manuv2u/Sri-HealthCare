@@ -1,158 +1,293 @@
-// TODO(TEMP_PASSWORD_AUTH): Remove this component when replacing password-based auth.
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { MatIconModule } from '@angular/material/icon';
+import { RouterModule, Router, ActivatedRoute } from '@angular/router';
+import { FormBuilder, Validators, ReactiveFormsModule, AbstractControl, FormGroup } from '@angular/forms';
+import { ButtonComponent, InputComponent, AlertComponent } from '../../../shared/components';
 import { AuthApiService } from '../../../core/api/services/auth-api.service';
-
-function passwordsMatch(control: AbstractControl): ValidationErrors | null {
-  const pw = control.get('newPassword')?.value;
-  const confirm = control.get('confirmPassword')?.value;
-  return pw && confirm && pw !== confirm ? { mismatch: true } : null;
-}
 
 @Component({
   selector: 'app-reset-password',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MatIconModule, RouterModule],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, ButtonComponent, InputComponent, AlertComponent],
   template: `
-    <div class="auth-page">
-      <div class="auth-card">
-        <div class="auth-logo">
-          <div class="logo-icon">🔐</div>
-          <h2>Reset Password</h2>
-          <p>Enter your new password below</p>
+    <div class="reset-password">
+      <!-- Mobile Logo -->
+      <div class="reset-password__mobile-logo lg:hidden">
+        <div class="reset-password__logo-icon">
+          <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="32" height="32" rx="8" fill="currentColor"/>
+            <path d="M16 6L16 26M6 16L26 16" stroke="white" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="16" cy="16" r="4" fill="white"/>
+          </svg>
+        </div>
+        <span class="reset-password__logo-text">Sri Health</span>
+      </div>
+
+      @if (!success()) {
+        <!-- Icon -->
+        <div class="reset-password__icon-wrapper">
+          <div class="reset-password__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+            </svg>
+          </div>
         </div>
 
-        @if (!token()) {
-          <div class="alert error">
-            <mat-icon>error_outline</mat-icon> Invalid or missing reset token. <a routerLink="/auth/forgot-password">Request a new one.</a>
-          </div>
-        } @else if (success()) {
-          <div class="alert success">
-            <mat-icon>check_circle</mat-icon> Password updated successfully!
-          </div>
-          <a routerLink="/auth/login" class="btn-secondary">Sign In</a>
-        } @else {
-          @if (error()) {
-            <div class="alert error">
-              <mat-icon>error_outline</mat-icon> {{ error() }}
-            </div>
-          }
-          <form [formGroup]="form" (ngSubmit)="submit()">
-            <div class="field-wrap">
-              <label>New Password</label>
-              <div class="input-row" [class.focused]="pwFocused"
-                   [class.invalid]="form.get('newPassword')?.invalid && form.get('newPassword')?.touched">
-                <mat-icon>lock_outline</mat-icon>
-                <input formControlName="newPassword" [type]="showPw ? 'text' : 'password'"
-                  placeholder="At least 8 characters" (focus)="pwFocused=true" (blur)="pwFocused=false"
-                  autocomplete="new-password" />
-                <button type="button" class="btn-eye" (click)="showPw=!showPw" tabindex="-1">
-                  <mat-icon>{{ showPw ? 'visibility_off' : 'visibility' }}</mat-icon>
-                </button>
-              </div>
-              @if (form.get('newPassword')?.errors?.['minlength'] && form.get('newPassword')?.touched) {
-                <span class="field-err">Password must be at least 8 characters</span>
-              }
-            </div>
-            <div class="field-wrap">
-              <label>Confirm Password</label>
-              <div class="input-row" [class.focused]="confirmFocused"
-                   [class.invalid]="form.errors?.['mismatch'] && form.get('confirmPassword')?.touched">
-                <mat-icon>lock</mat-icon>
-                <input formControlName="confirmPassword" [type]="showPw ? 'text' : 'password'"
-                  placeholder="Re-enter password" (focus)="confirmFocused=true" (blur)="confirmFocused=false"
-                  autocomplete="new-password" />
-              </div>
-              @if (form.errors?.['mismatch'] && form.get('confirmPassword')?.touched) {
-                <span class="field-err">Passwords do not match</span>
-              }
-            </div>
-            <button class="btn-primary" type="submit" [disabled]="form.invalid || loading()">
-              @if (loading()) { <span class="spinner"></span> Updating… }
-              @else { <mat-icon>check_circle</mat-icon> Set New Password }
-            </button>
-          </form>
+        <div class="reset-password__header">
+          <h1 class="reset-password__title">Reset your password</h1>
+          <p class="reset-password__subtitle">
+            Create a strong password with at least 8 characters.
+          </p>
+        </div>
+
+        <!-- Error Alert -->
+        @if (error()) {
+          <app-alert variant="error" [dismissible]="true" (dismiss)="error.set(null)">
+            {{ error() }}
+          </app-alert>
         }
-      </div>
+
+        <form [formGroup]="resetForm" (ngSubmit)="submit()" class="reset-password__form">
+          <app-input
+            label="New Password"
+            type="password"
+            formControlName="password"
+            placeholder="Enter new password"
+            [error]="resetForm.get('password')?.invalid && resetForm.get('password')?.touched"
+            [errorMessage]="getPasswordError()"
+            hint="At least 8 characters with a number"
+          />
+          
+          <app-input
+            label="Confirm Password"
+            type="password"
+            formControlName="confirmPassword"
+            placeholder="Confirm new password"
+            [error]="resetForm.get('confirmPassword')?.invalid && resetForm.get('confirmPassword')?.touched"
+            errorMessage="Passwords do not match"
+          />
+          
+          <app-button 
+            type="submit" 
+            [fullWidth]="true" 
+            [loading]="loading()"
+            [disabled]="resetForm.invalid"
+            size="lg"
+          >
+            Reset Password
+          </app-button>
+        </form>
+      } @else {
+        <!-- Success State -->
+        <div class="reset-password__success">
+          <div class="reset-password__success-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+          </div>
+          <h2 class="reset-password__success-title">Password reset successful</h2>
+          <p class="reset-password__success-text">
+            Your password has been reset successfully. You can now sign in with your new password.
+          </p>
+          <app-button [fullWidth]="true" (clicked)="goToLogin()">
+            Sign In
+          </app-button>
+        </div>
+      }
     </div>
   `,
   styles: [`
-    .auth-page { min-height:100vh; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,#f0fdf9 0%,#e0f2f1 100%); padding:1.5rem; }
-    .auth-card { background:#fff; border-radius:20px; padding:2.5rem 2rem; width:100%; max-width:420px; box-shadow:0 8px 32px rgba(0,0,0,.1); display:flex; flex-direction:column; gap:1.25rem; }
-    .auth-logo { text-align:center;
-      .logo-icon { font-size:2.5rem; margin-bottom:.5rem; }
-      h2 { font-size:1.4rem; font-weight:800; color:#1a202c; margin-bottom:.25rem; }
-      p { font-size:.875rem; color:#718096; }
+    .reset-password {
+      background: var(--bg-primary);
+      border-radius: var(--radius-2xl);
+      padding: var(--space-8);
+      box-shadow: var(--shadow-xl);
+      text-align: center;
+      
+      @media (max-width: 1024px) {
+        padding: var(--space-6);
+        box-shadow: none;
+        background: transparent;
+      }
     }
-    .alert { display:flex; align-items:flex-start; gap:.5rem; padding:.75rem 1rem; border-radius:10px; font-size:.875rem;
-      mat-icon { font-size:1.1rem; width:1.1rem; height:1.1rem; flex-shrink:0; margin-top:1px; }
-      a { color:inherit; font-weight:600; }
-      &.error { background:#fed7d7; color:#9b2c2c; }
-      &.success { background:#c6f6d5; color:#22543d; }
+    
+    .reset-password__mobile-logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-6);
     }
-    .field-wrap { display:flex; flex-direction:column; gap:.4rem; label { font-size:.85rem; font-weight:600; color:#4a5568; } }
-    .input-row { display:flex; align-items:center; gap:.6rem; background:#f7fafc; border:1.5px solid #e2e8f0; border-radius:12px; padding:.7rem 1rem; transition:border-color .15s;
-      mat-icon { color:#a0aec0; font-size:1.2rem; width:1.2rem; height:1.2rem; flex-shrink:0; }
-      input { flex:1; border:none; outline:none; font-size:1rem; color:#2d3748; background:transparent; }
-      &.focused { border-color:#00796b; background:#fff; }
-      &.invalid { border-color:#e53e3e; }
+    
+    .reset-password__logo-icon {
+      width: 40px;
+      height: 40px;
+      color: var(--color-primary-600);
     }
-    .btn-eye { background:none; border:none; cursor:pointer; padding:0; color:#a0aec0; display:flex; align-items:center; mat-icon { font-size:1.2rem; width:1.2rem; height:1.2rem; } &:hover { color:#4a5568; } }
-    .field-err { font-size:.78rem; color:#e53e3e; }
-    .btn-primary { width:100%; display:flex; align-items:center; justify-content:center; gap:.5rem; background:#00796b; color:#fff; border:none; border-radius:12px; padding:.85rem; font-size:1rem; font-weight:700; cursor:pointer; transition:background .15s;
-      mat-icon { font-size:1.1rem; width:1.1rem; height:1.1rem; }
-      &:hover:not(:disabled) { background:#00695c; }
-      &:disabled { opacity:.55; cursor:not-allowed; }
+    
+    .reset-password__logo-text {
+      font-family: var(--font-display);
+      font-size: var(--text-xl);
+      font-weight: var(--font-bold);
+      color: var(--text-primary);
     }
-    .btn-secondary { display:flex; align-items:center; justify-content:center; background:#f7fafc; color:#4a5568; border:1.5px solid #e2e8f0; border-radius:12px; padding:.75rem; font-size:.95rem; font-weight:600; cursor:pointer; text-decoration:none; &:hover { background:#edf2f7; } }
-    .spinner { width:18px; height:18px; border:2px solid rgba(255,255,255,.4); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; }
-    @keyframes spin { to { transform:rotate(360deg); } }
-  `],
+    
+    .reset-password__icon-wrapper {
+      display: flex;
+      justify-content: center;
+      margin-bottom: var(--space-6);
+    }
+    
+    .reset-password__icon {
+      width: 72px;
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--color-primary-50);
+      color: var(--color-primary-600);
+      border-radius: var(--radius-2xl);
+      
+      svg { width: 36px; height: 36px; }
+    }
+    
+    .reset-password__header {
+      margin-bottom: var(--space-6);
+    }
+    
+    .reset-password__title {
+      font-family: var(--font-display);
+      font-size: var(--text-2xl);
+      font-weight: var(--font-bold);
+      color: var(--text-primary);
+      margin: 0 0 var(--space-3) 0;
+    }
+    
+    .reset-password__subtitle {
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+      margin: 0;
+    }
+    
+    .reset-password__form {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+      text-align: left;
+    }
+    
+    .reset-password__success {
+      margin-bottom: var(--space-6);
+    }
+    
+    .reset-password__success-icon {
+      width: 72px;
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--color-success-50);
+      color: var(--color-success-600);
+      border-radius: var(--radius-full);
+      margin: 0 auto var(--space-6);
+      
+      svg { width: 36px; height: 36px; }
+    }
+    
+    .reset-password__success-title {
+      font-size: var(--text-xl);
+      font-weight: var(--font-bold);
+      color: var(--text-primary);
+      margin: 0 0 var(--space-2) 0;
+    }
+    
+    .reset-password__success-text {
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+      line-height: var(--leading-relaxed);
+      margin: 0 0 var(--space-6) 0;
+    }
+    
+    .lg\\:hidden {
+      @media (min-width: 1024px) { display: none; }
+    }
+  `]
 })
 export class ResetPasswordComponent implements OnInit {
-  token = signal<string | null>(null);
+  private fb = inject(FormBuilder);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private authApi = inject(AuthApiService);
+  
+  token = '';
+  
   loading = signal(false);
   error = signal<string | null>(null);
   success = signal(false);
-  pwFocused = false;
-  confirmFocused = false;
-  showPw = false;
-
-  form = this.fb.group({
-    newPassword: ['', [Validators.required, Validators.minLength(8)]],
-    confirmPassword: ['', [Validators.required]],
-  }, { validators: passwordsMatch });
-
-  constructor(
-    private fb: FormBuilder,
-    private route: ActivatedRoute,
-    private router: Router,
-    private authApi: AuthApiService,
-  ) {}
-
+  
+  resetForm = this.fb.group({
+    password: ['', [Validators.required, Validators.minLength(8), this.passwordStrength]],
+    confirmPassword: ['', Validators.required]
+  }, {
+    validators: this.passwordMatchValidator
+  });
+  
   ngOnInit(): void {
-    const t = this.route.snapshot.queryParamMap.get('token');
-    this.token.set(t);
+    this.route.queryParams.subscribe(params => {
+      this.token = params['token'] || '';
+      if (!this.token) {
+        this.router.navigate(['/auth/forgot-password']);
+      }
+    });
   }
-
+  
+  passwordStrength(control: AbstractControl): { [key: string]: boolean } | null {
+    const value = control.value;
+    if (!value) return null;
+    if (!/\d/.test(value)) return { noNumber: true };
+    return null;
+  }
+  
+  passwordMatchValidator(group: FormGroup): { [key: string]: boolean } | null {
+    const password = group.get('password')?.value;
+    const confirmPassword = group.get('confirmPassword')?.value;
+    if (password && confirmPassword && password !== confirmPassword) {
+      group.get('confirmPassword')?.setErrors({ mismatch: true });
+      return { mismatch: true };
+    }
+    return null;
+  }
+  
+  getPasswordError(): string {
+    const control = this.resetForm.get('password');
+    if (control?.hasError('required')) return 'Password is required';
+    if (control?.hasError('minlength')) return 'Password must be at least 8 characters';
+    if (control?.hasError('noNumber')) return 'Password must contain at least one number';
+    return 'Invalid password';
+  }
+  
   submit(): void {
-    if (this.form.invalid || !this.token()) return;
-    this.error.set(null);
+    if (this.resetForm.invalid) return;
+    
     this.loading.set(true);
-
-    this.authApi.resetPassword(this.token()!, this.form.value.newPassword!).subscribe({
+    this.error.set(null);
+    
+    const password = this.resetForm.value.password!;
+    
+    this.authApi.resetPassword(this.token, password).subscribe({
       next: () => {
         this.loading.set(false);
         this.success.set(true);
-        setTimeout(() => this.router.navigate(['/auth/login']), 2000);
       },
       error: (err) => {
         this.loading.set(false);
-        this.error.set(err.error?.message ?? 'Reset link is invalid or expired.');
-      },
+        this.error.set(err.error?.detail || 'Failed to reset password. The link may have expired.');
+      }
     });
+  }
+  
+  goToLogin(): void {
+    this.router.navigate(['/auth/login']);
   }
 }

@@ -138,6 +138,7 @@ class AuthService:
             raise _INVALID_CREDENTIALS
 
         result = await self._create_session_and_tokens(user, device_identifier, ip_address)
+        result["is_temp_password"] = bool(getattr(user, "is_temp_password", False))
         await audit(
             self.db,
             action_type="USER_LOGIN_SUCCESS",
@@ -195,7 +196,12 @@ class AuthService:
                 detail={"error_code": "INVALID_CREDENTIALS", "message": "Current password is incorrect"},
             )
         new_hash = _hash_password(new_password)
-        await self.user_repo.update(user_id, password_hash=new_hash)
+        await self.user_repo.update(
+            user_id,
+            password_hash=new_hash,
+            is_temp_password=False,
+            password_changed_at=datetime.now(timezone.utc),
+        )
 
     async def _create_session_and_tokens(
         self,

@@ -12,10 +12,12 @@ export interface CurrentUser {
 export class AuthStateService {
   private _accessToken = signal<string | null>(null);
   private _currentUser = signal<CurrentUser | null>(null);
+  private _mustChangePassword = signal<boolean>(false);
 
   readonly isAuthenticated = computed(() => this._accessToken() !== null);
   readonly currentUser = this._currentUser.asReadonly();
   readonly role = computed(() => this._currentUser()?.role ?? null);
+  readonly mustChangePassword = this._mustChangePassword.asReadonly();
 
   constructor() {
     // Restore session from localStorage on page load
@@ -31,6 +33,7 @@ export class AuthStateService {
             name: payload.name ?? '',
             role: payload.role,
           });
+          this._mustChangePassword.set(localStorage.getItem('must_change_password') === '1');
         } else {
           // Token expired — clear it, refresh interceptor will handle renewal
           localStorage.removeItem('access_token');
@@ -41,10 +44,33 @@ export class AuthStateService {
     }
   }
 
-  setTokens(accessToken: string, refreshToken: string): void {
+  setTokens(accessToken: string, refreshToken: string, isTempPassword = false): void {
     this._accessToken.set(accessToken);
+    this._mustChangePassword.set(isTempPassword);
     localStorage.setItem('access_token', accessToken);
     localStorage.setItem('refresh_token', refreshToken);
+    if (isTempPassword) {
+      localStorage.setItem('must_change_password', '1');
+    } else {
+      localStorage.removeItem('must_change_password');
+    }
+
+    // Parse JWT and set user info immediately
+    try {
+      const payload = JSON.parse(atob(accessToken.split('.')[1]));
+      this._currentUser.set({
+        id: payload.sub,
+        name: payload.name ?? '',
+        role: payload.role,
+      });
+    } catch {
+      console.error('Failed to parse JWT token');
+    }
+  }
+
+  clearMustChangePassword(): void {
+    this._mustChangePassword.set(false);
+    localStorage.removeItem('must_change_password');
   }
 
   setUser(user: CurrentUser): void {
@@ -58,8 +84,10 @@ export class AuthStateService {
   clearSession(): void {
     this._accessToken.set(null);
     this._currentUser.set(null);
+    this._mustChangePassword.set(false);
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
+    localStorage.removeItem('must_change_password');
   }
 
   getRefreshToken(): string | null {

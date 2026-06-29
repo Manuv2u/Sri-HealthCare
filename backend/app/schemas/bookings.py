@@ -83,9 +83,24 @@ class BookingOut(BaseModel):
     cancellation_fee: float | None = None
     cancellation_fee_type: str | None = None
     technician_notes: str | None = None
+    total_amount: float = 0
     created_at: datetime
     updated_at: datetime
     items: list[BookingItemOut] = []
+
+    # ── Enriched detail fields (populated by GET /bookings/{id}) ──
+    patient_name: str | None = None
+    patient_gender: str | None = None
+    patient_relationship: str | None = None
+    contact_name: str | None = None
+    contact_phone: str | None = None
+    contact_email: str | None = None
+    address: dict | None = None
+    time_slot: dict | None = None
+    lab_branch: dict | None = None
+    payment: dict | None = None
+    assigned_technician: dict | None = None
+    status_history: list[dict] = []
 
     model_config = {"from_attributes": True}
 

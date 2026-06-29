@@ -1,9 +1,10 @@
-import { Component, computed, inject, signal } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
+import { Component, computed, inject, signal, OnInit } from '@angular/core';
+import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
+import { filter } from 'rxjs/operators';
 import { AuthStateService } from './core/auth/auth-state.service';
 
 @Component({
@@ -17,6 +18,7 @@ import { AuthStateService } from './core/auth/auth-state.service';
     <div class="app-shell">
 
       <!-- ── Top Nav ── -->
+      @if (!hideShell()) {
       <header class="top-nav">
         <!-- 2px gradient accent line at top -->
         <div class="nav-accent-line"></div>
@@ -68,44 +70,54 @@ import { AuthStateService } from './core/auth/auth-state.service';
               <a routerLink="/auth/login" class="nav-btn outline">Sign In</a>
               <a routerLink="/auth/register" class="nav-btn solid">Get Started</a>
             } @else {
-              <!-- Avatar dropdown trigger -->
-              <button class="avatar-btn" [matMenuTriggerFor]="userMenu" aria-label="User menu">
-                <span class="avatar">{{ initials() }}</span>
-                <mat-icon class="avatar-chevron">expand_more</mat-icon>
-              </button>
+              <!-- Avatar dropdown trigger (custom dropdown instead of mat-menu) -->
+              <div class="user-dropdown-wrapper">
+                <button class="avatar-btn" (click)="toggleUserMenu($event)" aria-label="User menu">
+                  <span class="avatar">{{ initials() }}</span>
+                  <mat-icon class="avatar-chevron">expand_more</mat-icon>
+                </button>
 
-              <mat-menu #userMenu="matMenu" xPosition="before" class="user-dropdown">
-                <div class="menu-header" (click)="$event.stopPropagation()">
-                  <div class="menu-avatar">{{ initials() }}</div>
-                  <div class="menu-user-info">
-                    <strong>{{ userName() }}</strong>
-                    <span class="role-tag">{{ role() }}</span>
+                @if (userMenuOpen()) {
+                  <div class="user-dropdown-backdrop" (click)="userMenuOpen.set(false)"></div>
+                  <div class="user-dropdown-menu">
+                    <div class="menu-header">
+                      <div class="menu-avatar">{{ initials() }}</div>
+                      <div class="menu-user-info">
+                        <strong>{{ userName() }}</strong>
+                        <span class="role-tag">{{ role() }}</span>
+                      </div>
+                    </div>
+                    <div class="menu-divider"></div>
+                    <a class="menu-item" routerLink="/profile" (click)="userMenuOpen.set(false)">
+                      <mat-icon>person_outline</mat-icon> My Profile
+                    </a>
+                    @if (isAdmin()) {
+                      <a class="menu-item" routerLink="/admin" (click)="userMenuOpen.set(false)">
+                        <mat-icon>admin_panel_settings</mat-icon> Admin Panel
+                      </a>
+                    }
+                    @if (isTechnician()) {
+                      <a class="menu-item" routerLink="/technician" (click)="userMenuOpen.set(false)">
+                        <mat-icon>biotech</mat-icon> Technician Portal
+                      </a>
+                    } @else {
+                      <a class="menu-item" routerLink="/dashboard" (click)="userMenuOpen.set(false)">
+                        <mat-icon>receipt_long</mat-icon> My Bookings
+                      </a>
+                      <a class="menu-item" routerLink="/reports" (click)="userMenuOpen.set(false)">
+                        <mat-icon>description</mat-icon> Reports
+                      </a>
+                    }
+                    <a class="menu-item" routerLink="/auth/change-password" (click)="userMenuOpen.set(false)">
+                      <mat-icon>lock_outline</mat-icon> Change Password
+                    </a>
+                    <div class="menu-divider"></div>
+                    <button class="menu-item logout-item" (click)="logout()">
+                      <mat-icon>logout</mat-icon> Sign Out
+                    </button>
                   </div>
-                </div>
-                <mat-divider />
-                <button mat-menu-item routerLink="/profile">
-                  <mat-icon>person_outline</mat-icon> My Profile
-                </button>
-                @if (isTechnician()) {
-                  <button mat-menu-item routerLink="/technician">
-                    <mat-icon>biotech</mat-icon> Technician Portal
-                  </button>
-                } @else {
-                  <button mat-menu-item routerLink="/dashboard">
-                    <mat-icon>receipt_long</mat-icon> My Bookings
-                  </button>
-                  <button mat-menu-item routerLink="/reports">
-                    <mat-icon>description</mat-icon> Reports
-                  </button>
                 }
-                <button mat-menu-item routerLink="/auth/change-password">
-                  <mat-icon>lock_outline</mat-icon> Change Password
-                </button>
-                <mat-divider />
-                <button mat-menu-item (click)="logout()" class="logout-item">
-                  <mat-icon>logout</mat-icon> Sign Out
-                </button>
-              </mat-menu>
+              </div>
             }
 
             <!-- Hamburger -->
@@ -117,9 +129,11 @@ import { AuthStateService } from './core/auth/auth-state.service';
           </div>
         </div>
       </header>
+      } <!-- end @if (!hideShell()) for top nav -->
 
       <!-- ── Mobile drawer overlay ── -->
-      @if (mobileOpen()) {
+      @if (!hideShell()) {
+        @if (mobileOpen()) {
         <div class="drawer-backdrop" (click)="mobileOpen.set(false)"></div>
         <nav class="mobile-drawer" [class.open]="mobileOpen()">
 
@@ -213,7 +227,8 @@ import { AuthStateService } from './core/auth/auth-state.service';
             }
           </div>
         </nav>
-      }
+        } <!-- end @if (mobileOpen()) -->
+      } <!-- end @if (!hideShell()) for mobile drawer -->
 
       <!-- ── Page content ── -->
       <main class="main-content">
@@ -221,7 +236,7 @@ import { AuthStateService } from './core/auth/auth-state.service';
       </main>
 
       <!-- ── Footer (non-home pages) ── -->
-      @if (!isHome()) {
+      @if (!hideShell() && !isHome()) {
         <footer class="app-footer">
           <div class="footer-inner">
             <!-- Brand column -->
@@ -278,7 +293,7 @@ import { AuthStateService } from './core/auth/auth-state.service';
       }
 
       <!-- ── Bottom navigation (mobile only, not on admin/tech routes) ── -->
-      @if (showBottomNav()) {
+      @if (!hideShell() && showBottomNav()) {
         <nav class="bottom-nav">
           <a routerLink="/" routerLinkActive="bnav-active" [routerLinkActiveOptions]="{exact:true}" class="bnav-item">
             <span class="bnav-pill">
@@ -633,6 +648,66 @@ import { AuthStateService } from './core/auth/auth-state.service';
     }
     .logout-item {
       color: var(--red) !important;
+    }
+
+    /* ── Custom User Dropdown ── */
+    .user-dropdown-wrapper {
+      position: relative;
+    }
+    .user-dropdown-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+    }
+    .user-dropdown-menu {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      min-width: 220px;
+      background: var(--surface);
+      border-radius: var(--r);
+      box-shadow: 0 10px 40px rgba(15, 23, 42, 0.15), 0 4px 12px rgba(15, 23, 42, 0.1);
+      border: 1px solid var(--border);
+      z-index: 1001;
+      overflow: hidden;
+      animation: dropdown-in 0.15s ease;
+    }
+    @keyframes dropdown-in {
+      from { opacity: 0; transform: translateY(-8px) scale(0.96); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .menu-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 0.25rem 0;
+    }
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      width: 100%;
+      padding: 0.65rem 1rem;
+      background: none;
+      border: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-2);
+      text-decoration: none;
+      cursor: pointer;
+      transition: background var(--t), color var(--t);
+    }
+    .menu-item:hover {
+      background: var(--indigo-lt);
+      color: var(--indigo);
+    }
+    .menu-item mat-icon {
+      font-size: 1.1rem;
+      width: 1.1rem;
+      height: 1.1rem;
+    }
+    .menu-item.logout-item:hover {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--red);
     }
 
     /* Hamburger */
@@ -1208,11 +1283,25 @@ import { AuthStateService } from './core/auth/auth-state.service';
     }
   `],
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   private auth   = inject(AuthStateService);
   private router = inject(Router);
 
-  mobileOpen = signal(false);
+  mobileOpen   = signal(false);
+  userMenuOpen = signal(false);
+  currentUrl   = signal(this.router.url);   // reactive URL signal
+
+  ngOnInit(): void {
+    // Keep currentUrl signal in sync with every navigation
+    this.router.events
+      .pipe(filter(e => e instanceof NavigationEnd))
+      .subscribe((e: any) => this.currentUrl.set(e.urlAfterRedirects));
+  }
+
+  toggleUserMenu(event: Event): void {
+    event.stopPropagation();
+    this.userMenuOpen.set(!this.userMenuOpen());
+  }
 
   isAuth       = this.auth.isAuthenticated;
   role         = computed(() => this.auth.currentUser()?.role ?? '');
@@ -1224,11 +1313,18 @@ export class AppComponent {
     return name ? name.split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2) : 'U';
   });
   isHome = computed(() => {
-    const url = this.router.url;
+    const url = this.currentUrl();
     return url === '/' || url === '';
   });
+  /** Routes with their own complete layout — hide global shell for these */
+  hideShell = computed(() => {
+    const url = this.currentUrl();
+    return url.startsWith('/admin') ||
+           url.startsWith('/technician') ||
+           url.startsWith('/auth');
+  });
   showBottomNav = computed(() => {
-    const url = this.router.url;
+    const url = this.currentUrl();
     return !url.startsWith('/admin') && !url.startsWith('/technician');
   });
 

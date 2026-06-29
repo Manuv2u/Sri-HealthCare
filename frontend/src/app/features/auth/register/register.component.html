@@ -1,0 +1,263 @@
+<div class="auth-page">
+  <!-- Left Panel - Branding -->
+  <aside class="auth-brand" role="complementary" aria-label="Sri Health Care branding">
+    <div class="auth-brand__header">
+      <a routerLink="/" class="auth-brand__logo" aria-label="Go to homepage">
+        <div class="auth-brand__logo-icon">
+          <svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="56" height="56" rx="14" fill="currentColor" fill-opacity="0.15"/>
+            <rect x="4" y="4" width="48" height="48" rx="12" fill="currentColor" fill-opacity="0.2"/>
+            <path d="M28 12V44M12 28H44" stroke="white" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="28" cy="28" r="6" fill="white"/>
+            <circle cx="28" cy="28" r="3" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="auth-brand__logo-text">
+          <span class="auth-brand__logo-name">Sri Health Care</span>
+          <span class="auth-brand__logo-tagline">Diagnostic Laboratory</span>
+        </div>
+      </a>
+    </div>
+
+    <div class="auth-brand__hero">
+      <h1 class="auth-brand__title">
+        Join Thousands of<br/>
+        Happy Patients
+      </h1>
+      <p class="auth-brand__subtitle">
+        Create your account to book lab tests, track your health records, 
+        and manage appointments with ease. Your health journey starts here.
+      </p>
+
+      <div class="auth-brand__features">
+        <div class="auth-brand__feature">
+          <span class="auth-brand__feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M22 21v-2a4 4 0 00-3-3.87"/>
+              <path d="M16 3.13a4 4 0 010 7.75"/>
+            </svg>
+          </span>
+          <span>Family Health Management</span>
+        </div>
+        <div class="auth-brand__feature">
+          <span class="auth-brand__feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+              <polyline points="10 9 9 9 8 9"/>
+            </svg>
+          </span>
+          <span>Digital Health Records</span>
+        </div>
+        <div class="auth-brand__feature">
+          <span class="auth-brand__feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="1" x2="12" y2="23"/>
+              <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+            </svg>
+          </span>
+          <span>Best Price Guarantee</span>
+        </div>
+        <div class="auth-brand__feature">
+          <span class="auth-brand__feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              <polyline points="9 12 12 15 16 10"/>
+            </svg>
+          </span>
+          <span>100% Safe &amp; Secure</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="auth-brand__testimonial">
+      <div class="auth-brand__testimonial-card">
+        <p class="auth-brand__quote">
+          "Registering was so easy! I can now manage health tests for my entire family 
+          from one account. The reports are clear and always on time."
+        </p>
+        <div class="auth-brand__author">
+          <div class="auth-brand__author-avatar">SP</div>
+          <div class="auth-brand__author-info">
+            <span class="auth-brand__author-name">Sunita Patel</span>
+            <span class="auth-brand__author-role">Family Account Holder</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="auth-brand__footer">
+      <p>&copy; {{ currentYear }} Sri Diagnostic Laboratory. All rights reserved.</p>
+    </div>
+  </aside>
+
+  <!-- Right Panel - Register Form -->
+  <main class="auth-content" role="main">
+    <div class="auth-content__inner">
+      <div class="auth-card auth-card--register">
+        <!-- Mobile Logo -->
+        <div class="auth-card__mobile-logo">
+          <div class="auth-card__mobile-logo-icon">
+            <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="44" height="44" rx="11" fill="currentColor" fill-opacity="0.1"/>
+              <path d="M22 10V34M10 22H34" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+              <circle cx="22" cy="22" r="4" fill="currentColor"/>
+            </svg>
+          </div>
+          <span class="auth-card__mobile-logo-text">Sri Health</span>
+        </div>
+
+        <!-- Header -->
+        <div class="auth-card__header">
+          <h2 class="auth-card__title">Create your account</h2>
+          <p class="auth-card__subtitle">Start your health journey with us today</p>
+        </div>
+
+        <!-- Error Alert -->
+        @if (error()) {
+          <app-alert variant="error" [dismissible]="true" (dismiss)="error.set(null)">
+            {{ error() }}
+          </app-alert>
+        }
+
+        <!-- Register Form -->
+        <form 
+          [formGroup]="registerForm" 
+          (ngSubmit)="register()" 
+          class="auth-form"
+          aria-label="Registration form"
+        >
+          <div class="auth-form__group">
+            <app-input
+              label="Full Name"
+              type="text"
+              formControlName="name"
+              placeholder="Enter your full name"
+              [error]="registerForm.get('name')?.invalid && registerForm.get('name')?.touched"
+              [errorMessage]="getNameError()"
+              [iconLeft]="userIcon"
+              size="lg"
+              [required]="true"
+              autocomplete="name"
+            />
+          </div>
+          
+          <div class="auth-form__group">
+            <app-input
+              label="Phone Number"
+              type="tel"
+              formControlName="phone"
+              placeholder="Enter your 10-digit phone number"
+              [error]="registerForm.get('phone')?.invalid && registerForm.get('phone')?.touched"
+              errorMessage="Please enter a valid 10-digit phone number"
+              [iconLeft]="phoneIcon"
+              size="lg"
+              [required]="true"
+              autocomplete="tel"
+            />
+          </div>
+          
+          <div class="auth-form__group">
+            <app-input
+              label="Email Address"
+              type="email"
+              formControlName="email"
+              placeholder="Enter your email address"
+              [error]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched"
+              errorMessage="Please enter a valid email address"
+              [iconLeft]="emailIcon"
+              size="lg"
+              [required]="true"
+              autocomplete="email"
+            />
+          </div>
+          
+          <div class="auth-form__group">
+            <app-input
+              label="Password"
+              type="password"
+              formControlName="password"
+              placeholder="Create a strong password"
+              [error]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched"
+              [errorMessage]="getPasswordError()"
+              size="lg"
+              [required]="true"
+              autocomplete="new-password"
+              (input)="onPasswordInput($event)"
+            />
+            
+            <!-- Password Strength Indicator -->
+            @if (passwordValue()) {
+              <div class="password-strength" role="status" aria-live="polite">
+                <div class="password-strength__bar">
+                  <div 
+                    class="password-strength__fill"
+                    [class.password-strength__fill--weak]="passwordStrength() === 'weak'"
+                    [class.password-strength__fill--fair]="passwordStrength() === 'fair'"
+                    [class.password-strength__fill--good]="passwordStrength() === 'good'"
+                    [class.password-strength__fill--strong]="passwordStrength() === 'strong'"
+                  ></div>
+                </div>
+                <span class="password-strength__text">{{ passwordStrengthText() }}</span>
+              </div>
+            }
+          </div>
+          
+          <div class="auth-form__group">
+            <app-input
+              label="Confirm Password"
+              type="password"
+              formControlName="confirmPassword"
+              placeholder="Confirm your password"
+              [error]="registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched"
+              errorMessage="Passwords do not match"
+              size="lg"
+              [required]="true"
+              autocomplete="new-password"
+            />
+          </div>
+          
+          <div class="auth-form__terms">
+            <label class="auth-form__terms-checkbox">
+              <input 
+                type="checkbox" 
+                formControlName="acceptTerms"
+                aria-describedby="terms-description"
+              />
+              <span class="auth-form__terms-text" id="terms-description">
+                I agree to the 
+                <a href="/terms" target="_blank" rel="noopener">Terms of Service</a> 
+                and 
+                <a href="/privacy" target="_blank" rel="noopener">Privacy Policy</a>
+              </span>
+            </label>
+          </div>
+          
+          <div class="auth-form__submit">
+            <app-button 
+              type="submit" 
+              [fullWidth]="true" 
+              [loading]="loading()"
+              [disabled]="registerForm.invalid"
+              size="lg"
+            >
+              Create Account
+            </app-button>
+          </div>
+        </form>
+
+        <!-- Login Link -->
+        <div class="auth-footer">
+          <p class="auth-footer__text">
+            Already have an account?
+            <a routerLink="/auth/login" class="auth-footer__link">Sign in</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

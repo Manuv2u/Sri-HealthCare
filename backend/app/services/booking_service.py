@@ -42,6 +42,8 @@ def _item_to_dict(item: object) -> dict:
 
 
 def _booking_to_dict(booking: Booking) -> dict:
+    items = list(booking.items or [])
+    total_amount = float(sum(float(i.unit_price) for i in items))
     return {
         "id": booking.id,
         "reference_number": booking.reference_number,
@@ -63,9 +65,10 @@ def _booking_to_dict(booking: Booking) -> dict:
         "cancellation_fee": float(booking.cancellation_fee) if booking.cancellation_fee is not None else None,
         "cancellation_fee_type": booking.cancellation_fee_type,
         "technician_notes": booking.technician_notes,
+        "total_amount": total_amount,
         "created_at": booking.created_at,
         "updated_at": booking.updated_at,
-        "items": [_item_to_dict(i) for i in (booking.items or [])],
+        "items": [_item_to_dict(i) for i in items],
     }
 
 
@@ -214,7 +217,121 @@ class BookingService:
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail={"error_code": "FORBIDDEN", "message": "Access denied"},
             )
-        return _booking_to_dict(booking)
+        data = _booking_to_dict(booking)
+        await self._enrich_detail(data, booking)
+        return data
+
+    async def _enrich_detail(self, data: dict, booking: Booking) -> None:
+        """Augment a booking dict with patient, contact, address, slot, lab, payment,
+        assigned technician and full status-history timeline for the detail view."""
+        from sqlalchemy import select
+        from app.models.user import User, FamilyMember, UserAddress
+        from app.models.service import TimeSlot, LabBranch, Technician, TechnicianAssignment
+        from app.models.payment import Payment
+        from app.models.booking import BookingStatusHistory
+
+        # ── Booking owner (contact) ──
+        owner = (await self.db.execute(select(User).where(User.id == booking.user_id))).scalar_one_or_none()
+        if owner is not None:
+            data["contact_name"] = owner.name
+            data["contact_phone"] = owner.phone
+            data["contact_email"] = owner.email
+
+        # ── Patient (family member, or the account holder when no patient_id) ──
+        if booking.patient_id is not None:
+            member = (await self.db.execute(select(FamilyMember).where(FamilyMember.id == booking.patient_id))).scalar_one_or_none()
+            if member is not None:
+                data["patient_name"] = member.name
+                data["patient_gender"] = member.gender
+                data["patient_relationship"] = member.relationship_type
+        elif owner is not None:
+            data["patient_name"] = owner.name
+            data["patient_gender"] = owner.gender
+            data["patient_relationship"] = "Self"
+
+        # ── Address (default address for home collection) ──
+        if booking.collection_type == "home":
+            addr_q = (
+                select(UserAddress)
+                .where(UserAddress.user_id == booking.user_id, UserAddress.deleted_at.is_(None))
+                .order_by(UserAddress.is_default.desc(), UserAddress.created_at.desc())
+            )
+            addr = (await self.db.execute(addr_q)).scalars().first()
+            if addr is not None:
+                data["address"] = {
+                    "label": addr.label,
+                    "address_line1": addr.address_line1,
+                    "address_line2": addr.address_line2,
+                    "city": addr.city,
+                    "state": addr.state,
+                    "pincode": addr.pincode,
+                }
+
+        # ── Time slot ──
+        slot = (await self.db.execute(select(TimeSlot).where(TimeSlot.id == booking.time_slot_id))).scalar_one_or_none()
+        if slot is not None:
+            data["time_slot"] = {
+                "start_time": slot.start_time.strftime("%H:%M"),
+                "end_time": slot.end_time.strftime("%H:%M"),
+                "collection_type": slot.collection_type,
+            }
+
+        # ── Lab branch ──
+        if booking.lab_branch_id is not None:
+            branch = (await self.db.execute(select(LabBranch).where(LabBranch.id == booking.lab_branch_id))).scalar_one_or_none()
+            if branch is not None:
+                data["lab_branch"] = {
+                    "name": branch.name,
+                    "address": branch.address,
+                    "city": branch.city,
+                    "pincode": branch.pincode,
+                    "phone": branch.phone,
+                }
+
+        # ── Payment ──
+        payment = (await self.db.execute(select(Payment).where(Payment.booking_id == booking.id))).scalar_one_or_none()
+        if payment is not None:
+            data["payment"] = {
+                "method": payment.method,
+                "status": payment.status,
+                "amount": float(payment.amount),
+                "gst_amount": float(payment.gst_amount),
+                "invoice_number": payment.invoice_number,
+                "paid_at": payment.paid_at.isoformat() if payment.paid_at else None,
+            }
+
+        # ── Assigned technician ──
+        assignment = (
+            await self.db.execute(
+                select(TechnicianAssignment).where(TechnicianAssignment.booking_id == booking.id)
+            )
+        ).scalar_one_or_none()
+        if assignment is not None:
+            tech = (await self.db.execute(select(Technician).where(Technician.id == assignment.technician_id))).scalar_one_or_none()
+            data["assigned_technician"] = {
+                "id": str(assignment.technician_id),
+                "name": tech.name if tech else None,
+                "phone": tech.phone if tech else None,
+                "assignment_status": assignment.status,
+                "assigned_at": assignment.assigned_at.isoformat() if assignment.assigned_at else None,
+            }
+
+        # ── Status history timeline ──
+        history_q = (
+            select(BookingStatusHistory)
+            .where(BookingStatusHistory.booking_id == booking.id)
+            .order_by(BookingStatusHistory.changed_at.asc())
+        )
+        history = (await self.db.execute(history_q)).scalars().all()
+        data["status_history"] = [
+            {
+                "from_status": h.from_status,
+                "to_status": h.to_status,
+                "reason": h.reason,
+                "changed_at": h.changed_at.isoformat() if h.changed_at else None,
+            }
+            for h in history
+        ]
 
     async def list_bookings(
         self,

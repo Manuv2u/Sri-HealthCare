@@ -97,16 +97,86 @@ export interface Booking {
   id: string;
   reference_number: string;
   user_id: string;
+  patient_id?: string;
   collection_type: string;
+  time_slot_id?: string;
   booking_date: string;
+  lab_branch_id?: string;
+  pincode?: string;
   status: string;
   payment_status: string;
   total_amount: number;
   technician_notes?: string;
   cancellation_reason?: string;
   cancellation_fee?: number;
+  collected_at?: string;
+  processing_started_at?: string;
+  completed_at?: string;
+  cancelled_at?: string;
   created_at: string;
+  updated_at?: string;
   items?: BookingItem[];
+
+  // Enriched detail fields (from GET /bookings/{id})
+  patient_name?: string;
+  patient_gender?: string;
+  patient_relationship?: string;
+  contact_name?: string;
+  contact_phone?: string;
+  contact_email?: string;
+  address?: BookingAddress;
+  time_slot?: BookingTimeSlot;
+  lab_branch?: BookingLabBranch;
+  payment?: BookingPayment;
+  assigned_technician?: AssignedTechnician;
+  status_history?: BookingStatusHistoryEntry[];
+}
+
+export interface BookingAddress {
+  label: string;
+  address_line1: string;
+  address_line2?: string;
+  city: string;
+  state: string;
+  pincode: string;
+}
+
+export interface BookingTimeSlot {
+  start_time: string;
+  end_time: string;
+  collection_type: string;
+}
+
+export interface BookingLabBranch {
+  name: string;
+  address: string;
+  city: string;
+  pincode: string;
+  phone: string;
+}
+
+export interface BookingPayment {
+  method: string;
+  status: string;
+  amount: number;
+  gst_amount: number;
+  invoice_number?: string;
+  paid_at?: string;
+}
+
+export interface AssignedTechnician {
+  id: string;
+  name?: string;
+  phone?: string;
+  assignment_status: string;
+  assigned_at?: string;
+}
+
+export interface BookingStatusHistoryEntry {
+  from_status?: string;
+  to_status: string;
+  reason?: string;
+  changed_at?: string;
 }
 
 export interface Report {
@@ -151,6 +221,7 @@ export interface AuthTokens {
   access_token: string;
   refresh_token: string;
   token_type: string;
+  is_temp_password?: boolean;
 }
 
 export interface UserAddress {

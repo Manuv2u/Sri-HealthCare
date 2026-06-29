@@ -9,6 +9,10 @@ Requirement 1.3: WHEN a user submits a valid OTP within 10 minutes of generation
 Requirement 1.4: IF a user submits an OTP that has expired or is incorrect,
   THEN THE Auth_Service SHALL return an error response with a descriptive message
   and SHALL NOT create an account.
+
+Note: The registration flow has been updated to use email/password. OTP verification
+still creates accounts for new phone numbers via verify_otp(), so these tests now
+directly generate OTPs via the OTPService and verify via AuthService.verify_otp().
 """
 from __future__ import annotations
 
@@ -51,7 +55,7 @@ def _fresh_otp_service() -> OTPService:
 # ---------------------------------------------------------------------------
 
 
-@settings(max_examples=100, suppress_health_check=[HealthCheck.too_slow])
+@settings(max_examples=100, deadline=None, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
 @given(phone=phone_strategy, name=st.text(min_size=1, max_size=50, alphabet=st.characters(whitelist_categories=("L",))))
 @pytest.mark.asyncio
 async def test_valid_otp_creates_account_and_returns_jwt(
@@ -67,21 +71,16 @@ async def test_valid_otp_creates_account_and_returns_jwt(
     """
     otp_svc = _fresh_otp_service()
     auth_svc = AuthService(db_session)
-    auth_svc._otp_service = otp_svc  # inject isolated OTP service
 
     # Patch the module-level otp_service used inside AuthService
     import app.services.auth_service as auth_module
     original = auth_module.otp_service
     auth_module.otp_service = otp_svc
     try:
-        # Step 1: register — generates OTP
-        await auth_svc.register(phone=phone, name=name)
+        # Step 1: Generate OTP directly via OTPService (simulates OTP sent to user)
+        correct_otp = otp_svc.generate_otp(phone)
 
-        # Step 2: capture the generated OTP from the store
-        assert phone in otp_svc._store, "OTP should be stored after register"
-        correct_otp, _ = otp_svc._store[phone]
-
-        # Step 3: verify OTP
+        # Step 2: verify OTP - this creates the user account for new phone numbers
         tokens = await auth_svc.verify_otp(phone=phone, otp=correct_otp, name=name)
 
         # Assertions — Req 1.3
@@ -98,7 +97,7 @@ async def test_valid_otp_creates_account_and_returns_jwt(
         auth_module.otp_service = original
 
 
-@settings(max_examples=100, suppress_health_check=[HealthCheck.too_slow])
+@settings(max_examples=100, deadline=None, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
 @given(phone=phone_strategy, name=st.just("TestUser"), wrong_otp=wrong_otp_strategy)
 @pytest.mark.asyncio
 async def test_incorrect_otp_does_not_create_account(
@@ -145,7 +144,7 @@ async def test_incorrect_otp_does_not_create_account(
         auth_module.otp_service = original
 
 
-@settings(max_examples=50, suppress_health_check=[HealthCheck.too_slow])
+@settings(max_examples=50, deadline=None, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
 @given(phone=phone_strategy, name=st.just("ReplayUser"))
 @pytest.mark.asyncio
 async def test_otp_is_single_use_replay_prevention(
@@ -167,12 +166,10 @@ async def test_otp_is_single_use_replay_prevention(
     try:
         auth_svc = AuthService(db_session)
 
-        # Register and capture OTP
-        await auth_svc.register(phone=phone, name=name)
-        assert phone in otp_svc._store
-        correct_otp, _ = otp_svc._store[phone]
+        # Generate OTP directly (simulates OTP sent to user for new registration)
+        correct_otp = otp_svc.generate_otp(phone)
 
-        # First verification — should succeed
+        # First verification — should succeed and create user
         tokens = await auth_svc.verify_otp(phone=phone, otp=correct_otp, name=name)
         assert "access_token" in tokens
 

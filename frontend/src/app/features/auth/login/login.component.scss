@@ -1,0 +1,114 @@
+// Login Component Styles
+// Inherits from global auth-styles.scss
+
+// Additional component-specific animations
+@keyframes brandFeatureEnter {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes formFieldEnter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Staggered animations for features
+.auth-brand__feature {
+  animation: brandFeatureEnter 0.4s cubic-bezier(0, 0, 0.2, 1) both;
+  
+  @for $i from 1 through 4 {
+    &:nth-child(#{$i}) {
+      animation-delay: #{0.1 + ($i * 0.08)}s;
+    }
+  }
+}
+
+// Staggered animations for form fields
+.auth-form__group,
+.auth-form__row,
+.auth-form__submit {
+  animation: formFieldEnter 0.35s cubic-bezier(0, 0, 0.2, 1) both;
+}
+
+.auth-form__group:nth-child(1) { animation-delay: 0.1s; }
+.auth-form__group:nth-child(2) { animation-delay: 0.15s; }
+.auth-form__row { animation-delay: 0.2s; }
+.auth-form__submit { animation-delay: 0.25s; }
+
+// Mode toggle enhanced styling
+.auth-mode-toggle {
+  animation: formFieldEnter 0.35s cubic-bezier(0, 0, 0.2, 1) both;
+  animation-delay: 0.05s;
+}
+
+// Testimonial card animation
+.auth-brand__testimonial-card {
+  animation: brandFeatureEnter 0.5s cubic-bezier(0, 0, 0.2, 1) both;
+  animation-delay: 0.5s;
+}
+
+// Enhanced hover states
+.auth-brand__feature:hover {
+  .auth-brand__feature-icon {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px) scale(1.05);
+  }
+}
+
+// Footer animation
+.auth-footer {
+  animation: formFieldEnter 0.35s cubic-bezier(0, 0, 0.2, 1) both;
+  animation-delay: 0.3s;
+}
+
+// Divider animation
+.auth-divider {
+  animation: formFieldEnter 0.35s cubic-bezier(0, 0, 0.2, 1) both;
+  animation-delay: 0.28s;
+}
+
+// Focus improvements for accessibility
+.auth-form__remember input:focus-visible {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: 2px;
+}
+
+.auth-form__forgot-link:focus-visible,
+.auth-footer__link:focus-visible {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+// Responsive adjustments
+@media (max-width: 480px) {
+  .auth-card {
+    padding: var(--space-6);
+  }
+  
+  .auth-card__title {
+    font-size: var(--text-xl);
+  }
+  
+  .auth-mode-toggle__btn {
+    padding: var(--space-2-5) var(--space-3);
+    font-size: var(--text-xs);
+    
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+}
