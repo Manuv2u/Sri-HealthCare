@@ -36,12 +36,19 @@ class PaymentService:
         self,
         booking_id: uuid.UUID,
         method: str,
+        user_id: uuid.UUID,
+        role: str,
     ) -> dict:
         booking = await self.booking_repo.get_by_id(booking_id)
         if booking is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail={"error_code": "BOOKING_NOT_FOUND", "message": "Booking not found"},
+            )
+        if role != "admin" and booking.user_id != user_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail={"error_code": "FORBIDDEN", "message": "Access denied"},
             )
 
         # Check if payment already exists
@@ -85,7 +92,11 @@ class PaymentService:
                 invoice_number=invoice_num,
                 paid_at=datetime.now(timezone.utc),
             )
-            await self.booking_repo.update_status(booking_id, "confirmed", changed_by=None)
+            # Payment method/status is independent of the booking's collection
+            # workflow status (booked -> technician_assigned -> ... ->
+            # completed) — the online/webhook path never touches booking
+            # status either, so cash shouldn't. ("confirmed" was also not a
+            # valid booking status, so this previously 422'd on every call.)
             try:
                 invoice_svc = InvoiceService(self.db)
                 await invoice_svc.generate_pdf(payment.id)
@@ -244,12 +255,19 @@ class PaymentService:
             "status": "processing",
         }
 
-    async def get_invoice(self, payment_id: uuid.UUID) -> bytes:
+    async def get_invoice(self, payment_id: uuid.UUID, user_id: uuid.UUID, role: str) -> bytes:
         payment = await self.repo.get_by_id(payment_id)
         if payment is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail={"error_code": "PAYMENT_NOT_FOUND", "message": "Payment not found"},
             )
+        if role != "admin":
+            booking = await self.booking_repo.get_by_id(payment.booking_id)
+            if booking is None or booking.user_id != user_id:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail={"error_code": "FORBIDDEN", "message": "Access denied"},
+                )
         invoice_svc = InvoiceService(self.db)
         return await invoice_svc.generate_pdf(payment_id)

@@ -1,0 +1,228 @@
+- generic [ref=f6e3]:
+  - banner [ref=f6e4]:
+    - generic [ref=f6e6]:
+      - link "Sri Health Sri Health Diagnostics" [ref=f6e7] [cursor=pointer]:
+        - /url: /
+        - img "Sri Health" [ref=f6e8]
+        - generic [ref=f6e9]:
+          - generic [ref=f6e10]: Sri Health
+          - generic [ref=f6e11]: Diagnostics
+      - navigation [ref=f6e12]:
+        - link "Home" [ref=f6e13] [cursor=pointer]:
+          - /url: /
+        - link "Tests" [ref=f6e14] [cursor=pointer]:
+          - /url: /tests
+        - link "Packages" [ref=f6e15] [cursor=pointer]:
+          - /url: /packages
+        - link "My Bookings" [ref=f6e16] [cursor=pointer]:
+          - /url: /dashboard
+        - link "Reports" [ref=f6e17] [cursor=pointer]:
+          - /url: /reports
+        - link "About" [ref=f6e18] [cursor=pointer]:
+          - /url: /about
+        - link "Contact" [ref=f6e19] [cursor=pointer]:
+          - /url: /contact
+        - link "Admin" [ref=f6e20] [cursor=pointer]:
+          - /url: /admin
+          - img [ref=f6e21]: admin_panel_settings
+          - text: Admin
+      - generic [ref=f6e22]:
+        - link "Book Test" [ref=f6e23] [cursor=pointer]:
+          - /url: /booking
+          - img [ref=f6e24]: add_circle_outline
+          - text: Book Test
+        - button "User menu" [ref=f6e26] [cursor=pointer]:
+          - generic [ref=f6e27]: A
+          - img [ref=f6e28]: expand_more
+  - main [ref=f6e29]:
+    - generic [ref=f6e31]:
+      - generic [ref=f6e32]:
+        - generic [ref=f6e33]:
+          - paragraph [ref=f6e34]: Wednesday, 1 July 2026
+          - heading "Good morning, Admin" [level=1] [ref=f6e35]
+          - paragraph [ref=f6e36]: Here's your health activity summary
+        - link "Book a Test" [ref=f6e37] [cursor=pointer]:
+          - /url: /booking
+          - img [ref=f6e38]
+          - generic [ref=f6e39]: Book a Test
+      - generic [ref=f6e40]:
+        - generic [ref=f6e41]:
+          - img [ref=f6e43]
+          - generic [ref=f6e45]:
+            - generic [ref=f6e46]: "28"
+            - generic [ref=f6e47]: Total Bookings
+        - generic [ref=f6e48]:
+          - img [ref=f6e50]
+          - generic [ref=f6e53]:
+            - generic [ref=f6e54]: "1"
+            - generic [ref=f6e55]: Upcoming
+        - generic [ref=f6e56]:
+          - img [ref=f6e58]
+          - generic [ref=f6e61]:
+            - generic [ref=f6e62]: "4"
+            - generic [ref=f6e63]: Completed
+        - generic [ref=f6e64]:
+          - img [ref=f6e66]
+          - generic [ref=f6e69]:
+            - generic [ref=f6e70]: "4"
+            - generic [ref=f6e71]: Reports Ready
+      - generic [ref=f6e72]:
+        - generic [ref=f6e73]:
+          - generic [ref=f6e74]:
+            - heading "Recent Bookings" [level=2] [ref=f6e75]
+            - link "View All" [ref=f6e76] [cursor=pointer]:
+              - /url: /dashboard/bookings
+          - generic [ref=f6e77]:
+            - link "#SRI-2026-000028 booked Complete Blood Count (CBC) 9 Jul 2026 Lab ₹315" [ref=f6e78] [cursor=pointer]:
+              - /url: /dashboard/bookings/1308f805-0357-44d4-a889-0b1cf4992fa0
+              - generic [ref=f6e79]:
+                - generic [ref=f6e80]: "#SRI-2026-000028"
+                - generic [ref=f6e82]: booked
+              - generic [ref=f6e84]:
+                - generic [ref=f6e85]: Complete Blood Count (CBC)
+                - generic [ref=f6e86]:
+                  - generic [ref=f6e87]:
+                    - img [ref=f6e88]
+                    - text: 9 Jul 2026
+                  - generic [ref=f6e90]:
+                    - img [ref=f6e91]
+                    - text: Lab
+              - generic [ref=f6e94]:
+                - generic [ref=f6e95]: ₹315
+                - img [ref=f6e96]
+            - link "#SRI-2026-000027 booked Heart Health Package 1 Jul 2026 Lab ₹9999" [ref=f6e98] [cursor=pointer]:
+              - /url: /dashboard/bookings/8c1a7c5d-028c-4d82-a166-a0a1cc69b5da
+              - generic [ref=f6e99]:
+                - generic [ref=f6e100]: "#SRI-2026-000027"
+                - generic [ref=f6e102]: booked
+              - generic [ref=f6e104]:
+                - generic [ref=f6e105]: Heart Health Package
+                - generic [ref=f6e106]:
+                  - generic [ref=f6e107]:
+                    - img [ref=f6e108]
+                    - text: 1 Jul 2026
+                  - generic [ref=f6e110]:
+                    - img [ref=f6e111]
+                    - text: Lab
+              - generic [ref=f6e114]:
+                - generic [ref=f6e115]: ₹9999
+                - img [ref=f6e116]
+            - link "#SRI-2026-000026 Completed Heart Health Package 30 Jun 2026 Home ₹9999" [ref=f6e118] [cursor=pointer]:
+              - /url: /dashboard/bookings/d55181dd-80de-4d56-84e3-174305a9dbcd
+              - generic [ref=f6e119]:
+                - generic [ref=f6e120]: "#SRI-2026-000026"
+                - generic [ref=f6e122]: Completed
+              - generic [ref=f6e124]:
+                - generic [ref=f6e125]: Heart Health Package
+                - generic [ref=f6e126]:
+                  - generic [ref=f6e127]:
+                    - img [ref=f6e128]
+                    - text: 30 Jun 2026
+                  - generic [ref=f6e130]:
+                    - img [ref=f6e131]
+                    - text: Home
+              - generic [ref=f6e134]:
+                - generic [ref=f6e135]: ₹9999
+                - img [ref=f6e136]
+            - link "#SRI-2026-000025 Completed Heart Health Package 30 Jun 2026 Home ₹9999" [ref=f6e138] [cursor=pointer]:
+              - /url: /dashboard/bookings/30309d29-cd4d-4e52-9ff9-a59a2b27e8cd
+              - generic [ref=f6e139]:
+                - generic [ref=f6e140]: "#SRI-2026-000025"
+                - generic [ref=f6e142]: Completed
+              - generic [ref=f6e144]:
+                - generic [ref=f6e145]: Heart Health Package
+                - generic [ref=f6e146]:
+                  - generic [ref=f6e147]:
+                    - img [ref=f6e148]
+                    - text: 30 Jun 2026
+                  - generic [ref=f6e150]:
+                    - img [ref=f6e151]
+                    - text: Home
+              - generic [ref=f6e154]:
+                - generic [ref=f6e155]: ₹9999
+                - img [ref=f6e156]
+            - link "#SRI-2026-000024 booked Complete Blood Count (CBC) 1 Jul 2026 Lab ₹315" [ref=f6e158] [cursor=pointer]:
+              - /url: /dashboard/bookings/219c2a40-9ea8-465d-90a1-99196d2e5af6
+              - generic [ref=f6e159]:
+                - generic [ref=f6e160]: "#SRI-2026-000024"
+                - generic [ref=f6e162]: booked
+              - generic [ref=f6e164]:
+                - generic [ref=f6e165]: Complete Blood Count (CBC)
+                - generic [ref=f6e166]:
+                  - generic [ref=f6e167]:
+                    - img [ref=f6e168]
+                    - text: 1 Jul 2026
+                  - generic [ref=f6e170]:
+                    - img [ref=f6e171]
+                    - text: Lab
+              - generic [ref=f6e174]:
+                - generic [ref=f6e175]: ₹315
+                - img [ref=f6e176]
+        - generic [ref=f6e178]:
+          - heading "Quick Actions" [level=2] [ref=f6e180]
+          - generic [ref=f6e181]:
+            - link "Book Test" [ref=f6e182] [cursor=pointer]:
+              - /url: /booking
+              - img [ref=f6e184]
+              - generic [ref=f6e185]: Book Test
+            - link "View Reports" [ref=f6e186] [cursor=pointer]:
+              - /url: /reports
+              - img [ref=f6e188]
+              - generic [ref=f6e191]: View Reports
+            - link "Family" [ref=f6e192] [cursor=pointer]:
+              - /url: /profile/family
+              - img [ref=f6e194]
+              - generic [ref=f6e199]: Family
+            - link "Browse Tests" [ref=f6e200] [cursor=pointer]:
+              - /url: /tests
+              - img [ref=f6e202]
+              - generic [ref=f6e205]: Browse Tests
+            - link "Packages" [ref=f6e206] [cursor=pointer]:
+              - /url: /packages
+              - img [ref=f6e208]
+              - generic [ref=f6e211]: Packages
+            - link "Settings" [ref=f6e212] [cursor=pointer]:
+              - /url: /profile
+              - img [ref=f6e214]
+              - generic [ref=f6e217]: Settings
+  - contentinfo [ref=f6e218]:
+    - generic [ref=f6e219]:
+      - generic [ref=f6e220]:
+        - generic [ref=f6e221]:
+          - img "Sri Health" [ref=f6e222]
+          - generic [ref=f6e223]: Sri Health
+        - paragraph [ref=f6e224]:
+          - text: Clinical precision.
+          - text: Expert care.
+        - generic [ref=f6e225]:
+          - link "Instagram" [ref=f6e226] [cursor=pointer]:
+            - /url: https://instagram.com
+            - img [ref=f6e227]
+          - link "Facebook" [ref=f6e229] [cursor=pointer]:
+            - /url: https://facebook.com
+            - img [ref=f6e230]
+      - generic [ref=f6e232]:
+        - generic [ref=f6e233]: Services
+        - link "Lab Tests" [ref=f6e234] [cursor=pointer]:
+          - /url: /tests
+        - link "Health Packages" [ref=f6e235] [cursor=pointer]:
+          - /url: /packages
+        - link "Book a Test" [ref=f6e236] [cursor=pointer]:
+          - /url: /booking
+        - link "My Reports" [ref=f6e237] [cursor=pointer]:
+          - /url: /reports
+      - generic [ref=f6e238]:
+        - generic [ref=f6e239]: Company
+        - link "About Us" [ref=f6e240] [cursor=pointer]:
+          - /url: /about
+        - link "Contact" [ref=f6e241] [cursor=pointer]:
+          - /url: /contact
+      - generic [ref=f6e242]:
+        - generic [ref=f6e243]: Account
+        - link "My Profile" [ref=f6e244] [cursor=pointer]:
+          - /url: /profile
+        - link "My Bookings" [ref=f6e245] [cursor=pointer]:
+          - /url: /dashboard
+    - generic [ref=f6e247]:
+      - generic [ref=f6e248]: © 2026 SRI Diagnostic Laboratory & Health Care
+      - generic [ref=f6e249]: All prices in ₹ (Indian Rupees)

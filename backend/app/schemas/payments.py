@@ -16,7 +16,7 @@ class PaymentInitiateRequest(BaseModel):
 class PaymentInitiateResponse(BaseModel):
     payment_id: uuid.UUID
     order_id: str
-    payment_url: str
+    payment_url: Optional[str] = None  # None for cash — there's no gateway redirect
     amount: float
     gst_amount: float
 

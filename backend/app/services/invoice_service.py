@@ -79,7 +79,12 @@ def _build_pdf(payment, booking, user, items) -> bytes:  # type: ignore[no-untyp
     # Line items
     table_data = [["Description", "Unit Price (₹)"]]
     for item in items:
-        label = item.item_name or f"Item {item.id}"
+        if item.test is not None:
+            label = item.test.name
+        elif item.package is not None:
+            label = item.package.name
+        else:
+            label = f"Item {item.id}"
         table_data.append([label, f"{item.unit_price:.2f}"])
 
     subtotal = float(payment.amount) - float(payment.gst_amount)

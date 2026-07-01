@@ -744,10 +744,12 @@ export class LoginComponent {
         if (err.error) {
           if (typeof err.error === 'string') {
             errorMessage = err.error;
+          } else if (err.error.detail?.message) {
+            errorMessage = err.error.detail.message;
+          } else if (typeof err.error.detail === 'string') {
+            errorMessage = err.error.detail;
           } else if (err.error.detail) {
-            errorMessage = typeof err.error.detail === 'string' 
-              ? err.error.detail 
-              : JSON.stringify(err.error.detail);
+            errorMessage = JSON.stringify(err.error.detail);
           } else if (err.error.message) {
             errorMessage = err.error.message;
           }

@@ -14,11 +14,15 @@ from app.config import settings
 _pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__rounds=12)
 
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_HOURS = 24
+# Kept short because access tokens are otherwise stateless — this bounds how
+# long a stolen, post-logout, or post-deactivation token stays usable before
+# the mandatory DB re-check in get_current_user() catches it on refresh. The
+# frontend refresh interceptor mints a new one transparently.
+ACCESS_TOKEN_EXPIRE_HOURS = 2
 
 
 def create_access_token(user_id: str, role: str, name: str = "") -> str:
-    """Create a signed HS256 JWT with 24-hour expiry."""
+    """Create a signed HS256 JWT with a short expiry."""
     now = datetime.now(timezone.utc)
     payload = {
         "sub": user_id,

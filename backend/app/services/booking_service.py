@@ -14,6 +14,7 @@ from app.repositories.booking_repository import BookingRepository
 from app.repositories.package_repository import PackageRepository
 from app.repositories.service_repository import ServiceAreaRepository
 from app.repositories.settings_repository import SettingsRepository
+from app.repositories.technician_repository import TechnicianRepository
 from app.repositories.test_repository import TestRepository
 from app.repositories.user_repository import FamilyMemberRepository
 
@@ -81,6 +82,7 @@ class BookingService:
         self.service_area_repo = ServiceAreaRepository(db)
         self.family_member_repo = FamilyMemberRepository(db)
         self.settings_repo = SettingsRepository(db)
+        self.technician_repo = TechnicianRepository(db)
 
     async def create_booking(
         self,
@@ -460,6 +462,21 @@ class BookingService:
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail={"error_code": "FORBIDDEN", "message": "Access denied"},
             )
+        if role == "technician":
+            technician = await self.technician_repo.get_by_user_id(changed_by_id)
+            assignment = (
+                await self.technician_repo.get_assignment_by_booking(booking_id)
+                if technician is not None
+                else None
+            )
+            if technician is None or assignment is None or assignment.technician_id != technician.id:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail={
+                        "error_code": "FORBIDDEN",
+                        "message": "You are not assigned to this booking",
+                    },
+                )
         booking = await self.repo.update_status(
             booking_id=booking_id,
             new_status=new_status,

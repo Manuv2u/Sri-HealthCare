@@ -4,8 +4,8 @@ import { authGuard, roleGuard } from '../../core/auth/auth.guard';
 export const DASHBOARD_ROUTES: Routes = [
   {
     path: '',
-    loadComponent: () => import('./patient-dashboard/patient-dashboard.component').then(m => m.PatientDashboardComponent),
-    canActivate: [authGuard],
+    redirectTo: 'bookings',
+    pathMatch: 'full',
   },
   {
     path: 'technician',
@@ -19,7 +19,12 @@ export const DASHBOARD_ROUTES: Routes = [
   },
   {
     path: 'bookings',
-    loadComponent: () => import('./booking-history/booking-history.component').then(m => m.BookingHistoryComponent),
+    loadComponent: () => import('../bookings/booking-history/booking-history.component').then(m => m.BookingHistoryComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'bookings/:id',
+    loadComponent: () => import('../bookings/booking-detail/booking-detail.component').then(m => m.BookingDetailComponent),
     canActivate: [authGuard],
   }
 ];

@@ -1,0 +1,133 @@
+- generic [ref=f5e3]:
+  - banner [ref=f5e4]:
+    - generic [ref=f5e6]:
+      - link "Sri Health Sri Health Diagnostics" [ref=f5e7] [cursor=pointer]:
+        - /url: /
+        - img "Sri Health" [ref=f5e8]
+        - generic [ref=f5e9]:
+          - generic [ref=f5e10]: Sri Health
+          - generic [ref=f5e11]: Diagnostics
+      - navigation [ref=f5e12]:
+        - link "Home" [ref=f5e13] [cursor=pointer]:
+          - /url: /
+        - link "Tests" [ref=f5e14] [cursor=pointer]:
+          - /url: /tests
+        - link "Packages" [ref=f5e15] [cursor=pointer]:
+          - /url: /packages
+        - link "My Bookings" [ref=f5e16] [cursor=pointer]:
+          - /url: /dashboard
+        - link "Reports" [ref=f5e17] [cursor=pointer]:
+          - /url: /reports
+        - link "About" [ref=f5e18] [cursor=pointer]:
+          - /url: /about
+        - link "Contact" [ref=f5e19] [cursor=pointer]:
+          - /url: /contact
+        - link "Admin" [ref=f5e20] [cursor=pointer]:
+          - /url: /admin
+          - img [ref=f5e21]: admin_panel_settings
+          - text: Admin
+      - generic [ref=f5e22]:
+        - link "Book Test" [ref=f5e23] [cursor=pointer]:
+          - /url: /booking
+          - img [ref=f5e24]: add_circle_outline
+          - text: Book Test
+        - button "User menu" [ref=f5e26] [cursor=pointer]:
+          - generic [ref=f5e27]: A
+          - img [ref=f5e28]: expand_more
+  - main [ref=f5e29]:
+    - generic [ref=f5e31]:
+      - link "Back to Bookings" [ref=f5e33] [cursor=pointer]:
+        - /url: /bookings
+        - img [ref=f5e34]
+        - text: Back to Bookings
+      - generic [ref=f5e36]:
+        - generic [ref=f5e37]:
+          - generic [ref=f5e38]:
+            - generic [ref=f5e39]: SRI-2026-000028
+            - heading "Booking Details" [level=1] [ref=f5e40]
+            - paragraph [ref=f5e41]: Placed on 1 July 2026
+          - generic [ref=f5e44]: Booked
+        - generic [ref=f5e45]:
+          - generic [ref=f5e46]:
+            - heading "Appointment" [level=2] [ref=f5e47]:
+              - img [ref=f5e48]
+              - text: Appointment
+            - generic [ref=f5e50]:
+              - generic [ref=f5e51]:
+                - generic [ref=f5e52]: Date
+                - generic [ref=f5e53]: 9 July 2026
+              - generic [ref=f5e54]:
+                - generic [ref=f5e55]: Collection
+                - generic [ref=f5e56]: 🏥 Lab Visit
+              - generic [ref=f5e57]:
+                - generic [ref=f5e58]: Status
+                - generic [ref=f5e60]: Booked
+          - generic [ref=f5e61]:
+            - heading "Payment" [level=2] [ref=f5e62]:
+              - img [ref=f5e63]
+              - text: Payment
+            - generic [ref=f5e65]:
+              - generic [ref=f5e66]:
+                - generic [ref=f5e67]: Total Amount
+                - generic [ref=f5e68]: ₹315
+              - generic [ref=f5e69]:
+                - generic [ref=f5e70]: Payment Status
+                - generic [ref=f5e72]: Pending
+        - generic [ref=f5e73]:
+          - heading "Tests & Packages" [level=2] [ref=f5e74]:
+            - img [ref=f5e75]
+            - text: Tests & Packages
+          - generic [ref=f5e78]:
+            - generic [ref=f5e79]:
+              - generic [ref=f5e80]: Item
+              - generic [ref=f5e81]: Type
+              - generic [ref=f5e82]: Price
+            - generic [ref=f5e83]:
+              - generic [ref=f5e84]: Complete Blood Count (CBC)
+              - generic [ref=f5e86]: Test
+              - generic [ref=f5e87]: ₹315.0
+            - generic [ref=f5e88]:
+              - generic [ref=f5e89]: Total
+              - generic [ref=f5e90]: ₹315
+      - generic "Cancel Booking"
+  - contentinfo [ref=f5e91]:
+    - generic [ref=f5e92]:
+      - generic [ref=f5e93]:
+        - generic [ref=f5e94]:
+          - img "Sri Health" [ref=f5e95]
+          - generic [ref=f5e96]: Sri Health
+        - paragraph [ref=f5e97]:
+          - text: Clinical precision.
+          - text: Expert care.
+        - generic [ref=f5e98]:
+          - link "Instagram" [ref=f5e99] [cursor=pointer]:
+            - /url: https://instagram.com
+            - img [ref=f5e100]
+          - link "Facebook" [ref=f5e102] [cursor=pointer]:
+            - /url: https://facebook.com
+            - img [ref=f5e103]
+      - generic [ref=f5e105]:
+        - generic [ref=f5e106]: Services
+        - link "Lab Tests" [ref=f5e107] [cursor=pointer]:
+          - /url: /tests
+        - link "Health Packages" [ref=f5e108] [cursor=pointer]:
+          - /url: /packages
+        - link "Book a Test" [ref=f5e109] [cursor=pointer]:
+          - /url: /booking
+        - link "My Reports" [ref=f5e110] [cursor=pointer]:
+          - /url: /reports
+      - generic [ref=f5e111]:
+        - generic [ref=f5e112]: Company
+        - link "About Us" [ref=f5e113] [cursor=pointer]:
+          - /url: /about
+        - link "Contact" [ref=f5e114] [cursor=pointer]:
+          - /url: /contact
+      - generic [ref=f5e115]:
+        - generic [ref=f5e116]: Account
+        - link "My Profile" [ref=f5e117] [cursor=pointer]:
+          - /url: /profile
+        - link "My Bookings" [ref=f5e118] [cursor=pointer]:
+          - /url: /dashboard
+    - generic [ref=f5e120]:
+      - generic [ref=f5e121]: © 2026 SRI Diagnostic Laboratory & Health Care
+      - generic [ref=f5e122]: All prices in ₹ (Indian Rupees)

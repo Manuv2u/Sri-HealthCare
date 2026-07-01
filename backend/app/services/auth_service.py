@@ -33,6 +33,10 @@ _INVALID_CREDENTIALS = HTTPException(
     detail={"error_code": "INVALID_CREDENTIALS", "message": "Invalid credentials"},
 )
 
+# Account lockout after repeated failed password attempts.
+_MAX_FAILED_ATTEMPTS = 5
+_LOCKOUT_MINUTES = 15
+
 
 class AuthService:
     def __init__(self, db: AsyncSession) -> None:
@@ -123,8 +127,28 @@ class AuthService:
         user = await self.user_repo.get_by_phone(phone_or_email)
         if user is None:
             user = await self.user_repo.get_by_email(phone_or_email)
+
+        # Lockout must be checked before password verification — otherwise a
+        # string of wrong guesses never reaches this branch and the account
+        # is never actually blocked from further guessing.
+        if user is not None:
+            locked_until = getattr(user, "locked_until", None)
+            if locked_until is not None and locked_until > datetime.now(timezone.utc):
+                raise HTTPException(
+                    status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                    detail={
+                        "error_code": "ACCOUNT_LOCKED",
+                        "message": (
+                            "Too many failed login attempts. "
+                            f"Try again after {locked_until.strftime('%H:%M:%S UTC')}."
+                        ),
+                    },
+                )
+
         # Use identical error for wrong password vs unknown user (timing-safe)
         if user is None or not _verify_password(password, user.password_hash):
+            if user is not None:
+                await self._register_failed_login(user)
             await audit(
                 self.db,
                 action_type="USER_LOGIN_FAILURE",
@@ -136,6 +160,9 @@ class AuthService:
             raise _INVALID_CREDENTIALS
         if not user.is_active:
             raise _INVALID_CREDENTIALS
+
+        if getattr(user, "failed_login_attempts", 0):
+            await self.user_repo.update(user.id, failed_login_attempts=0, locked_until=None)
 
         result = await self._create_session_and_tokens(user, device_identifier, ip_address)
         result["is_temp_password"] = bool(getattr(user, "is_temp_password", False))
@@ -150,6 +177,18 @@ class AuthService:
             source_ip=ip_address,
         )
         return result
+
+    async def _register_failed_login(self, user) -> None:
+        """Increment the failed-attempt counter and lock the account past the threshold."""
+        attempts = getattr(user, "failed_login_attempts", 0) + 1
+        fields: dict = {"failed_login_attempts": attempts}
+        if attempts >= _MAX_FAILED_ATTEMPTS:
+            fields["locked_until"] = datetime.now(timezone.utc) + timedelta(minutes=_LOCKOUT_MINUTES)
+        await self.user_repo.update(user.id, **fields)
+        # get_db_session rolls back the whole request transaction when the
+        # caller raises INVALID_CREDENTIALS right after this — commit now so
+        # the counter actually persists instead of being undone.
+        await self.db.commit()
 
     async def logout(self, session_id: uuid.UUID) -> None:
         """Revoke a specific session."""
@@ -166,18 +205,19 @@ class AuthService:
                 detail={"error_code": "INVALID_REFRESH_TOKEN", "message": "Invalid or expired refresh token"},
             )
         user = await self.user_repo.get_by_id(session.user_id)
-        if user is None:
+        if user is None or not user.is_active:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail={"error_code": "USER_NOT_FOUND", "message": "User not found"},
+                detail={"error_code": "ACCOUNT_DEACTIVATED", "message": "This account is no longer active"},
             )
         await self.session_repo.update_last_seen(session.id)
         access_token = create_access_token(str(user.id), user.role, user.name)
         return {"access_token": access_token, "token_type": "bearer"}
 
     async def logout_all(self, user_id: uuid.UUID) -> None:
-        """Revoke all sessions for a user."""
+        """Revoke all sessions for a user and invalidate any outstanding access tokens."""
         await self.session_repo.revoke_all_user_sessions(user_id)
+        await self.user_repo.update(user_id, tokens_invalidated_at=datetime.now(timezone.utc))
 
     # TODO(TEMP_PASSWORD_AUTH): Remove this method when replacing password-based auth
     async def change_password(

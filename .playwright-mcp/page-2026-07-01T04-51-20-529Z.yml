@@ -1,0 +1,172 @@
+- generic [ref=f1e3]:
+  - banner [ref=f1e4]:
+    - generic [ref=f1e6]:
+      - link "Sri Health Sri Health Diagnostics" [ref=f1e7] [cursor=pointer]:
+        - /url: /
+        - img "Sri Health" [ref=f1e8]
+        - generic [ref=f1e9]:
+          - generic [ref=f1e10]: Sri Health
+          - generic [ref=f1e11]: Diagnostics
+      - navigation [ref=f1e12]:
+        - link "Home" [ref=f1e13] [cursor=pointer]:
+          - /url: /
+        - link "Tests" [ref=f1e14] [cursor=pointer]:
+          - /url: /tests
+        - link "Packages" [ref=f1e15] [cursor=pointer]:
+          - /url: /packages
+        - link "My Bookings" [ref=f1e16] [cursor=pointer]:
+          - /url: /dashboard
+        - link "Reports" [ref=f1e17] [cursor=pointer]:
+          - /url: /reports
+        - link "About" [ref=f1e18] [cursor=pointer]:
+          - /url: /about
+        - link "Contact" [ref=f1e19] [cursor=pointer]:
+          - /url: /contact
+        - link "Admin" [ref=f1e20] [cursor=pointer]:
+          - /url: /admin
+          - img [ref=f1e21]: admin_panel_settings
+          - text: Admin
+      - generic [ref=f1e22]:
+        - link "Book Test" [ref=f1e23] [cursor=pointer]:
+          - /url: /booking
+          - img [ref=f1e24]: add_circle_outline
+          - text: Book Test
+        - button "User menu" [ref=f1e26] [cursor=pointer]:
+          - generic [ref=f1e27]: A
+          - img [ref=f1e28]: expand_more
+  - main [ref=f1e29]:
+    - generic [ref=f1e31]:
+      - generic [ref=f1e35]:
+        - button "1 Patient Who is this for?" [disabled] [ref=f1e36]:
+          - generic [ref=f1e38]: "1"
+          - generic [ref=f1e39]:
+            - generic [ref=f1e40]: Patient
+            - generic [ref=f1e41]: Who is this for?
+        - button "2 Tests Select tests" [disabled] [ref=f1e43]:
+          - generic [ref=f1e45]: "2"
+          - generic [ref=f1e46]:
+            - generic [ref=f1e47]: Tests
+            - generic [ref=f1e48]: Select tests
+        - button "3 Collection Home or lab" [disabled] [ref=f1e50]:
+          - generic [ref=f1e52]: "3"
+          - generic [ref=f1e53]:
+            - generic [ref=f1e54]: Collection
+            - generic [ref=f1e55]: Home or lab
+        - button "4 Schedule Pick a time" [disabled] [ref=f1e57]:
+          - generic [ref=f1e59]: "4"
+          - generic [ref=f1e60]:
+            - generic [ref=f1e61]: Schedule
+            - generic [ref=f1e62]: Pick a time
+        - button "5 Payment Complete order" [disabled] [ref=f1e64]:
+          - generic [ref=f1e66]: "5"
+          - generic [ref=f1e67]:
+            - generic [ref=f1e68]: Payment
+            - generic [ref=f1e69]: Complete order
+      - main [ref=f1e70]:
+        - generic [ref=f1e71]:
+          - generic [ref=f1e72]:
+            - generic [ref=f1e73]: Step 1 of 5
+            - heading "Patient" [level=1] [ref=f1e74]
+            - paragraph [ref=f1e75]: Select who will be taking this diagnostic test
+          - generic [ref=f1e78]:
+            - generic [ref=f1e79]:
+              - button "A Admin Primary Male" [active] [ref=f1e80] [cursor=pointer]:
+                - generic [ref=f1e81]: A
+                - generic [ref=f1e82]:
+                  - generic [ref=f1e83]: Admin
+                  - generic [ref=f1e84]:
+                    - generic [ref=f1e86]: Primary
+                    - generic [ref=f1e87]: Male
+                - img [ref=f1e89]
+              - button "TC Test Child 1 Child 16 yrs Male" [ref=f1e92] [cursor=pointer]:
+                - generic [ref=f1e93]: TC
+                - generic [ref=f1e94]:
+                  - generic [ref=f1e95]: Test Child 1
+                  - generic [ref=f1e96]:
+                    - generic [ref=f1e98]: Child
+                    - generic [ref=f1e99]: 16 yrs
+                    - generic [ref=f1e100]: Male
+                - img [ref=f1e102]
+              - button "G Grandamma Grandparent 70 yrs Female" [ref=f1e105] [cursor=pointer]:
+                - generic [ref=f1e106]: G
+                - generic [ref=f1e107]:
+                  - generic [ref=f1e108]: Grandamma
+                  - generic [ref=f1e109]:
+                    - generic [ref=f1e111]: Grandparent
+                    - generic [ref=f1e112]: 70 yrs
+                    - generic [ref=f1e113]: Female
+                - img [ref=f1e115]
+              - button "W wife Spouse 28 yrs Female" [ref=f1e118] [cursor=pointer]:
+                - generic [ref=f1e119]: W
+                - generic [ref=f1e120]:
+                  - generic [ref=f1e121]: wife
+                  - generic [ref=f1e122]:
+                    - generic [ref=f1e124]: Spouse
+                    - generic [ref=f1e125]: 28 yrs
+                    - generic [ref=f1e126]: Female
+                - img [ref=f1e128]
+              - button "Add Family Member" [ref=f1e131] [cursor=pointer]:
+                - img [ref=f1e133]
+                - generic [ref=f1e136]: Add Family Member
+            - button "Continue" [ref=f1e139] [cursor=pointer]:
+              - generic [ref=f1e140]:
+                - text: Continue
+                - img [ref=f1e141]
+            - generic "Add Family Member"
+        - complementary [ref=f1e143]:
+          - generic [ref=f1e144]:
+            - img [ref=f1e146]
+            - generic [ref=f1e148]:
+              - generic [ref=f1e149]: NABL Accredited
+              - generic [ref=f1e150]: Quality assured testing
+          - generic [ref=f1e151]:
+            - img [ref=f1e153]
+            - generic [ref=f1e156]:
+              - generic [ref=f1e157]: Reports in 24 hrs
+              - generic [ref=f1e158]: Quick turnaround
+          - generic [ref=f1e159]:
+            - img [ref=f1e161]
+            - generic [ref=f1e164]:
+              - generic [ref=f1e165]: Free Home Collection
+              - generic [ref=f1e166]: No extra charges
+  - contentinfo [ref=f1e167]:
+    - generic [ref=f1e168]:
+      - generic [ref=f1e169]:
+        - generic [ref=f1e170]:
+          - img "Sri Health" [ref=f1e171]
+          - generic [ref=f1e172]: Sri Health
+        - paragraph [ref=f1e173]:
+          - text: Clinical precision.
+          - text: Expert care.
+        - generic [ref=f1e174]:
+          - link "Instagram" [ref=f1e175] [cursor=pointer]:
+            - /url: https://instagram.com
+            - img [ref=f1e176]
+          - link "Facebook" [ref=f1e178] [cursor=pointer]:
+            - /url: https://facebook.com
+            - img [ref=f1e179]
+      - generic [ref=f1e181]:
+        - generic [ref=f1e182]: Services
+        - link "Lab Tests" [ref=f1e183] [cursor=pointer]:
+          - /url: /tests
+        - link "Health Packages" [ref=f1e184] [cursor=pointer]:
+          - /url: /packages
+        - link "Book a Test" [ref=f1e185] [cursor=pointer]:
+          - /url: /booking
+        - link "My Reports" [ref=f1e186] [cursor=pointer]:
+          - /url: /reports
+      - generic [ref=f1e187]:
+        - generic [ref=f1e188]: Company
+        - link "About Us" [ref=f1e189] [cursor=pointer]:
+          - /url: /about
+        - link "Contact" [ref=f1e190] [cursor=pointer]:
+          - /url: /contact
+      - generic [ref=f1e191]:
+        - generic [ref=f1e192]: Account
+        - link "My Profile" [ref=f1e193] [cursor=pointer]:
+          - /url: /profile
+        - link "My Bookings" [ref=f1e194] [cursor=pointer]:
+          - /url: /dashboard
+    - generic [ref=f1e196]:
+      - generic [ref=f1e197]: © 2026 SRI Diagnostic Laboratory & Health Care
+      - generic [ref=f1e198]: All prices in ₹ (Indian Rupees)

@@ -30,6 +30,8 @@ async def initiate_payment(
     result = await svc.initiate_payment(
         booking_id=body.booking_id,
         method=body.method,
+        user_id=uuid.UUID(current_user["user_id"]),
+        role=current_user["role"],
     )
     return PaymentInitiateResponse.model_validate(result)
 
@@ -69,7 +71,11 @@ async def get_invoice(
     db: AsyncSession = Depends(get_db_session),
 ) -> Response:
     svc = PaymentService(db)
-    pdf_bytes = await svc.get_invoice(payment_id)
+    pdf_bytes = await svc.get_invoice(
+        payment_id,
+        user_id=uuid.UUID(current_user["user_id"]),
+        role=current_user["role"],
+    )
     return Response(
         content=pdf_bytes,
         media_type="application/pdf",

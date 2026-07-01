@@ -9,17 +9,19 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
-import os as _os
+from app.config import settings
 
-# Relax limits in local/dev so testing isn't blocked
-_IS_LOCAL = _os.getenv("ENV_PROFILE", "local") in ("local", "dev")
+# Relax limits in local/dev so testing isn't blocked. This split was previously
+# computed but never actually applied — _MAX_ATTEMPTS was a flat constant, so
+# production ran with the same generous dev limit.
+_IS_LOCAL = settings.env_profile in ("local", "dev")
 _WINDOW_MINUTES = 15
-_MAX_ATTEMPTS = 200
+_MAX_ATTEMPTS = 200 if _IS_LOCAL else 20
 _AUTH_PREFIX = "/api/v1/auth/"
 
 
 class RateLimitMiddleware(BaseHTTPMiddleware):
-    """Sliding window rate limiter: 5 requests per IP per 15 minutes on /api/v1/auth/."""
+    """Sliding window rate limiter over /api/v1/auth/: 200 req/IP/15min in local/dev, 20 elsewhere."""
 
     def __init__(self, app, **kwargs):  # type: ignore[override]
         super().__init__(app, **kwargs)

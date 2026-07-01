@@ -484,7 +484,11 @@ export class SlotSelectionStepNewComponent implements OnInit {
       const date = new Date(today);
       date.setDate(today.getDate() + i);
 
-      const dateStr = date.toISOString().split('T')[0];
+      // Build the string from local date components rather than
+      // toISOString() — toISOString() converts to UTC first, which rolls
+      // the date back by one day in timezones ahead of UTC (e.g. IST),
+      // silently booking "today" when the user picked a later date.
+      const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
       const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
       const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 

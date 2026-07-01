@@ -46,6 +46,15 @@ class TechnicianRepository:
         )
         return result.scalar_one_or_none()
 
+    async def get_by_user_id(self, user_id: uuid.UUID) -> Technician | None:
+        result = await self.db.execute(
+            select(Technician).where(
+                Technician.user_id == user_id,
+                Technician.deleted_at.is_(None),
+            )
+        )
+        return result.scalar_one_or_none()
+
     async def list(
         self,
         page: int = 1,

@@ -12,7 +12,7 @@ from app.middleware.auth import get_current_user, require_roles
 from sqlalchemy import select, update
 
 from app.models.booking import Booking
-from app.models.service import Technician
+from app.models.service import Technician, TechnicianAssignment
 from app.schemas.bookings import (
     AddRemarksRequest,
     BookingListResponse,
@@ -198,6 +198,21 @@ async def add_booking_remarks(
     booking = result.scalar_one_or_none()
     if not booking:
         raise HTTPException(status_code=404, detail={"error_code": "NOT_FOUND", "message": "Booking not found"})
+
+    if current_user["role"] == "technician":
+        assignment_result = await db.execute(
+            select(TechnicianAssignment)
+            .join(Technician, Technician.id == TechnicianAssignment.technician_id)
+            .where(
+                TechnicianAssignment.booking_id == booking_id,
+                Technician.user_id == uuid.UUID(current_user["user_id"]),
+            )
+        )
+        if assignment_result.scalar_one_or_none() is None:
+            raise HTTPException(
+                status_code=403,
+                detail={"error_code": "FORBIDDEN", "message": "You are not assigned to this booking"},
+            )
 
     await db.execute(
         update(Booking).where(Booking.id == booking_id).values(technician_notes=body.notes)

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import uuid
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Depends, Query
@@ -167,6 +167,9 @@ async def deactivate_user(
         from fastapi import HTTPException, status
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     user.is_active = False
+    # Cut off any already-issued access tokens immediately rather than
+    # waiting out their remaining TTL.
+    user.tokens_invalidated_at = datetime.now(timezone.utc)
     await db.flush()
     return {"message": "User deactivated"}
 
