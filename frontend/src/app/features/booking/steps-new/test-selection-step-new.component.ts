@@ -276,6 +276,17 @@ interface SelectedItem {
     </div>
   `,
   styles: [`
+    :host {
+      --color-primary-50: #EEF2FF;
+      --color-primary-100: #E0E7FF;
+      --color-primary-500: #6366F1;
+      --color-primary-600: #4F46E5;
+      --color-primary-700: #4338CA;
+      --color-primary-800: #3730A3;
+      --shadow-primary: 0 4px 14px 0 rgba(79, 70, 229, 0.28);
+      display: block;
+    }
+
     .test-selection {
       display: flex;
       flex-direction: column;
@@ -402,7 +413,7 @@ interface SelectedItem {
 
     .tab-btn--active {
       background: #FFFFFF;
-      color: #285E61;
+      color: #4338CA;
       box-shadow: 0 1px 3px 0 rgba(0,0,0,.1),0 1px 2px -1px rgba(0,0,0,.1);
     }
 
@@ -432,8 +443,8 @@ interface SelectedItem {
 
       &:focus {
         outline: none;
-        border-color: #319795;
-        box-shadow: 0 0 0 4px #B2F5EA;
+        border-color: #6366F1;
+        box-shadow: 0 0 0 4px #C7D2FE;
       }
 
       &::placeholder {
@@ -463,7 +474,7 @@ interface SelectedItem {
 
       &:focus {
         outline: none;
-        border-color: #319795;
+        border-color: #6366F1;
       }
     }
 
@@ -488,16 +499,16 @@ interface SelectedItem {
       transition: all 200ms cubic-bezier(0.4,0,0.2,1);
 
       &:hover {
-        border-color: #4FD1C5;
+        border-color: #A5B4FC;
         transform: translateY(-2px);
         box-shadow: 0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -2px rgba(0,0,0,.1);
       }
     }
 
     .item-card--selected {
-      border-color: #319795;
-      background: #E6FFFA;
-      box-shadow: 0 4px 14px 0 rgba(49,151,149,.25);
+      border-color: #6366F1;
+      background: #EEF2FF;
+      box-shadow: 0 4px 14px 0 rgba(99,102,241,.25);
     }
 
     .item-card__header {
@@ -571,7 +582,7 @@ interface SelectedItem {
       width: 24px;
       height: 24px;
       border-radius: 9999px;
-      background: #319795;
+      background: #6366F1;
       color: #FFFFFF;
       display: flex;
       align-items: center;
@@ -612,16 +623,16 @@ interface SelectedItem {
       transition: all 200ms cubic-bezier(0.4,0,0.2,1);
 
       &:hover {
-        border-color: #4FD1C5;
+        border-color: #A5B4FC;
         transform: translateY(-2px);
         box-shadow: 0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -2px rgba(0,0,0,.1);
       }
     }
 
     .package-card--selected {
-      border-color: #319795;
-      background: #E6FFFA;
-      box-shadow: 0 4px 14px 0 rgba(49,151,149,.25);
+      border-color: #6366F1;
+      background: #EEF2FF;
+      box-shadow: 0 4px 14px 0 rgba(99,102,241,.25);
     }
 
     .package-card__header {
@@ -677,7 +688,7 @@ interface SelectedItem {
 
     .package-card__test-more {
       font-size: 0.875rem;
-      color: #2C7A7B;
+      color: #4F46E5;
       font-weight: 500;
       padding: 0.25rem 0.5rem;
     }
@@ -709,7 +720,7 @@ interface SelectedItem {
       width: 28px;
       height: 28px;
       border-radius: 9999px;
-      background: #319795;
+      background: #6366F1;
       color: #FFFFFF;
       display: flex;
       align-items: center;
@@ -784,7 +795,7 @@ interface SelectedItem {
     }
 
     .summary-item--package {
-      border-left: 3px solid #DD6B20;
+      border-left: 3px solid #F97316;
     }
 
     .summary-item__name {
@@ -840,7 +851,7 @@ interface SelectedItem {
     .summary-total__amount {
       font-size: 1.25rem;
       font-weight: 700;
-      color: #285E61;
+      color: #4338CA;
     }
 
     /* Step Actions */

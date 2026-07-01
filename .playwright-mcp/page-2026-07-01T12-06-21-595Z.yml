@@ -1,0 +1,46 @@
+- main [ref=f7e4]:
+  - generic [ref=f7e6]:
+    - complementary [ref=f7e7]:
+      - link "Sri Health Care Diagnostic Laboratory" [ref=f7e9] [cursor=pointer]:
+        - /url: /
+        - img [ref=f7e11]
+        - generic [ref=f7e15]:
+          - generic [ref=f7e16]: Sri Health Care
+          - generic [ref=f7e17]: Diagnostic Laboratory
+      - generic [ref=f7e18]:
+        - heading "Secure Account Recovery" [level=1] [ref=f7e19]:
+          - text: Secure Account
+          - text: Recovery
+        - paragraph [ref=f7e20]: We'll help you regain access to your account quickly and securely.
+        - generic [ref=f7e21]:
+          - generic [ref=f7e22]:
+            - generic [ref=f7e23]: 🔐
+            - generic [ref=f7e24]: Secure Reset Process
+          - generic [ref=f7e25]:
+            - generic [ref=f7e26]: 📧
+            - generic [ref=f7e27]: Email Verification
+          - generic [ref=f7e28]:
+            - generic [ref=f7e29]: ⚡
+            - generic [ref=f7e30]: Instant Access Recovery
+          - generic [ref=f7e31]:
+            - generic [ref=f7e32]: 🛡️
+            - generic [ref=f7e33]: Protected Information
+      - paragraph [ref=f7e35]: © 2026 Sri Diagnostic Laboratory. All rights reserved.
+    - main [ref=f7e36]:
+      - generic [ref=f7e37]:
+        - img [ref=f7e40]
+        - generic [ref=f7e43]:
+          - heading "Forgot Password?" [level=2] [ref=f7e44]
+          - paragraph [ref=f7e45]: Enter your email or phone number and we'll send you a link to reset your password
+        - generic [ref=f7e46]:
+          - generic [ref=f7e47]:
+            - generic [ref=f7e48]: Email or Phone
+            - generic [ref=f7e49]:
+              - img
+              - textbox "Email or Phone" [ref=f7e50]:
+                - /placeholder: Enter your email or phone number
+          - button "Send Reset Link" [disabled] [ref=f7e51]
+        - link "Back to login" [ref=f7e54] [cursor=pointer]:
+          - /url: /auth/login
+          - img [ref=f7e55]
+          - text: Back to login

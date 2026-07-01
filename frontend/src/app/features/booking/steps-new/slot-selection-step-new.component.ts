@@ -149,6 +149,17 @@ interface DateOption {
     </div>
   `,
   styles: [`
+    :host {
+      --color-primary-50: #EEF2FF;
+      --color-primary-100: #E0E7FF;
+      --color-primary-500: #6366F1;
+      --color-primary-600: #4F46E5;
+      --color-primary-700: #4338CA;
+      --color-primary-800: #3730A3;
+      --shadow-primary: 0 4px 14px 0 rgba(79, 70, 229, 0.28);
+      display: block;
+    }
+
     .slot-step {
       display: flex;
       flex-direction: column;
@@ -197,8 +208,8 @@ interface DateOption {
       position: relative;
 
       &:hover:not(:disabled) {
-        border-color: #4FD1C5;
-        background: #E6FFFA;
+        border-color: #A5B4FC;
+        background: #EEF2FF;
       }
 
       &:disabled {
@@ -208,13 +219,13 @@ interface DateOption {
     }
 
     .date-card--selected {
-      border-color: #319795;
-      background: #E6FFFA;
-      box-shadow: 0 4px 14px 0 rgba(49,151,149,.25);
+      border-color: #6366F1;
+      background: #EEF2FF;
+      box-shadow: 0 4px 14px 0 rgba(99,102,241,.25);
     }
 
     .date-card--today {
-      border-color: #F6AD55;
+      border-color: #FB923C;
     }
 
     .date-card__day {
@@ -244,7 +255,7 @@ interface DateOption {
       left: 50%;
       transform: translateX(-50%);
       padding: 0.125rem 0.5rem;
-      background: #DD6B20;
+      background: #F97316;
       color: #FFFFFF;
       font-size: 0.625rem;
       font-weight: 700;
@@ -317,7 +328,7 @@ interface DateOption {
       transition: all 150ms;
 
       &:hover:not(:disabled) {
-        border-color: #4FD1C5;
+        border-color: #A5B4FC;
       }
 
       &:disabled {
@@ -328,8 +339,8 @@ interface DateOption {
     }
 
     .slot-card--selected {
-      border-color: #319795;
-      background: #E6FFFA;
+      border-color: #6366F1;
+      background: #EEF2FF;
     }
 
     .slot-card--full {
@@ -363,7 +374,7 @@ interface DateOption {
       width: 22px;
       height: 22px;
       border-radius: 9999px;
-      background: #319795;
+      background: #6366F1;
       color: #FFFFFF;
       display: flex;
       align-items: center;
@@ -425,7 +436,7 @@ interface DateOption {
     .summary-value {
       font-size: 1rem;
       font-weight: 600;
-      color: $color-success-800;
+      color: #22543D;
     }
 
     /* Step Actions */

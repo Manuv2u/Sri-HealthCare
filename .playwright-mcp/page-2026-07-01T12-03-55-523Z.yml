@@ -1,0 +1,81 @@
+- main [ref=f4e4]:
+  - generic [ref=f4e6]:
+    - complementary [ref=f4e7]:
+      - link "Sri Health Care Diagnostic Laboratory" [ref=f4e9] [cursor=pointer]:
+        - /url: /
+        - img [ref=f4e11]
+        - generic [ref=f4e15]:
+          - generic [ref=f4e16]: Sri Health Care
+          - generic [ref=f4e17]: Diagnostic Laboratory
+      - generic [ref=f4e18]:
+        - heading "Join Sri Health Today" [level=1] [ref=f4e19]:
+          - text: Join Sri Health
+          - text: Today
+        - paragraph [ref=f4e20]: Create your account and start managing your health journey with ease.
+        - generic [ref=f4e21]:
+          - generic [ref=f4e22]:
+            - generic [ref=f4e23]: 📋
+            - generic [ref=f4e24]: Easy Online Booking
+          - generic [ref=f4e25]:
+            - generic [ref=f4e26]: 📱
+            - generic [ref=f4e27]: Digital Health Records
+          - generic [ref=f4e28]:
+            - generic [ref=f4e29]: 👨‍👩‍👧‍👦
+            - generic [ref=f4e30]: Family Health Profiles
+          - generic [ref=f4e31]:
+            - generic [ref=f4e32]: 💬
+            - generic [ref=f4e33]: 24/7 Support Available
+      - paragraph [ref=f4e35]: © 2026 Sri Diagnostic Laboratory. All rights reserved.
+    - main [ref=f4e36]:
+      - generic [ref=f4e37]:
+        - generic [ref=f4e38]:
+          - heading "Create Account" [level=2] [ref=f4e39]
+          - paragraph [ref=f4e40]: Join Sri Health Care today
+        - generic [ref=f4e41]:
+          - generic [ref=f4e42]:
+            - generic [ref=f4e43]: Full Name
+            - generic [ref=f4e44]:
+              - img
+              - textbox "Full Name" [ref=f4e45]:
+                - /placeholder: Enter your full name
+          - generic [ref=f4e46]:
+            - generic [ref=f4e47]: Phone Number
+            - generic [ref=f4e48]:
+              - img
+              - textbox "Phone Number" [ref=f4e49]:
+                - /placeholder: Enter 10-digit phone number
+          - generic [ref=f4e50]:
+            - generic [ref=f4e51]: Email Address
+            - generic [ref=f4e52]:
+              - img
+              - textbox "Email Address" [ref=f4e53]:
+                - /placeholder: Enter your email address
+          - generic [ref=f4e54]:
+            - generic [ref=f4e55]: Password
+            - generic [ref=f4e56]:
+              - img
+              - textbox "Password" [ref=f4e57]:
+                - /placeholder: Create a password (min 8 characters)
+              - button [ref=f4e58] [cursor=pointer]:
+                - img [ref=f4e59]
+          - generic [ref=f4e62]:
+            - generic [ref=f4e63]: Confirm Password
+            - generic [ref=f4e64]:
+              - img
+              - textbox "Confirm Password" [ref=f4e65]:
+                - /placeholder: Confirm your password
+          - generic [ref=f4e67] [cursor=pointer]:
+            - checkbox "I agree to the Terms of Service and Privacy Policy" [ref=f4e68]
+            - generic [ref=f4e69]:
+              - text: I agree to the
+              - link "Terms of Service" [ref=f4e70]:
+                - /url: /terms
+              - text: and
+              - link "Privacy Policy" [ref=f4e71]:
+                - /url: /privacy
+          - button "Create Account" [disabled] [ref=f4e72]
+        - generic [ref=f4e74]: or
+        - paragraph [ref=f4e76]:
+          - text: Already have an account?
+          - link "Sign in" [ref=f4e77] [cursor=pointer]:
+            - /url: /auth/login

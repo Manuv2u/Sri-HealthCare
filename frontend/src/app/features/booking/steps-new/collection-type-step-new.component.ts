@@ -365,6 +365,17 @@ type CollectionType = 'home' | 'lab';
     </app-modal>
   `,
   styles: [`
+    :host {
+      --color-primary-50: #EEF2FF;
+      --color-primary-100: #E0E7FF;
+      --color-primary-500: #6366F1;
+      --color-primary-600: #4F46E5;
+      --color-primary-700: #4338CA;
+      --color-primary-800: #3730A3;
+      --shadow-primary: 0 4px 14px 0 rgba(79, 70, 229, 0.28);
+      display: block;
+    }
+
     .collection-step {
       display: flex;
       flex-direction: column;
@@ -395,16 +406,16 @@ type CollectionType = 'home' | 'lab';
       transition: all 200ms cubic-bezier(0.4,0,0.2,1);
 
       &:hover {
-        border-color: #4FD1C5;
+        border-color: #A5B4FC;
         transform: translateY(-2px);
         box-shadow: 0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -2px rgba(0,0,0,.1);
       }
     }
 
     .type-card--selected {
-      border-color: #319795;
-      background: #E6FFFA;
-      box-shadow: 0 4px 14px 0 rgba(49,151,149,.25);
+      border-color: #6366F1;
+      background: #EEF2FF;
+      box-shadow: 0 4px 14px 0 rgba(99,102,241,.25);
     }
 
     .type-card__icon {
@@ -423,8 +434,8 @@ type CollectionType = 'home' | 'lab';
     }
 
     .type-card__icon--home {
-      background: linear-gradient(135deg, #B2F5EA 0%, #81E6D9 100%);
-      color: #285E61;
+      background: linear-gradient(135deg, #C7D2FE 0%, #A5B4FC 100%);
+      color: #4338CA;
     }
 
     .type-card__icon--lab {
@@ -487,7 +498,7 @@ type CollectionType = 'home' | 'lab';
       width: 32px;
       height: 32px;
       border-radius: 9999px;
-      background: #319795;
+      background: #6366F1;
       color: #FFFFFF;
       display: flex;
       align-items: center;
@@ -562,13 +573,13 @@ type CollectionType = 'home' | 'lab';
       transition: all 150ms;
 
       &:hover {
-        border-color: #4FD1C5;
+        border-color: #A5B4FC;
       }
     }
 
     .address-card--selected {
-      border-color: #319795;
-      background: #E6FFFA;
+      border-color: #6366F1;
+      background: #EEF2FF;
     }
 
     .address-card__header {
@@ -602,7 +613,7 @@ type CollectionType = 'home' | 'lab';
       width: 24px;
       height: 24px;
       border-radius: 9999px;
-      background: #319795;
+      background: #6366F1;
       color: #FFFFFF;
       display: flex;
       align-items: center;
@@ -660,13 +671,13 @@ type CollectionType = 'home' | 'lab';
       transition: all 150ms;
 
       &:hover {
-        border-color: #4FD1C5;
+        border-color: #A5B4FC;
       }
     }
 
     .lab-card--selected {
-      border-color: #319795;
-      background: #E6FFFA;
+      border-color: #6366F1;
+      background: #EEF2FF;
     }
 
     .lab-card__icon {
@@ -725,7 +736,7 @@ type CollectionType = 'home' | 'lab';
       width: 24px;
       height: 24px;
       border-radius: 9999px;
-      background: #319795;
+      background: #6366F1;
       color: #FFFFFF;
       display: flex;
       align-items: center;
@@ -822,8 +833,8 @@ type CollectionType = 'home' | 'lab';
 
       &:focus {
         outline: none;
-        border-color: #319795;
-        box-shadow: 0 0 0 3px rgba(49, 151, 149, 0.1);
+        border-color: #6366F1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
       }
 
       &::placeholder {
@@ -853,13 +864,13 @@ type CollectionType = 'home' | 'lab';
       transition: all 0.2s;
 
       &:checked {
-        background-color: #319795;
-        border-color: #319795;
+        background-color: #6366F1;
+        border-color: #6366F1;
       }
 
       &:focus {
         outline: none;
-        box-shadow: 0 0 0 3px rgba(49, 151, 149, 0.1);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
       }
     }
   `]

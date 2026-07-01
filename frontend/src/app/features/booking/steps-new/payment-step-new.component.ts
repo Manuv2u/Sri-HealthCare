@@ -178,6 +178,17 @@ import { ButtonComponent, SpinnerComponent, BadgeComponent, AlertComponent } fro
     </div>
   `,
   styles: [`
+    :host {
+      --color-primary-50: #EEF2FF;
+      --color-primary-100: #E0E7FF;
+      --color-primary-500: #6366F1;
+      --color-primary-600: #4F46E5;
+      --color-primary-700: #4338CA;
+      --color-primary-800: #3730A3;
+      --shadow-primary: 0 4px 14px 0 rgba(79, 70, 229, 0.28);
+      display: block;
+    }
+
     .payment-step {
       display: flex;
       flex-direction: column;
@@ -254,7 +265,7 @@ import { ButtonComponent, SpinnerComponent, BadgeComponent, AlertComponent } fro
     }
 
     .item-row--package {
-      border-left: 3px solid #DD6B20;
+      border-left: 3px solid #F97316;
     }
 
     .item-name {
@@ -329,21 +340,21 @@ import { ButtonComponent, SpinnerComponent, BadgeComponent, AlertComponent } fro
       text-align: left;
 
       &:hover {
-        border-color: #4FD1C5;
+        border-color: #A5B4FC;
       }
     }
 
     .method-card--selected {
-      border-color: #319795;
-      background: #E6FFFA;
+      border-color: #6366F1;
+      background: #EEF2FF;
     }
 
     .method-card__icon {
       width: 48px;
       height: 48px;
       border-radius: 0.75rem;
-      background: #B2F5EA;
-      color: #2C7A7B;
+      background: #C7D2FE;
+      color: #4F46E5;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -382,7 +393,7 @@ import { ButtonComponent, SpinnerComponent, BadgeComponent, AlertComponent } fro
       width: 24px;
       height: 24px;
       border-radius: 9999px;
-      background: #319795;
+      background: #6366F1;
       color: #FFFFFF;
       display: flex;
       align-items: center;

@@ -85,23 +85,23 @@ type PasswordStrength = 'weak' | 'fair' | 'good' | 'strong';
 
           <!-- Error Alert -->
           @if (error()) {
-            <div class="error-alert">
+            <div class="error-alert" role="alert">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
               </svg>
               <span>{{ error() }}</span>
-              <button type="button" class="alert-close" (click)="error.set(null)">&times;</button>
+              <button type="button" class="alert-close" aria-label="Dismiss error" (click)="error.set(null)">&times;</button>
             </div>
           }
 
-          <form [formGroup]="registerForm" (ngSubmit)="register()" class="auth-form">
+          <form [formGroup]="registerForm" (ngSubmit)="register()" class="auth-form" novalidate>
             <div class="form-group">
               <label for="name">Full Name</label>
               <div class="input-wrapper">
                 <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
                 </svg>
-                <input id="name" type="text" formControlName="name" placeholder="Enter your full name"/>
+                <input id="name" type="text" formControlName="name" placeholder="Enter your full name" autocomplete="name"/>
               </div>
               @if (registerForm.get('name')?.invalid && registerForm.get('name')?.touched) {
                 <span class="error-text">{{ getNameError() }}</span>
@@ -114,7 +114,7 @@ type PasswordStrength = 'weak' | 'fair' | 'good' | 'strong';
                 <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/>
                 </svg>
-                <input id="phone" type="tel" formControlName="phone" placeholder="Enter 10-digit phone number"/>
+                <input id="phone" type="tel" formControlName="phone" placeholder="Enter 10-digit phone number" autocomplete="tel" inputmode="numeric"/>
               </div>
               @if (registerForm.get('phone')?.invalid && registerForm.get('phone')?.touched) {
                 <span class="error-text">Please enter a valid 10-digit phone number</span>
@@ -127,7 +127,7 @@ type PasswordStrength = 'weak' | 'fair' | 'good' | 'strong';
                 <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 6L2 7"/>
                 </svg>
-                <input id="email" type="email" formControlName="email" placeholder="Enter your email address"/>
+                <input id="email" type="email" formControlName="email" placeholder="Enter your email address" autocomplete="email"/>
               </div>
               @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
                 <span class="error-text">Please enter a valid email address</span>
@@ -145,6 +145,7 @@ type PasswordStrength = 'weak' | 'fair' | 'good' | 'strong';
                   [type]="showPassword() ? 'text' : 'password'" 
                   formControlName="password"
                   placeholder="Create a password (min 8 characters)"
+                  autocomplete="new-password"
                   (input)="onPasswordInput($event)"
                 />
                 <button type="button" class="password-toggle" (click)="showPassword.set(!showPassword())">
@@ -181,9 +182,10 @@ type PasswordStrength = 'weak' | 'fair' | 'good' | 'strong';
                 </svg>
                 <input 
                   id="confirmPassword"
-                  type="password" 
+                  type="password"
                   formControlName="confirmPassword"
                   placeholder="Confirm your password"
+                  autocomplete="new-password"
                 />
               </div>
               @if (registerForm.get('confirmPassword')?.hasError('mismatch') && registerForm.get('confirmPassword')?.touched) {
@@ -204,8 +206,11 @@ type PasswordStrength = 'weak' | 'fair' | 'good' | 'strong';
                   <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" opacity="0.25"/>
                   <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                 </svg>
+                <span>Creating account...</span>
+              } @else {
+                <span>Create Account</span>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8H13M9 4L13 8L9 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
               }
-              {{ loading() ? 'Creating account...' : 'Create Account' }}
             </button>
           </form>
 
@@ -221,10 +226,29 @@ type PasswordStrength = 'weak' | 'fair' | 'good' | 'strong';
     </div>
   `,
   styles: [`
+    :host {
+      --indigo: #6366F1;
+      --indigo-dark: #4F46E5;
+      --indigo-lt: #EEF2FF;
+      --ink: #0F172A;
+      --ink-secondary: #475569;
+      --ink-muted: #94A3B8;
+      --border: #E2E8F0;
+      --border-lt: #F1F5F9;
+      display: block;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
     .auth-page {
       display: flex;
       min-height: 100vh;
-      background: linear-gradient(135deg, #E6FFFA 0%, #F8FAFC 50%, #EBF4FF 100%);
+      background: #F8F9FF;
+      animation: pageEnter 0.4s ease both;
+    }
+
+    @keyframes pageEnter {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
 
     /* Left Brand Panel */
@@ -233,7 +257,7 @@ type PasswordStrength = 'weak' | 'fair' | 'good' | 'strong';
       width: 50%;
       max-width: 720px;
       min-width: 480px;
-      background: linear-gradient(145deg, #285E61 0%, #234E52 50%, #1D4044 100%);
+      background: linear-gradient(145deg, #4F46E5 0%, #6366F1 45%, #7C3AED 100%);
       color: white;
       padding: 48px 56px;
       flex-direction: column;
@@ -249,7 +273,19 @@ type PasswordStrength = 'weak' | 'fair' | 'good' | 'strong';
       content: '';
       position: absolute;
       inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+
+    .auth-brand::after {
+      content: '';
+      position: absolute;
+      bottom: -140px;
+      right: -140px;
+      width: 380px;
+      height: 380px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%);
       pointer-events: none;
     }
 
@@ -263,11 +299,17 @@ type PasswordStrength = 'weak' | 'fair' | 'good' | 'strong';
       color: inherit;
     }
 
-    .logo-icon { width: 56px; height: 56px; color: #319795; }
+    .brand-logo:focus-visible {
+      outline: 2px solid white;
+      outline-offset: 4px;
+      border-radius: 8px;
+    }
+
+    .logo-icon { width: 56px; height: 56px; color: white; }
     .logo-icon svg { width: 100%; height: 100%; }
 
     .logo-text { display: flex; flex-direction: column; }
-    .logo-name { font-size: 20px; font-weight: 700; }
+    .logo-name { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
     .logo-tagline { font-size: 14px; opacity: 0.85; }
 
     .brand-hero {
@@ -283,18 +325,19 @@ type PasswordStrength = 'weak' | 'fair' | 'good' | 'strong';
       font-size: 36px;
       font-weight: 800;
       line-height: 1.2;
+      letter-spacing: -0.02em;
       margin: 0 0 24px 0;
     }
 
     .brand-subtitle {
       font-size: 18px;
       line-height: 1.6;
-      opacity: 0.9;
+      opacity: 0.88;
       margin: 0 0 40px 0;
       max-width: 480px;
     }
 
-    .brand-features { display: flex; flex-direction: column; gap: 20px; }
+    .brand-features { display: flex; flex-direction: column; gap: 18px; }
 
     .feature {
       display: flex;
@@ -302,7 +345,10 @@ type PasswordStrength = 'weak' | 'fair' | 'good' | 'strong';
       gap: 16px;
       font-size: 16px;
       font-weight: 500;
+      transition: transform 0.2s;
     }
+
+    .feature:hover { transform: translateX(4px); }
 
     .feature-icon {
       width: 48px;
@@ -310,15 +356,17 @@ type PasswordStrength = 'weak' | 'fair' | 'good' | 'strong';
       display: flex;
       align-items: center;
       justify-content: center;
-      background: rgba(255, 255, 255, 0.12);
-      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 14px;
       font-size: 20px;
+      flex-shrink: 0;
     }
 
     .brand-footer {
       padding-top: 32px;
       font-size: 14px;
-      opacity: 0.7;
+      opacity: 0.65;
       position: relative;
       z-index: 1;
     }
@@ -343,7 +391,13 @@ type PasswordStrength = 'weak' | 'fair' | 'good' | 'strong';
       padding: 32px;
       width: 100%;
       max-width: 480px;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 20px 45px -12px rgba(67, 56, 202, 0.18), 0 0 0 1px rgba(226, 232, 240, 0.6);
+      animation: cardEnter 0.45s cubic-bezier(0, 0, 0.2, 1) both;
+    }
+
+    @keyframes cardEnter {
+      from { opacity: 0; transform: translateY(16px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
     }
 
     @media (min-width: 768px) {
@@ -363,14 +417,14 @@ type PasswordStrength = 'weak' | 'fair' | 'good' | 'strong';
       .mobile-logo { display: none; }
     }
 
-    .mobile-logo-icon { width: 44px; height: 44px; color: #319795; }
+    .mobile-logo-icon { width: 44px; height: 44px; color: var(--indigo); }
     .mobile-logo-icon svg { width: 100%; height: 100%; }
-    .mobile-logo-text { font-size: 20px; font-weight: 700; color: #0F172A; }
+    .mobile-logo-text { font-size: 20px; font-weight: 700; color: var(--ink); }
 
     /* Card Header */
     .card-header { text-align: center; margin-bottom: 24px; }
-    .card-title { font-size: 26px; font-weight: 700; color: #0F172A; margin: 0 0 8px 0; }
-    .card-subtitle { font-size: 15px; color: #64748B; margin: 0; }
+    .card-title { font-size: 26px; font-weight: 800; color: var(--ink); letter-spacing: -0.02em; margin: 0 0 8px 0; }
+    .card-subtitle { font-size: 15px; color: var(--ink-secondary); margin: 0; }
 
     /* Error Alert */
     .error-alert {
@@ -380,9 +434,9 @@ type PasswordStrength = 'weak' | 'fair' | 'good' | 'strong';
       padding: 12px 16px;
       background: #FEF2F2;
       border: 1px solid #FECACA;
-      border-radius: 10px;
+      border-radius: 12px;
       margin-bottom: 20px;
-      color: #DC2626;
+      color: #B91C1C;
       font-size: 14px;
     }
 
@@ -393,10 +447,16 @@ type PasswordStrength = 'weak' | 'fair' | 'good' | 'strong';
       background: none;
       border: none;
       font-size: 20px;
-      color: #DC2626;
+      color: #B91C1C;
       cursor: pointer;
       padding: 0;
       line-height: 1;
+    }
+
+    .alert-close:focus-visible {
+      outline: 2px solid #B91C1C;
+      outline-offset: 2px;
+      border-radius: 4px;
     }
 
     /* Form */
@@ -406,8 +466,8 @@ type PasswordStrength = 'weak' | 'fair' | 'good' | 'strong';
 
     .form-group label {
       font-size: 14px;
-      font-weight: 500;
-      color: #374151;
+      font-weight: 600;
+      color: var(--ink-secondary);
     }
 
     .input-wrapper {
@@ -421,7 +481,7 @@ type PasswordStrength = 'weak' | 'fair' | 'good' | 'strong';
       left: 14px;
       width: 20px;
       height: 20px;
-      color: #94A3B8;
+      color: var(--ink-muted);
       pointer-events: none;
     }
 
@@ -429,20 +489,22 @@ type PasswordStrength = 'weak' | 'fair' | 'good' | 'strong';
       width: 100%;
       height: 48px;
       padding: 0 14px 0 44px;
-      border: 1px solid #E2E8F0;
+      border: 1.5px solid var(--border);
       border-radius: 10px;
       font-size: 15px;
-      color: #0F172A;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      font-family: inherit;
+      color: var(--ink);
+      background: white;
+      transition: border-color 0.15s, box-shadow 0.15s;
     }
 
     .input-wrapper input:focus {
       outline: none;
-      border-color: #319795;
-      box-shadow: 0 0 0 3px rgba(49, 151, 149, 0.15);
+      border-color: var(--indigo);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
     }
 
-    .input-wrapper input::placeholder { color: #94A3B8; }
+    .input-wrapper input::placeholder { color: var(--ink-muted); }
 
     .password-toggle {
       position: absolute;
@@ -451,16 +513,25 @@ type PasswordStrength = 'weak' | 'fair' | 'good' | 'strong';
       border: none;
       padding: 4px;
       cursor: pointer;
-      color: #94A3B8;
-      transition: color 0.2s;
+      color: var(--ink-muted);
+      display: flex;
+      border-radius: 6px;
+      transition: color 0.2s, background 0.2s;
     }
 
-    .password-toggle:hover { color: #64748B; }
+    .password-toggle:hover { color: var(--ink-secondary); background: var(--border-lt); }
+
+    .password-toggle:focus-visible {
+      outline: 2px solid var(--indigo);
+      outline-offset: 1px;
+    }
+
     .password-toggle svg { width: 20px; height: 20px; }
 
     .error-text {
       font-size: 12px;
       color: #DC2626;
+      font-weight: 500;
     }
 
     /* Password Strength */
@@ -470,7 +541,7 @@ type PasswordStrength = 'weak' | 'fair' | 'good' | 'strong';
 
     .strength-bar {
       height: 4px;
-      background: #E2E8F0;
+      background: var(--border);
       border-radius: 2px;
       overflow: hidden;
       margin-bottom: 4px;
@@ -484,12 +555,12 @@ type PasswordStrength = 'weak' | 'fair' | 'good' | 'strong';
 
     .strength-weak { width: 25%; background: #EF4444; }
     .strength-fair { width: 50%; background: #F59E0B; }
-    .strength-good { width: 75%; background: #3B82F6; }
+    .strength-good { width: 75%; background: var(--indigo); }
     .strength-strong { width: 100%; background: #22C55E; }
 
     .strength-text {
       font-size: 12px;
-      color: #64748B;
+      color: var(--ink-secondary);
     }
 
     /* Terms checkbox */
@@ -506,21 +577,26 @@ type PasswordStrength = 'weak' | 'fair' | 'good' | 'strong';
       width: 18px;
       height: 18px;
       margin-top: 2px;
-      accent-color: #319795;
+      accent-color: var(--indigo);
       cursor: pointer;
       flex-shrink: 0;
     }
 
+    .checkbox-label input:focus-visible {
+      outline: 2px solid var(--indigo);
+      outline-offset: 2px;
+    }
+
     .checkbox-label span {
       font-size: 13px;
-      color: #64748B;
+      color: var(--ink-secondary);
       line-height: 1.5;
     }
 
     .checkbox-label a {
-      color: #319795;
+      color: var(--indigo);
       text-decoration: none;
-      font-weight: 500;
+      font-weight: 600;
     }
 
     .checkbox-label a:hover { text-decoration: underline; }
@@ -532,24 +608,34 @@ type PasswordStrength = 'weak' | 'fair' | 'good' | 'strong';
       gap: 8px;
       height: 48px;
       margin-top: 8px;
-      background: linear-gradient(135deg, #319795 0%, #2C7A7B 100%);
+      background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
       color: white;
       border: none;
       border-radius: 10px;
       font-size: 16px;
-      font-weight: 600;
+      font-weight: 700;
+      letter-spacing: -0.01em;
       cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
+      transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
     }
 
     .submit-btn:hover:not(:disabled) {
       transform: translateY(-1px);
-      box-shadow: 0 4px 14px rgba(49, 151, 149, 0.35);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
+    }
+
+    .submit-btn:active:not(:disabled) { transform: translateY(0); }
+
+    .submit-btn:focus-visible {
+      outline: 2px solid var(--indigo);
+      outline-offset: 3px;
     }
 
     .submit-btn:disabled {
-      opacity: 0.7;
+      opacity: 0.6;
       cursor: not-allowed;
+      box-shadow: none;
     }
 
     .spinner {
@@ -576,28 +662,41 @@ type PasswordStrength = 'weak' | 'fair' | 'good' | 'strong';
       content: '';
       flex: 1;
       height: 1px;
-      background: #E2E8F0;
+      background: var(--border);
     }
 
-    .divider span { font-size: 14px; color: #94A3B8; }
+    .divider span { font-size: 13px; color: var(--ink-muted); text-transform: lowercase; }
 
     /* Footer */
     .auth-footer { text-align: center; }
 
     .auth-footer p {
       font-size: 14px;
-      color: #64748B;
+      color: var(--ink-secondary);
       margin: 0;
     }
 
     .auth-footer a {
-      color: #319795;
-      font-weight: 600;
+      color: #F97316;
+      font-weight: 700;
       text-decoration: none;
       margin-left: 4px;
+      transition: color 0.15s;
     }
 
-    .auth-footer a:hover { text-decoration: underline; }
+    .auth-footer a:hover { color: #EA580C; text-decoration: underline; }
+
+    .auth-footer a:focus-visible {
+      outline: 2px solid #F97316;
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      .auth-page, .auth-card, .feature { animation: none !important; transition: none !important; }
+      .submit-btn:hover:not(:disabled) { transform: none; }
+    }
 
     /* Responsive */
     @media (max-width: 480px) {

@@ -160,9 +160,25 @@ const WIZARD_STEPS: WizardStep[] = [
     </div>
   `,
   styles: [`
+    :host {
+      /* Realign shared design-tokens (app-button/app-badge/app-input/app-spinner)
+         from the legacy teal palette to the app's indigo/orange theme. */
+      --color-primary-50: #EEF2FF;
+      --color-primary-100: #E0E7FF;
+      --color-primary-500: #6366F1;
+      --color-primary-600: #4F46E5;
+      --color-primary-700: #4338CA;
+      --color-primary-800: #3730A3;
+      --color-accent-100: #FFEDD5;
+      --color-accent-700: #C2410C;
+      --shadow-primary: 0 4px 14px 0 rgba(79, 70, 229, 0.28);
+      --border-focus: #6366F1;
+      display: block;
+    }
+
     .wizard {
       min-height: calc(100vh - 64px);
-      background: linear-gradient(135deg, #E6FFFA 0%, #F8FAFC 50%, #FFFAF0 100%);
+      background: #F8F9FF;
     }
 
     /* Header */
@@ -172,7 +188,7 @@ const WIZARD_STEPS: WizardStep[] = [
       padding: 1rem 1.5rem;
       position: sticky;
       top: 0;
-      z-index: $z-index-sticky;
+      z-index: 20;
       box-shadow: 0 1px 3px 0 rgba(0,0,0,.1),0 1px 2px -1px rgba(0,0,0,.1);
     }
 
@@ -191,7 +207,7 @@ const WIZARD_STEPS: WizardStep[] = [
 
     .wizard__progress-bar {
       height: 100%;
-      background: linear-gradient(90deg, #319795, #DD6B20);
+      background: linear-gradient(90deg, #6366F1, #7C3AED);
       border-radius: 9999px;
       transition: width 300ms cubic-bezier(0.4,0,0.2,1);
     }
@@ -245,10 +261,10 @@ const WIZARD_STEPS: WizardStep[] = [
     }
 
     .wizard__step--active .wizard__step-indicator {
-      background: #2C7A7B;
-      border-color: #2C7A7B;
+      background: #4F46E5;
+      border-color: #4F46E5;
       color: #FFFFFF;
-      box-shadow: 0 0 0 4px #B2F5EA;
+      box-shadow: 0 0 0 4px #C7D2FE;
     }
 
     .wizard__step--completed .wizard__step-indicator {
@@ -275,7 +291,7 @@ const WIZARD_STEPS: WizardStep[] = [
     }
 
     .wizard__step--active .wizard__step-label {
-      color: #285E61;
+      color: #4338CA;
     }
 
     .wizard__step--completed .wizard__step-label {
@@ -331,15 +347,15 @@ const WIZARD_STEPS: WizardStep[] = [
 
     .wizard__step-header {
       padding: 1.5rem;
-      background: linear-gradient(135deg, #E6FFFA 0%, #FFFFFF 100%);
+      background: linear-gradient(135deg, #EEF2FF 0%, #FFFFFF 100%);
       border-bottom: 1px solid #F1F5F9;
     }
 
     .wizard__step-badge {
       display: inline-flex;
       padding: 0.25rem 0.75rem;
-      background: #B2F5EA;
-      color: #285E61;
+      background: #E0E7FF;
+      color: #4338CA;
       border-radius: 9999px;
       font-size: 0.75rem;
       font-weight: 600;
@@ -410,8 +426,8 @@ const WIZARD_STEPS: WizardStep[] = [
     }
 
     .trust-badge__icon--primary {
-      background: #E6FFFA;
-      color: #2C7A7B;
+      background: #EEF2FF;
+      color: #4F46E5;
     }
 
     .trust-badge__icon--success {
@@ -420,8 +436,8 @@ const WIZARD_STEPS: WizardStep[] = [
     }
 
     .trust-badge__icon--accent {
-      background: #FFFAF0;
-      color: #C05621;
+      background: #FFF7ED;
+      color: #EA580C;
     }
 
     .trust-badge__content {

@@ -204,6 +204,17 @@ import {
     </div>
   `,
   styles: [`
+    :host {
+      --color-primary-50: #EEF2FF;
+      --color-primary-100: #E0E7FF;
+      --color-primary-500: #6366F1;
+      --color-primary-600: #4F46E5;
+      --color-primary-700: #4338CA;
+      --color-primary-800: #3730A3;
+      --shadow-primary: 0 4px 14px 0 rgba(79, 70, 229, 0.28);
+      display: block;
+    }
+
     .patient-step {
       display: flex;
       flex-direction: column;
@@ -272,23 +283,23 @@ import {
       width: 100%;
 
       &:hover {
-        border-color: #4FD1C5;
-        background: #E6FFFA;
+        border-color: #A5B4FC;
+        background: #EEF2FF;
         transform: translateY(-2px);
         box-shadow: 0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -2px rgba(0,0,0,.1);
       }
 
       &:focus-visible {
         outline: none;
-        border-color: #319795;
-        box-shadow: 0 0 0 4px #B2F5EA;
+        border-color: #6366F1;
+        box-shadow: 0 0 0 4px #C7D2FE;
       }
     }
 
     .patient-card--selected {
-      border-color: #319795;
-      background: #E6FFFA;
-      box-shadow: 0 4px 14px 0 rgba(49,151,149,.25);
+      border-color: #6366F1;
+      background: #EEF2FF;
+      box-shadow: 0 4px 14px 0 rgba(99,102,241,.25);
     }
 
     .patient-card__avatar {
@@ -304,15 +315,15 @@ import {
     }
 
     .patient-card__avatar--self {
-      background: linear-gradient(135deg, #319795 0%, #285E61 100%);
+      background: linear-gradient(135deg, #6366F1 0%, #4338CA 100%);
       color: #FFFFFF;
-      box-shadow: 0 4px 12px rgba(#319795, 0.3);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
     }
 
     .patient-card__avatar--member {
-      background: linear-gradient(135deg, #FEEBCB 0%, #FBD38D 100%);
-      color: #9C4221;
-      border: 2px solid #F6AD55;
+      background: linear-gradient(135deg, #FFEDD5 0%, #FDBA74 100%);
+      color: #C2410C;
+      border: 2px solid #FB923C;
     }
 
     .patient-card__info {
@@ -347,7 +358,7 @@ import {
     .patient-card__check {
       width: 28px;
       height: 28px;
-      color: #319795;
+      color: #6366F1;
       opacity: 0;
       transform: scale(0.7);
       transition: all 150ms;
@@ -366,7 +377,7 @@ import {
     /* Add Card */
     .patient-card--add {
       border-style: dashed;
-      border-color: #4FD1C5;
+      border-color: #A5B4FC;
       background: transparent;
       flex-direction: column;
       justify-content: center;
@@ -374,8 +385,8 @@ import {
       gap: 0.75rem;
 
       &:hover {
-        border-color: #319795;
-        background: #E6FFFA;
+        border-color: #6366F1;
+        background: #EEF2FF;
       }
     }
 
@@ -383,11 +394,11 @@ import {
       width: 48px;
       height: 48px;
       border-radius: 9999px;
-      background: #B2F5EA;
+      background: #C7D2FE;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #2C7A7B;
+      color: #4F46E5;
       transition: all 150ms;
 
       svg {
@@ -396,14 +407,14 @@ import {
       }
 
       .patient-card--add:hover & {
-        background: #81E6D9;
+        background: #A5B4FC;
       }
     }
 
     .patient-card__add-label {
       font-size: 0.875rem;
       font-weight: 600;
-      color: #285E61;
+      color: #4338CA;
     }
 
     /* Step Actions */
@@ -469,9 +480,9 @@ import {
 
       &:focus {
         outline: none;
-        border-color: #319795;
+        border-color: #6366F1;
         background: #FFFFFF;
-        box-shadow: 0 0 0 4px #B2F5EA;
+        box-shadow: 0 0 0 4px #C7D2FE;
       }
 
       &::placeholder {

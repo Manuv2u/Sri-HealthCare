@@ -84,11 +84,13 @@ type AuthMode = 'phone' | 'password';
           </div>
 
           <!-- Mode Toggle -->
-          <div class="mode-toggle">
-            <button 
+          <div class="mode-toggle" role="tablist" aria-label="Sign-in method">
+            <button
               type="button"
+              role="tab"
               class="toggle-btn"
               [class.active]="mode() === 'password'"
+              [attr.aria-selected]="mode() === 'password'"
               (click)="setMode('password')"
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -97,10 +99,12 @@ type AuthMode = 'phone' | 'password';
               </svg>
               Password
             </button>
-            <button 
+            <button
               type="button"
+              role="tab"
               class="toggle-btn"
               [class.active]="mode() === 'phone'"
+              [attr.aria-selected]="mode() === 'phone'"
               (click)="setMode('phone')"
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -113,33 +117,34 @@ type AuthMode = 'phone' | 'password';
 
           <!-- Error Alert -->
           @if (error()) {
-            <div class="error-alert">
+            <div class="error-alert" role="alert">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
               </svg>
               <span>{{ error() }}</span>
-              <button type="button" class="alert-close" (click)="error.set(null)">&times;</button>
+              <button type="button" class="alert-close" aria-label="Dismiss error" (click)="error.set(null)">&times;</button>
             </div>
           }
 
           <!-- Password Mode Form -->
           @if (mode() === 'password') {
-            <form [formGroup]="passwordForm" (ngSubmit)="loginWithPassword()" class="auth-form">
+            <form [formGroup]="passwordForm" (ngSubmit)="loginWithPassword()" class="auth-form" novalidate role="tabpanel">
               <div class="form-group">
                 <label for="identifier">Email or Phone</label>
                 <div class="input-wrapper">
                   <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 6L2 7"/>
                   </svg>
-                  <input 
+                  <input
                     id="identifier"
-                    type="text" 
+                    type="text"
                     formControlName="identifier"
                     placeholder="Enter your email or phone number"
+                    autocomplete="username"
                   />
                 </div>
               </div>
-              
+
               <div class="form-group">
                 <label for="password">Password</label>
                 <div class="input-wrapper">
@@ -147,13 +152,14 @@ type AuthMode = 'phone' | 'password';
                     <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
                     <path d="M7 11V7a5 5 0 0110 0v4"/>
                   </svg>
-                  <input 
+                  <input
                     id="password"
-                    [type]="showPassword() ? 'text' : 'password'" 
+                    [type]="showPassword() ? 'text' : 'password'"
                     formControlName="password"
                     placeholder="Enter your password"
+                    autocomplete="current-password"
                   />
-                  <button type="button" class="password-toggle" (click)="showPassword.set(!showPassword())">
+                  <button type="button" class="password-toggle" [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'" (click)="showPassword.set(!showPassword())">
                     @if (showPassword()) {
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/>
@@ -168,7 +174,7 @@ type AuthMode = 'phone' | 'password';
                   </button>
                 </div>
               </div>
-              
+
               <div class="form-row">
                 <label class="remember-me">
                   <input type="checkbox" [checked]="rememberMe()" (change)="toggleRememberMe()"/>
@@ -176,22 +182,24 @@ type AuthMode = 'phone' | 'password';
                 </label>
                 <a routerLink="/auth/forgot-password" class="forgot-link">Forgot password?</a>
               </div>
-              
+
               <button type="submit" class="submit-btn" [disabled]="loading() || passwordForm.invalid">
                 @if (loading()) {
                   <svg class="spinner" viewBox="0 0 24 24">
                     <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" opacity="0.25"/>
                     <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                   </svg>
+                } @else {
+                  <span>Sign In</span>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8H13M9 4L13 8L9 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 }
-                {{ loading() ? 'Signing in...' : 'Sign In' }}
               </button>
             </form>
           }
 
           <!-- Phone OTP Mode Form -->
           @if (mode() === 'phone') {
-            <form [formGroup]="phoneForm" (ngSubmit)="sendOtp()" class="auth-form">
+            <form [formGroup]="phoneForm" (ngSubmit)="sendOtp()" class="auth-form" novalidate role="tabpanel">
               <div class="form-group">
                 <label for="phone">Phone Number</label>
                 <div class="input-wrapper">
@@ -199,23 +207,27 @@ type AuthMode = 'phone' | 'password';
                     <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
                     <line x1="12" y1="18" x2="12.01" y2="18"/>
                   </svg>
-                  <input 
+                  <input
                     id="phone"
-                    type="tel" 
+                    type="tel"
                     formControlName="phone"
                     placeholder="Enter your 10-digit phone number"
+                    autocomplete="tel"
+                    inputmode="numeric"
                   />
                 </div>
               </div>
-              
+
               <button type="submit" class="submit-btn" [disabled]="loading() || phoneForm.invalid">
                 @if (loading()) {
                   <svg class="spinner" viewBox="0 0 24 24">
                     <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" opacity="0.25"/>
                     <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                   </svg>
+                } @else {
+                  <span>Send OTP</span>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8H13M9 4L13 8L9 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 }
-                {{ loading() ? 'Sending OTP...' : 'Send OTP' }}
               </button>
             </form>
           }
@@ -232,10 +244,32 @@ type AuthMode = 'phone' | 'password';
     </div>
   `,
   styles: [`
+    :host {
+      --indigo: #6366F1;
+      --indigo-dark: #4F46E5;
+      --indigo-deep: #3730A3;
+      --violet: #7C3AED;
+      --indigo-lt: #EEF2FF;
+      --indigo-mid: #C7D2FE;
+      --ink: #0F172A;
+      --ink-secondary: #475569;
+      --ink-muted: #94A3B8;
+      --border: #E2E8F0;
+      --border-lt: #F1F5F9;
+      display: block;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
     .auth-page {
       display: flex;
       min-height: 100vh;
-      background: linear-gradient(135deg, #E6FFFA 0%, #F8FAFC 50%, #EBF4FF 100%);
+      background: #F8F9FF;
+      animation: pageEnter 0.4s ease both;
+    }
+
+    @keyframes pageEnter {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
 
     /* Left Brand Panel */
@@ -244,7 +278,7 @@ type AuthMode = 'phone' | 'password';
       width: 50%;
       max-width: 720px;
       min-width: 480px;
-      background: linear-gradient(145deg, #285E61 0%, #234E52 50%, #1D4044 100%);
+      background: linear-gradient(145deg, #4F46E5 0%, #6366F1 45%, #7C3AED 100%);
       color: white;
       padding: 48px 56px;
       flex-direction: column;
@@ -260,7 +294,19 @@ type AuthMode = 'phone' | 'password';
       content: '';
       position: absolute;
       inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+
+    .auth-brand::after {
+      content: '';
+      position: absolute;
+      bottom: -140px;
+      right: -140px;
+      width: 380px;
+      height: 380px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%);
       pointer-events: none;
     }
 
@@ -274,16 +320,22 @@ type AuthMode = 'phone' | 'password';
       color: inherit;
     }
 
+    .brand-logo:focus-visible {
+      outline: 2px solid white;
+      outline-offset: 4px;
+      border-radius: 8px;
+    }
+
     .logo-icon {
       width: 56px;
       height: 56px;
-      color: #319795;
+      color: white;
     }
 
     .logo-icon svg { width: 100%; height: 100%; }
 
     .logo-text { display: flex; flex-direction: column; }
-    .logo-name { font-size: 20px; font-weight: 700; }
+    .logo-name { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
     .logo-tagline { font-size: 14px; opacity: 0.85; }
 
     .brand-hero {
@@ -299,13 +351,14 @@ type AuthMode = 'phone' | 'password';
       font-size: 36px;
       font-weight: 800;
       line-height: 1.2;
+      letter-spacing: -0.02em;
       margin: 0 0 24px 0;
     }
 
     .brand-subtitle {
       font-size: 18px;
       line-height: 1.6;
-      opacity: 0.9;
+      opacity: 0.88;
       margin: 0 0 40px 0;
       max-width: 480px;
     }
@@ -313,7 +366,7 @@ type AuthMode = 'phone' | 'password';
     .brand-features {
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 18px;
     }
 
     .feature {
@@ -322,7 +375,10 @@ type AuthMode = 'phone' | 'password';
       gap: 16px;
       font-size: 16px;
       font-weight: 500;
+      transition: transform 0.2s;
     }
+
+    .feature:hover { transform: translateX(4px); }
 
     .feature-icon {
       width: 48px;
@@ -330,15 +386,17 @@ type AuthMode = 'phone' | 'password';
       display: flex;
       align-items: center;
       justify-content: center;
-      background: rgba(255, 255, 255, 0.12);
-      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 14px;
       font-size: 20px;
+      flex-shrink: 0;
     }
 
     .brand-footer {
       padding-top: 32px;
       font-size: 14px;
-      opacity: 0.7;
+      opacity: 0.65;
       position: relative;
       z-index: 1;
     }
@@ -362,7 +420,13 @@ type AuthMode = 'phone' | 'password';
       padding: 32px;
       width: 100%;
       max-width: 480px;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 20px 45px -12px rgba(67, 56, 202, 0.18), 0 0 0 1px rgba(226, 232, 240, 0.6);
+      animation: cardEnter 0.45s cubic-bezier(0, 0, 0.2, 1) both;
+    }
+
+    @keyframes cardEnter {
+      from { opacity: 0; transform: translateY(16px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
     }
 
     @media (min-width: 768px) {
@@ -385,16 +449,16 @@ type AuthMode = 'phone' | 'password';
     .mobile-logo-icon {
       width: 44px;
       height: 44px;
-      color: #319795;
+      color: var(--indigo);
     }
 
     .mobile-logo-icon svg { width: 100%; height: 100%; }
-    .mobile-logo-text { font-size: 20px; font-weight: 700; color: #0F172A; }
+    .mobile-logo-text { font-size: 20px; font-weight: 700; color: var(--ink); }
 
     /* Card Header */
     .card-header { text-align: center; margin-bottom: 32px; }
-    .card-title { font-size: 28px; font-weight: 700; color: #0F172A; margin: 0 0 8px 0; }
-    .card-subtitle { font-size: 16px; color: #64748B; margin: 0; }
+    .card-title { font-size: 28px; font-weight: 800; color: var(--ink); letter-spacing: -0.02em; margin: 0 0 8px 0; }
+    .card-subtitle { font-size: 16px; color: var(--ink-secondary); margin: 0; }
 
     @media (min-width: 768px) {
       .card-title { font-size: 32px; }
@@ -403,9 +467,9 @@ type AuthMode = 'phone' | 'password';
     /* Mode Toggle */
     .mode-toggle {
       display: flex;
-      gap: 8px;
+      gap: 4px;
       padding: 4px;
-      background: #F1F5F9;
+      background: var(--indigo-lt);
       border-radius: 14px;
       margin-bottom: 24px;
     }
@@ -421,20 +485,25 @@ type AuthMode = 'phone' | 'password';
       border: none;
       border-radius: 10px;
       font-size: 14px;
-      font-weight: 500;
-      color: #64748B;
+      font-weight: 600;
+      color: var(--indigo);
       cursor: pointer;
       transition: all 0.2s;
     }
 
     .toggle-btn svg { width: 18px; height: 18px; }
 
-    .toggle-btn:hover:not(.active) { color: #0F172A; background: rgba(255,255,255,0.5); }
+    .toggle-btn:hover:not(.active) { color: var(--indigo-dark); background: rgba(255,255,255,0.6); }
+
+    .toggle-btn:focus-visible {
+      outline: 2px solid var(--indigo);
+      outline-offset: 2px;
+    }
 
     .toggle-btn.active {
       background: white;
-      color: #0F172A;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      color: var(--indigo-dark);
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.18);
     }
 
     /* Error Alert */
@@ -445,9 +514,9 @@ type AuthMode = 'phone' | 'password';
       padding: 12px 16px;
       background: #FEF2F2;
       border: 1px solid #FECACA;
-      border-radius: 10px;
+      border-radius: 12px;
       margin-bottom: 20px;
-      color: #DC2626;
+      color: #B91C1C;
       font-size: 14px;
     }
 
@@ -458,10 +527,16 @@ type AuthMode = 'phone' | 'password';
       background: none;
       border: none;
       font-size: 20px;
-      color: #DC2626;
+      color: #B91C1C;
       cursor: pointer;
       padding: 0;
       line-height: 1;
+    }
+
+    .alert-close:focus-visible {
+      outline: 2px solid #B91C1C;
+      outline-offset: 2px;
+      border-radius: 4px;
     }
 
     /* Form */
@@ -471,8 +546,8 @@ type AuthMode = 'phone' | 'password';
 
     .form-group label {
       font-size: 14px;
-      font-weight: 500;
-      color: #374151;
+      font-weight: 600;
+      color: var(--ink-secondary);
     }
 
     .input-wrapper {
@@ -486,7 +561,7 @@ type AuthMode = 'phone' | 'password';
       left: 14px;
       width: 20px;
       height: 20px;
-      color: #94A3B8;
+      color: var(--ink-muted);
       pointer-events: none;
     }
 
@@ -494,20 +569,22 @@ type AuthMode = 'phone' | 'password';
       width: 100%;
       height: 52px;
       padding: 0 14px 0 44px;
-      border: 1px solid #E2E8F0;
+      border: 1.5px solid var(--border);
       border-radius: 12px;
       font-size: 15px;
-      color: #0F172A;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      font-family: inherit;
+      color: var(--ink);
+      background: white;
+      transition: border-color 0.15s, box-shadow 0.15s;
     }
 
     .input-wrapper input:focus {
       outline: none;
-      border-color: #319795;
-      box-shadow: 0 0 0 3px rgba(49, 151, 149, 0.15);
+      border-color: var(--indigo);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
     }
 
-    .input-wrapper input::placeholder { color: #94A3B8; }
+    .input-wrapper input::placeholder { color: var(--ink-muted); }
 
     .password-toggle {
       position: absolute;
@@ -516,11 +593,19 @@ type AuthMode = 'phone' | 'password';
       border: none;
       padding: 4px;
       cursor: pointer;
-      color: #94A3B8;
-      transition: color 0.2s;
+      color: var(--ink-muted);
+      display: flex;
+      border-radius: 6px;
+      transition: color 0.2s, background 0.2s;
     }
 
-    .password-toggle:hover { color: #64748B; }
+    .password-toggle:hover { color: var(--ink-secondary); background: var(--border-lt); }
+
+    .password-toggle:focus-visible {
+      outline: 2px solid var(--indigo);
+      outline-offset: 1px;
+    }
+
     .password-toggle svg { width: 20px; height: 20px; }
 
     .form-row {
@@ -540,20 +625,32 @@ type AuthMode = 'phone' | 'password';
     .remember-me input {
       width: 18px;
       height: 18px;
-      accent-color: #319795;
+      accent-color: var(--indigo);
       cursor: pointer;
     }
 
-    .remember-me span { font-size: 14px; color: #64748B; }
+    .remember-me input:focus-visible {
+      outline: 2px solid var(--indigo);
+      outline-offset: 2px;
+    }
+
+    .remember-me span { font-size: 14px; color: var(--ink-secondary); }
 
     .forgot-link {
       font-size: 14px;
-      font-weight: 500;
-      color: #319795;
+      font-weight: 600;
+      color: var(--indigo);
       text-decoration: none;
+      transition: color 0.15s;
     }
 
-    .forgot-link:hover { text-decoration: underline; }
+    .forgot-link:hover { color: var(--indigo-dark); text-decoration: underline; }
+
+    .forgot-link:focus-visible {
+      outline: 2px solid var(--indigo);
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
 
     .submit-btn {
       display: flex;
@@ -561,24 +658,34 @@ type AuthMode = 'phone' | 'password';
       justify-content: center;
       gap: 8px;
       height: 52px;
-      background: linear-gradient(135deg, #319795 0%, #2C7A7B 100%);
+      background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
       color: white;
       border: none;
       border-radius: 12px;
       font-size: 16px;
-      font-weight: 600;
+      font-weight: 700;
+      letter-spacing: -0.01em;
       cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
+      transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
     }
 
     .submit-btn:hover:not(:disabled) {
       transform: translateY(-1px);
-      box-shadow: 0 4px 14px rgba(49, 151, 149, 0.35);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
+    }
+
+    .submit-btn:active:not(:disabled) { transform: translateY(0); }
+
+    .submit-btn:focus-visible {
+      outline: 2px solid var(--indigo);
+      outline-offset: 3px;
     }
 
     .submit-btn:disabled {
-      opacity: 0.7;
+      opacity: 0.6;
       cursor: not-allowed;
+      box-shadow: none;
     }
 
     .spinner {
@@ -605,28 +712,41 @@ type AuthMode = 'phone' | 'password';
       content: '';
       flex: 1;
       height: 1px;
-      background: #E2E8F0;
+      background: var(--border);
     }
 
-    .divider span { font-size: 14px; color: #94A3B8; }
+    .divider span { font-size: 13px; color: var(--ink-muted); text-transform: lowercase; }
 
     /* Footer */
     .auth-footer { text-align: center; }
 
     .auth-footer p {
       font-size: 14px;
-      color: #64748B;
+      color: var(--ink-secondary);
       margin: 0;
     }
 
     .auth-footer a {
-      color: #319795;
-      font-weight: 600;
+      color: #F97316;
+      font-weight: 700;
       text-decoration: none;
       margin-left: 4px;
+      transition: color 0.15s;
     }
 
-    .auth-footer a:hover { text-decoration: underline; }
+    .auth-footer a:hover { color: #EA580C; text-decoration: underline; }
+
+    .auth-footer a:focus-visible {
+      outline: 2px solid #F97316;
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      .auth-page, .auth-card, .feature { animation: none !important; transition: none !important; }
+      .submit-btn:hover:not(:disabled) { transform: none; }
+    }
 
     /* Responsive */
     @media (max-width: 480px) {
