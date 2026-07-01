@@ -83,138 +83,140 @@ interface SelectedItem {
         }
       </div>
 
-      <!-- Content -->
-      @if (loading()) {
-        <div class="loading-state">
-          <app-spinner size="lg" />
-          <p>Loading {{ mode() === 'tests' ? 'tests' : 'packages' }}...</p>
-        </div>
-      } @else {
-        <!-- Tests Grid -->
-        @if (mode() === 'tests') {
-          @if (filteredTests().length === 0) {
-            <div class="empty-state">
-              <div class="empty-state__icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                </svg>
+      <!-- Scrollable Content Area -->
+      <div class="selection-content">
+        @if (loading()) {
+          <div class="loading-state">
+            <app-spinner size="lg" />
+            <p>Loading {{ mode() === 'tests' ? 'tests' : 'packages' }}...</p>
+          </div>
+        } @else {
+          <!-- Tests Grid -->
+          @if (mode() === 'tests') {
+            @if (filteredTests().length === 0) {
+              <div class="empty-state">
+                <div class="empty-state__icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                  </svg>
+                </div>
+                <h3>No tests found</h3>
+                <p>Try adjusting your search or category filter</p>
               </div>
-              <h3>No tests found</h3>
-              <p>Try adjusting your search or category filter</p>
-            </div>
-          } @else {
-            <div class="items-grid">
-              @for (test of filteredTests(); track test.id) {
-                <button 
-                  type="button"
-                  class="item-card"
-                  [class.item-card--selected]="isTestSelected(test.id)"
-                  (click)="toggleTest(test)"
-                >
-                  <div class="item-card__header">
-                    <app-badge variant="default" size="sm">{{ test.category }}</app-badge>
-                    @if (test.discount_percentage > 0) {
-                      <app-badge variant="success" size="sm">{{ test.discount_percentage }}% OFF</app-badge>
-                    }
-                  </div>
-                  <h4 class="item-card__name">{{ test.name }}</h4>
-                  @if (test.description) {
-                    <p class="item-card__desc">{{ test.description }}</p>
-                  }
-                  <div class="item-card__footer">
-                    <div class="item-card__price">
-                      <span class="price-current">₹{{ test.effective_price }}</span>
+            } @else {
+              <div class="items-grid">
+                @for (test of filteredTests(); track test.id) {
+                  <button 
+                    type="button"
+                    class="item-card"
+                    [class.item-card--selected]="isTestSelected(test.id)"
+                    (click)="toggleTest(test)"
+                  >
+                    <div class="item-card__header">
+                      <app-badge variant="default" size="sm">{{ test.category }}</app-badge>
                       @if (test.discount_percentage > 0) {
-                        <span class="price-original">₹{{ test.price }}</span>
+                        <app-badge variant="success" size="sm">{{ test.discount_percentage }}% OFF</app-badge>
                       }
                     </div>
-                    <div class="item-card__meta">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-                      </svg>
-                      {{ test.turnaround_hours }} hrs
-                    </div>
-                  </div>
-                  <div class="item-card__check" [class.item-card__check--visible]="isTestSelected(test.id)">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                      <polyline points="20 6 9 17 4 12"/>
-                    </svg>
-                  </div>
-                </button>
-              }
-            </div>
-          }
-        }
-
-        <!-- Packages Grid -->
-        @if (mode() === 'packages') {
-          @if (packages().length === 0) {
-            <div class="empty-state">
-              <div class="empty-state__icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/>
-                </svg>
-              </div>
-              <h3>No packages available</h3>
-              <p>Check back later for health packages</p>
-            </div>
-          } @else {
-            <div class="packages-grid">
-              @for (pkg of packages(); track pkg.id) {
-                <button 
-                  type="button"
-                  class="package-card"
-                  [class.package-card--selected]="isPackageSelected(pkg.id)"
-                  (click)="togglePackage(pkg)"
-                >
-                  <div class="package-card__header">
-                    <h4 class="package-card__name">{{ pkg.name }}</h4>
-                    @if (pkg.discounted_price < pkg.original_price) {
-                      <app-badge variant="success" size="sm">
-                        {{ getSavingsPercent(pkg) }}% OFF
-                      </app-badge>
+                    <h4 class="item-card__name">{{ test.name }}</h4>
+                    @if (test.description) {
+                      <p class="item-card__desc">{{ test.description }}</p>
                     }
-                  </div>
-                  
-                  @if (pkg.description) {
-                    <p class="package-card__desc">{{ pkg.description }}</p>
-                  }
-                  
-                  <div class="package-card__tests">
-                    <span class="package-card__tests-label">Includes {{ pkg.tests.length }} tests:</span>
-                    <div class="package-card__tests-list">
-                      @for (test of pkg.tests.slice(0, 4); track test.id) {
-                        <span class="package-card__test-name">{{ test.name }}</span>
-                      }
-                      @if (pkg.tests.length > 4) {
-                        <span class="package-card__test-more">+{{ pkg.tests.length - 4 }} more</span>
+                    <div class="item-card__footer">
+                      <div class="item-card__price">
+                        <span class="price-current">₹{{ test.effective_price }}</span>
+                        @if (test.discount_percentage > 0) {
+                          <span class="price-original">₹{{ test.price }}</span>
+                        }
+                      </div>
+                      <div class="item-card__meta">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                        </svg>
+                        {{ test.turnaround_hours }} hrs
+                      </div>
+                    </div>
+                    <div class="item-card__check" [class.item-card__check--visible]="isTestSelected(test.id)">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                    </div>
+                  </button>
+                }
+              </div>
+            }
+          }
+
+          <!-- Packages Grid -->
+          @if (mode() === 'packages') {
+            @if (packages().length === 0) {
+              <div class="empty-state">
+                <div class="empty-state__icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/>
+                  </svg>
+                </div>
+                <h3>No packages available</h3>
+                <p>Check back later for health packages</p>
+              </div>
+            } @else {
+              <div class="packages-grid">
+                @for (pkg of packages(); track pkg.id) {
+                  <button 
+                    type="button"
+                    class="package-card"
+                    [class.package-card--selected]="isPackageSelected(pkg.id)"
+                    (click)="togglePackage(pkg)"
+                  >
+                    <div class="package-card__header">
+                      <h4 class="package-card__name">{{ pkg.name }}</h4>
+                      @if (Number(pkg.discounted_price) < Number(pkg.original_price)) {
+                        <app-badge variant="success" size="sm">
+                          {{ getSavingsPercent(pkg) }}% OFF
+                        </app-badge>
                       }
                     </div>
-                  </div>
-                  
-                  <div class="package-card__footer">
-                    <div class="package-card__price">
-                      <span class="price-current">₹{{ pkg.discounted_price }}</span>
-                      @if (pkg.discounted_price < pkg.original_price) {
-                        <span class="price-original">₹{{ pkg.original_price }}</span>
-                      }
+                    
+                    @if (pkg.description) {
+                      <p class="package-card__desc">{{ pkg.description }}</p>
+                    }
+                    
+                    <div class="package-card__tests">
+                      <span class="package-card__tests-label">Includes {{ pkg.tests.length }} tests:</span>
+                      <div class="package-card__tests-list">
+                        @for (test of pkg.tests.slice(0, 4); track test.id) {
+                          <span class="package-card__test-name">{{ test.name }}</span>
+                        }
+                        @if (pkg.tests.length > 4) {
+                          <span class="package-card__test-more">+{{ pkg.tests.length - 4 }} more</span>
+                        }
+                      </div>
                     </div>
-                    <span class="package-card__save">
-                      Save ₹{{ pkg.original_price - pkg.discounted_price }}
-                    </span>
-                  </div>
-                  
-                  <div class="package-card__check" [class.package-card__check--visible]="isPackageSelected(pkg.id)">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                      <polyline points="20 6 9 17 4 12"/>
-                    </svg>
-                  </div>
-                </button>
-              }
-            </div>
+                    
+                    <div class="package-card__footer">
+                      <div class="package-card__price">
+                        <span class="price-current">₹{{ Number(pkg.discounted_price) | number:'1.0-0' }}</span>
+                        @if (Number(pkg.discounted_price) < Number(pkg.original_price)) {
+                          <span class="price-original">₹{{ Number(pkg.original_price) | number:'1.0-0' }}</span>
+                        }
+                      </div>
+                      <span class="package-card__save">
+                        Save ₹{{ (Number(pkg.original_price) - Number(pkg.discounted_price)) | number:'1.0-0' }}
+                      </span>
+                    </div>
+                    
+                    <div class="package-card__check" [class.package-card__check--visible]="isPackageSelected(pkg.id)">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                    </div>
+                  </button>
+                }
+              </div>
+            }
           }
         }
-      }
+      </div>
 
       <!-- Selection Summary -->
       @if (hasSelection()) {
@@ -228,7 +230,7 @@ interface SelectedItem {
             @for (item of selectedTests(); track item.id) {
               <div class="summary-item">
                 <span class="summary-item__name">{{ item.name }}</span>
-                <span class="summary-item__price">₹{{ item.price }}</span>
+                <span class="summary-item__price">₹{{ item.price | number:'1.0-0' }}</span>
                 <button class="summary-item__remove" (click)="removeTest(item.id)">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -239,7 +241,7 @@ interface SelectedItem {
             @for (item of selectedPackages(); track item.id) {
               <div class="summary-item summary-item--package">
                 <span class="summary-item__name">{{ item.name }}</span>
-                <span class="summary-item__price">₹{{ item.price }}</span>
+                <span class="summary-item__price">₹{{ item.price | number:'1.0-0' }}</span>
                 <button class="summary-item__remove" (click)="removePackage(item.id)">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -251,7 +253,7 @@ interface SelectedItem {
           
           <div class="summary-total">
             <span>Total Amount</span>
-            <span class="summary-total__amount">₹{{ totalAmount() }}</span>
+            <span class="summary-total__amount">₹{{ totalAmount() | number:'1.0-0' }}</span>
           </div>
         </div>
       }
@@ -278,6 +280,31 @@ interface SelectedItem {
       display: flex;
       flex-direction: column;
       gap: 1.5rem;
+    }
+
+    /* Scrollable Content */
+    .selection-content {
+      overflow-y: auto;
+      max-height: 500px;
+      padding-right: 0.5rem;
+    }
+
+    .selection-content::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .selection-content::-webkit-scrollbar-track {
+      background: #F1F5F9;
+      border-radius: 3px;
+    }
+
+    .selection-content::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 3px;
+    }
+
+    .selection-content::-webkit-scrollbar-thumb:hover {
+      background: #94A3B8;
     }
 
     .loading-state {
@@ -704,21 +731,21 @@ interface SelectedItem {
 
     /* Selection Summary */
     .selection-summary {
-      padding: 1rem;
+      padding: 1.25rem;
       background: #F8FAFC;
       border-radius: 1rem;
-      border: 1px solid #F1F5F9;
+      border: 1px solid #E2E8F0;
     }
 
     .summary-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 0.75rem;
+      margin-bottom: 1rem;
 
       h4 {
         font-size: 1rem;
-        font-weight: 600;
+        font-weight: 700;
         color: #0F172A;
         margin: 0;
       }
@@ -731,9 +758,12 @@ interface SelectedItem {
       font-weight: 500;
       color: #DC2626;
       cursor: pointer;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.375rem;
+      transition: background 0.15s;
 
       &:hover {
-        text-decoration: underline;
+        background: #FEF2F2;
       }
     }
 
@@ -748,7 +778,7 @@ interface SelectedItem {
       display: flex;
       align-items: center;
       gap: 0.75rem;
-      padding: 0.5rem 0.75rem;
+      padding: 0.75rem;
       background: #FFFFFF;
       border-radius: 0.75rem;
     }
@@ -847,6 +877,13 @@ interface SelectedItem {
         transform: none;
       }
     }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .selection-content {
+        max-height: 400px;
+      }
+    }
   `]
 })
 export class TestSelectionStepNewComponent implements OnInit {
@@ -859,6 +896,9 @@ export class TestSelectionStepNewComponent implements OnInit {
   private testApi = inject(TestApiService);
   private packageApi = inject(PackageApiService);
   readonly store = inject(BookingWizardStore);
+
+  // Make Number available in template
+  Number = Number;
 
   /* State */
   loading = signal(false);
@@ -916,14 +956,21 @@ export class TestSelectionStepNewComponent implements OnInit {
   private loadPackages(): void {
     this.packageApi.list({ page_size: 100 }).subscribe({
       next: (res) => {
-        const activePkgs = res.items.filter(p => p.is_active);
+        // Normalize prices to numbers (backend sends Decimal as strings)
+        const activePkgs = res.items
+          .filter(p => p.is_active)
+          .map(p => ({
+            ...p,
+            original_price: Number(p.original_price),
+            discounted_price: Number(p.discounted_price)
+          }));
         this.packages.set(activePkgs);
 
         /* Preselect package if provided */
         if (this.preselectedPackageId) {
           const pkg = activePkgs.find(p => p.id === this.preselectedPackageId);
           if (pkg) {
-            this.selectedPackages.set([{ id: pkg.id, name: pkg.name, price: pkg.discounted_price }]);
+            this.selectedPackages.set([{ id: pkg.id, name: pkg.name, price: Number(pkg.discounted_price) }]);
             this.mode.set('packages');
           }
         }
@@ -987,7 +1034,7 @@ export class TestSelectionStepNewComponent implements OnInit {
     if (exists) {
       this.selectedPackages.set(current.filter(p => p.id !== pkg.id));
     } else {
-      this.selectedPackages.set([...current, { id: pkg.id, name: pkg.name, price: pkg.discounted_price }]);
+      this.selectedPackages.set([...current, { id: pkg.id, name: pkg.name, price: Number(pkg.discounted_price) }]);
     }
   }
 
@@ -1005,8 +1052,10 @@ export class TestSelectionStepNewComponent implements OnInit {
   }
 
   getSavingsPercent(pkg: Package): number {
-    if (pkg.original_price <= 0) return 0;
-    return Math.round(((pkg.original_price - pkg.discounted_price) / pkg.original_price) * 100);
+    const original = Number(pkg.original_price);
+    const discounted = Number(pkg.discounted_price);
+    if (original <= 0 || original <= discounted) return 0;
+    return Math.round(((original - discounted) / original) * 100);
   }
 
   onNext(): void {

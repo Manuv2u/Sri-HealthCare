@@ -1,0 +1,123 @@
+- generic [ref=f8e3]:
+  - banner [ref=f8e4]:
+    - generic [ref=f8e6]:
+      - link "Sri Health Sri Health Diagnostics" [ref=f8e7] [cursor=pointer]:
+        - /url: /
+        - img "Sri Health" [ref=f8e8]
+        - generic [ref=f8e9]:
+          - generic [ref=f8e10]: Sri Health
+          - generic [ref=f8e11]: Diagnostics
+      - navigation [ref=f8e12]:
+        - link "Home" [ref=f8e13] [cursor=pointer]:
+          - /url: /
+        - link "Tests" [ref=f8e14] [cursor=pointer]:
+          - /url: /tests
+        - link "Packages" [ref=f8e15] [cursor=pointer]:
+          - /url: /packages
+        - link "My Bookings" [ref=f8e16] [cursor=pointer]:
+          - /url: /dashboard
+        - link "Reports" [ref=f8e17] [cursor=pointer]:
+          - /url: /reports
+        - link "About" [ref=f8e18] [cursor=pointer]:
+          - /url: /about
+        - link "Contact" [ref=f8e19] [cursor=pointer]:
+          - /url: /contact
+      - generic [ref=f8e20]:
+        - link "Book Test" [ref=f8e21] [cursor=pointer]:
+          - /url: /booking
+          - img [ref=f8e22]: add_circle_outline
+          - text: Book Test
+        - button "User menu" [ref=f8e24] [cursor=pointer]:
+          - generic [ref=f8e25]: QT
+          - img [ref=f8e26]: expand_more
+  - main [ref=f8e27]:
+    - generic [ref=f8e28]:
+      - generic [ref=f8e30]:
+        - paragraph [ref=f8e31]:
+          - img [ref=f8e32]: verified
+          - text: NABL Certified Labs · Free Home Collection
+        - heading "Find the right test for you" [level=1] [ref=f8e33]:
+          - text: Find the right
+          - text: test for you
+        - paragraph [ref=f8e34]: Trusted by 50,000+ patients · Results within 24 hours
+        - generic [ref=f8e36]:
+          - img [ref=f8e37]: search
+          - textbox "Search CBC, Thyroid, HbA1c, Lipid Panel…" [ref=f8e38]
+      - navigation "Filter by category" [ref=f8e40]:
+        - button "All" [ref=f8e41] [cursor=pointer]:
+          - img [ref=f8e42]: apps
+          - generic [ref=f8e43]: All
+        - button "Diabetes 0" [ref=f8e44] [cursor=pointer]:
+          - img [ref=f8e45]: water_drop
+          - generic [ref=f8e46]: Diabetes
+          - generic [ref=f8e47]: "0"
+        - button "Heart 0" [ref=f8e48] [cursor=pointer]:
+          - img [ref=f8e49]: favorite
+          - generic [ref=f8e50]: Heart
+          - generic [ref=f8e51]: "0"
+        - button "Kidney 0" [ref=f8e52] [cursor=pointer]:
+          - img [ref=f8e53]: opacity
+          - generic [ref=f8e54]: Kidney
+          - generic [ref=f8e55]: "0"
+        - button "Liver 0" [ref=f8e56] [cursor=pointer]:
+          - img [ref=f8e57]: eco
+          - generic [ref=f8e58]: Liver
+          - generic [ref=f8e59]: "0"
+        - button "Thyroid 0" [ref=f8e60] [cursor=pointer]:
+          - img [ref=f8e61]: psychology
+          - generic [ref=f8e62]: Thyroid
+          - generic [ref=f8e63]: "0"
+        - button "Full Body 0" [ref=f8e64] [cursor=pointer]:
+          - img [ref=f8e65]: accessibility_new
+          - generic [ref=f8e66]: Full Body
+          - generic [ref=f8e67]: "0"
+        - button "Women's Health 0" [ref=f8e68] [cursor=pointer]:
+          - img [ref=f8e69]: spa
+          - generic [ref=f8e70]: Women's Health
+          - generic [ref=f8e71]: "0"
+        - button "Vitamin 0" [ref=f8e72] [cursor=pointer]:
+          - img [ref=f8e73]: wb_sunny
+          - generic [ref=f8e74]: Vitamin
+          - generic [ref=f8e75]: "0"
+      - main [ref=f8e76]
+  - contentinfo [ref=f8e128]:
+    - generic [ref=f8e129]:
+      - generic [ref=f8e130]:
+        - generic [ref=f8e131]:
+          - img "Sri Health" [ref=f8e132]
+          - generic [ref=f8e133]: Sri Health
+        - paragraph [ref=f8e134]:
+          - text: Clinical precision.
+          - text: Expert care.
+        - generic [ref=f8e135]:
+          - link "Instagram" [ref=f8e136] [cursor=pointer]:
+            - /url: https://instagram.com
+            - img [ref=f8e137]
+          - link "Facebook" [ref=f8e139] [cursor=pointer]:
+            - /url: https://facebook.com
+            - img [ref=f8e140]
+      - generic [ref=f8e142]:
+        - generic [ref=f8e143]: Services
+        - link "Lab Tests" [ref=f8e144] [cursor=pointer]:
+          - /url: /tests
+        - link "Health Packages" [ref=f8e145] [cursor=pointer]:
+          - /url: /packages
+        - link "Book a Test" [ref=f8e146] [cursor=pointer]:
+          - /url: /booking
+        - link "My Reports" [ref=f8e147] [cursor=pointer]:
+          - /url: /reports
+      - generic [ref=f8e148]:
+        - generic [ref=f8e149]: Company
+        - link "About Us" [ref=f8e150] [cursor=pointer]:
+          - /url: /about
+        - link "Contact" [ref=f8e151] [cursor=pointer]:
+          - /url: /contact
+      - generic [ref=f8e152]:
+        - generic [ref=f8e153]: Account
+        - link "My Profile" [ref=f8e154] [cursor=pointer]:
+          - /url: /profile
+        - link "My Bookings" [ref=f8e155] [cursor=pointer]:
+          - /url: /dashboard
+    - generic [ref=f8e157]:
+      - generic [ref=f8e158]: © 2026 SRI Diagnostic Laboratory & Health Care
+      - generic [ref=f8e159]: All prices in ₹ (Indian Rupees)

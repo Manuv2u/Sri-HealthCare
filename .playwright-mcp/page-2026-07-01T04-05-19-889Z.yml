@@ -1,0 +1,199 @@
+- generic [ref=f7e3]:
+  - banner [ref=f7e4]:
+    - generic [ref=f7e6]:
+      - link "Sri Health Sri Health Diagnostics" [ref=f7e7] [cursor=pointer]:
+        - /url: /
+        - img "Sri Health" [ref=f7e8]
+        - generic [ref=f7e9]:
+          - generic [ref=f7e10]: Sri Health
+          - generic [ref=f7e11]: Diagnostics
+      - navigation [ref=f7e12]:
+        - link "Home" [ref=f7e13] [cursor=pointer]:
+          - /url: /
+        - link "Tests" [ref=f7e14] [cursor=pointer]:
+          - /url: /tests
+        - link "Packages" [ref=f7e15] [cursor=pointer]:
+          - /url: /packages
+        - link "My Bookings" [ref=f7e16] [cursor=pointer]:
+          - /url: /dashboard
+        - link "Reports" [ref=f7e17] [cursor=pointer]:
+          - /url: /reports
+        - link "About" [ref=f7e18] [cursor=pointer]:
+          - /url: /about
+        - link "Contact" [ref=f7e19] [cursor=pointer]:
+          - /url: /contact
+      - generic [ref=f7e20]:
+        - link "Book Test" [ref=f7e21] [cursor=pointer]:
+          - /url: /booking
+          - img [ref=f7e22]: add_circle_outline
+          - text: Book Test
+        - button "User menu" [ref=f7e24] [cursor=pointer]:
+          - generic [ref=f7e25]: QT
+          - img [ref=f7e26]: expand_more
+  - main [ref=f7e27]:
+    - generic [ref=f7e29]:
+      - generic [ref=f7e33]:
+        - button "Patient Who is this for?" [ref=f7e165] [cursor=pointer]:
+          - img [ref=f7e166]
+          - generic [ref=f7e37]:
+            - generic [ref=f7e38]: Patient
+            - generic [ref=f7e39]: Who is this for?
+        - button "Tests Select tests" [ref=f7e669] [cursor=pointer]:
+          - img [ref=f7e670]
+          - generic [ref=f7e44]:
+            - generic [ref=f7e45]: Tests
+            - generic [ref=f7e46]: Select tests
+        - button "Collection Home or lab" [ref=f7e874] [cursor=pointer]:
+          - img [ref=f7e875]
+          - generic [ref=f7e51]:
+            - generic [ref=f7e52]: Collection
+            - generic [ref=f7e53]: Home or lab
+        - button "4 Schedule Pick a time" [disabled] [ref=f7e55]:
+          - generic [ref=f7e57]: "4"
+          - generic [ref=f7e58]:
+            - generic [ref=f7e59]: Schedule
+            - generic [ref=f7e60]: Pick a time
+        - button "5 Payment Complete order" [disabled] [ref=f7e62]:
+          - generic [ref=f7e64]: "5"
+          - generic [ref=f7e65]:
+            - generic [ref=f7e66]: Payment
+            - generic [ref=f7e67]: Complete order
+      - main [ref=f7e68]:
+        - generic [ref=f7e69]:
+          - generic [ref=f7e70]:
+            - generic [ref=f7e71]: Step 4 of 5
+            - heading "Schedule" [level=1] [ref=f7e877]
+            - paragraph [ref=f7e73]: Pick a convenient date and time slot
+          - generic [ref=f7e879]:
+            - generic [ref=f7e880]:
+              - heading "Select Date" [level=4] [ref=f7e881]
+              - generic [ref=f7e882]:
+                - button "Wed 1 Jul Today" [ref=f7e883] [cursor=pointer]:
+                  - generic [ref=f7e884]: Wed
+                  - generic [ref=f7e885]: "1"
+                  - generic [ref=f7e886]: Jul
+                  - generic [ref=f7e887]: Today
+                - button "Thu 2 Jul Tomorrow" [ref=f7e888] [cursor=pointer]:
+                  - generic [ref=f7e889]: Thu
+                  - generic [ref=f7e890]: "2"
+                  - generic [ref=f7e891]: Jul
+                  - generic [ref=f7e892]: Tomorrow
+                - button "Fri 3 Jul" [ref=f7e893] [cursor=pointer]:
+                  - generic [ref=f7e894]: Fri
+                  - generic [ref=f7e895]: "3"
+                  - generic [ref=f7e896]: Jul
+                - button "Sat 4 Jul" [ref=f7e897] [cursor=pointer]:
+                  - generic [ref=f7e898]: Sat
+                  - generic [ref=f7e899]: "4"
+                  - generic [ref=f7e900]: Jul
+                - button "Sun 5 Jul" [ref=f7e901] [cursor=pointer]:
+                  - generic [ref=f7e902]: Sun
+                  - generic [ref=f7e903]: "5"
+                  - generic [ref=f7e904]: Jul
+                - button "Mon 6 Jul" [ref=f7e905] [cursor=pointer]:
+                  - generic [ref=f7e906]: Mon
+                  - generic [ref=f7e907]: "6"
+                  - generic [ref=f7e908]: Jul
+                - button "Tue 7 Jul" [ref=f7e909] [cursor=pointer]:
+                  - generic [ref=f7e910]: Tue
+                  - generic [ref=f7e911]: "7"
+                  - generic [ref=f7e912]: Jul
+                - button "Wed 8 Jul" [ref=f7e913] [cursor=pointer]:
+                  - generic [ref=f7e914]: Wed
+                  - generic [ref=f7e915]: "8"
+                  - generic [ref=f7e916]: Jul
+                - button "Thu 9 Jul" [ref=f7e917] [cursor=pointer]:
+                  - generic [ref=f7e918]: Thu
+                  - generic [ref=f7e919]: "9"
+                  - generic [ref=f7e920]: Jul
+                - button "Fri 10 Jul" [ref=f7e921] [cursor=pointer]:
+                  - generic [ref=f7e922]: Fri
+                  - generic [ref=f7e923]: "10"
+                  - generic [ref=f7e924]: Jul
+                - button "Sat 11 Jul" [ref=f7e925] [cursor=pointer]:
+                  - generic [ref=f7e926]: Sat
+                  - generic [ref=f7e927]: "11"
+                  - generic [ref=f7e928]: Jul
+                - button "Sun 12 Jul" [ref=f7e929] [cursor=pointer]:
+                  - generic [ref=f7e930]: Sun
+                  - generic [ref=f7e931]: "12"
+                  - generic [ref=f7e932]: Jul
+                - button "Mon 13 Jul" [ref=f7e933] [cursor=pointer]:
+                  - generic [ref=f7e934]: Mon
+                  - generic [ref=f7e935]: "13"
+                  - generic [ref=f7e936]: Jul
+                - button "Tue 14 Jul" [ref=f7e937] [cursor=pointer]:
+                  - generic [ref=f7e938]: Tue
+                  - generic [ref=f7e939]: "14"
+                  - generic [ref=f7e940]: Jul
+            - generic [ref=f7e941]:
+              - heading "Select Time Slot" [level=4] [ref=f7e942]
+              - generic [ref=f7e943]:
+                - img [ref=f7e945]
+                - paragraph [ref=f7e947]: Please select a date to see available slots
+            - generic [ref=f7e948]:
+              - button "Back" [ref=f7e950] [cursor=pointer]:
+                - generic [ref=f7e951]:
+                  - img [ref=f7e952]
+                  - text: Back
+              - button "Continue" [disabled] [ref=f7e955]:
+                - generic [ref=f7e956]:
+                  - text: Continue
+                  - img [ref=f7e957]
+        - complementary [ref=f7e84]:
+          - generic [ref=f7e85]:
+            - img [ref=f7e87]
+            - generic [ref=f7e89]:
+              - generic [ref=f7e90]: NABL Accredited
+              - generic [ref=f7e91]: Quality assured testing
+          - generic [ref=f7e92]:
+            - img [ref=f7e94]
+            - generic [ref=f7e97]:
+              - generic [ref=f7e98]: Reports in 24 hrs
+              - generic [ref=f7e99]: Quick turnaround
+          - generic [ref=f7e100]:
+            - img [ref=f7e102]
+            - generic [ref=f7e105]:
+              - generic [ref=f7e106]: Free Home Collection
+              - generic [ref=f7e107]: No extra charges
+  - contentinfo [ref=f7e108]:
+    - generic [ref=f7e109]:
+      - generic [ref=f7e110]:
+        - generic [ref=f7e111]:
+          - img "Sri Health" [ref=f7e112]
+          - generic [ref=f7e113]: Sri Health
+        - paragraph [ref=f7e114]:
+          - text: Clinical precision.
+          - text: Expert care.
+        - generic [ref=f7e115]:
+          - link "Instagram" [ref=f7e116] [cursor=pointer]:
+            - /url: https://instagram.com
+            - img [ref=f7e117]
+          - link "Facebook" [ref=f7e119] [cursor=pointer]:
+            - /url: https://facebook.com
+            - img [ref=f7e120]
+      - generic [ref=f7e122]:
+        - generic [ref=f7e123]: Services
+        - link "Lab Tests" [ref=f7e124] [cursor=pointer]:
+          - /url: /tests
+        - link "Health Packages" [ref=f7e125] [cursor=pointer]:
+          - /url: /packages
+        - link "Book a Test" [ref=f7e126] [cursor=pointer]:
+          - /url: /booking
+        - link "My Reports" [ref=f7e127] [cursor=pointer]:
+          - /url: /reports
+      - generic [ref=f7e128]:
+        - generic [ref=f7e129]: Company
+        - link "About Us" [ref=f7e130] [cursor=pointer]:
+          - /url: /about
+        - link "Contact" [ref=f7e131] [cursor=pointer]:
+          - /url: /contact
+      - generic [ref=f7e132]:
+        - generic [ref=f7e133]: Account
+        - link "My Profile" [ref=f7e134] [cursor=pointer]:
+          - /url: /profile
+        - link "My Bookings" [ref=f7e135] [cursor=pointer]:
+          - /url: /dashboard
+    - generic [ref=f7e137]:
+      - generic [ref=f7e138]: © 2026 SRI Diagnostic Laboratory & Health Care
+      - generic [ref=f7e139]: All prices in ₹ (Indian Rupees)

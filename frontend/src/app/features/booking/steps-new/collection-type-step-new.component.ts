@@ -1,19 +1,19 @@
 import { Component, inject, OnInit, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { BookingWizardStore } from '../../../core/store/booking-wizard.store';
 import { ServiceAreaApiService } from '../../../core/api/services/service-area-api.service';
 import { LabBranchApiService } from '../../../core/api/services/lab-branch-api.service';
 import { UserApiService } from '../../../core/api/services/user-api.service';
 import { ServiceArea, LabBranch, UserAddress } from '../../../core/api/api.types';
-import { ButtonComponent, SpinnerComponent, BadgeComponent } from '../../../shared/components';
+import { ButtonComponent, SpinnerComponent, BadgeComponent, ModalComponent, AlertComponent } from '../../../shared/components';
 
 type CollectionType = 'home' | 'lab';
 
 @Component({
   selector: 'app-collection-type-step-new',
   standalone: true,
-  imports: [CommonModule, FormsModule, ButtonComponent, SpinnerComponent, BadgeComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, ButtonComponent, SpinnerComponent, BadgeComponent, ModalComponent, AlertComponent],
   template: `
     <div class="collection-step">
       <!-- Collection Type Selection -->
@@ -129,7 +129,7 @@ type CollectionType = 'home' | 'lab';
           } @else if (addresses().length === 0) {
             <div class="no-address">
               <p>No saved addresses found</p>
-              <app-button variant="outline" size="sm" (click)="showAddAddress = true">Add Address</app-button>
+              <app-button variant="outline" size="sm" (click)="openAddressModal()">Add Address</app-button>
             </div>
           } @else {
             <div class="address-list">
@@ -245,6 +245,124 @@ type CollectionType = 'home' | 'lab';
         </app-button>
       </div>
     </div>
+
+    <!-- Add Address Modal -->
+    <app-modal 
+      [isOpen]="showAddAddress()" 
+      title="Add New Address"
+      size="md"
+      (close)="closeAddressModal()"
+    >
+      @if (addressError()) {
+        <app-alert type="error" [dismissible]="true" (dismiss)="addressError.set(null)">
+          {{ addressError() }}
+        </app-alert>
+      }
+
+      <form [formGroup]="addressForm" (ngSubmit)="saveAddress()" class="address-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="label">Address Label *</label>
+            <input 
+              id="label"
+              type="text" 
+              formControlName="label"
+              placeholder="e.g. Home, Office, etc."
+              class="form-input"
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="address_line1">Address Line 1 *</label>
+            <input 
+              id="address_line1"
+              type="text" 
+              formControlName="address_line1"
+              placeholder="House/Flat no, Building name"
+              class="form-input"
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="address_line2">Address Line 2</label>
+            <input 
+              id="address_line2"
+              type="text" 
+              formControlName="address_line2"
+              placeholder="Street, Area, Landmark (optional)"
+              class="form-input"
+            />
+          </div>
+        </div>
+
+        <div class="form-row form-row--2">
+          <div class="form-group">
+            <label for="city">City *</label>
+            <input 
+              id="city"
+              type="text" 
+              formControlName="city"
+              placeholder="City"
+              class="form-input"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="state">State *</label>
+            <input 
+              id="state"
+              type="text" 
+              formControlName="state"
+              placeholder="State"
+              class="form-input"
+            />
+          </div>
+        </div>
+
+        <div class="form-row form-row--2">
+          <div class="form-group">
+            <label for="pincode">Pincode *</label>
+            <input 
+              id="pincode"
+              type="text" 
+              formControlName="pincode"
+              placeholder="6-digit pincode"
+              maxlength="6"
+              class="form-input"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input 
+                type="checkbox" 
+                formControlName="is_default"
+                class="checkbox-input"
+              />
+              <span>Set as default address</span>
+            </label>
+          </div>
+        </div>
+      </form>
+
+      <div modal-footer>
+        <app-button variant="outline" (click)="closeAddressModal()" [disabled]="savingAddress()">
+          Cancel
+        </app-button>
+        <app-button 
+          variant="primary" 
+          (click)="saveAddress()" 
+          [disabled]="addressForm.invalid || savingAddress()"
+          [loading]="savingAddress()"
+        >
+          Save Address
+        </app-button>
+      </div>
+    </app-modal>
   `,
   styles: [`
     .collection-step {
@@ -659,6 +777,91 @@ type CollectionType = 'home' | 'lab';
         transform: none;
       }
     }
+
+    /* Address Form */
+    .address-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .form-row {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .form-row--2 {
+      grid-template-columns: repeat(2, 1fr);
+
+      @media (max-width: 640px) {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+
+      label {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #374151;
+      }
+    }
+
+    .form-input {
+      width: 100%;
+      height: 44px;
+      padding: 0 14px;
+      border: 1px solid #E2E8F0;
+      border-radius: 0.75rem;
+      font-size: 0.875rem;
+      color: #0F172A;
+      transition: border-color 0.2s, box-shadow 0.2s;
+
+      &:focus {
+        outline: none;
+        border-color: #319795;
+        box-shadow: 0 0 0 3px rgba(49, 151, 149, 0.1);
+      }
+
+      &::placeholder {
+        color: #94A3B8;
+      }
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      padding-top: 1.75rem;
+
+      span {
+        font-size: 0.875rem;
+        color: #475569;
+      }
+    }
+
+    .checkbox-input {
+      width: 18px;
+      height: 18px;
+      border-radius: 0.25rem;
+      border: 2px solid #E2E8F0;
+      cursor: pointer;
+      transition: all 0.2s;
+
+      &:checked {
+        background-color: #319795;
+        border-color: #319795;
+      }
+
+      &:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(49, 151, 149, 0.1);
+      }
+    }
   `]
 })
 export class CollectionTypeStepNewComponent implements OnInit {
@@ -668,6 +871,7 @@ export class CollectionTypeStepNewComponent implements OnInit {
   private serviceAreaApi = inject(ServiceAreaApiService);
   private labBranchApi = inject(LabBranchApiService);
   private userApi = inject(UserApiService);
+  private fb = inject(FormBuilder);
   readonly store = inject(BookingWizardStore);
 
   /* State */
@@ -680,7 +884,20 @@ export class CollectionTypeStepNewComponent implements OnInit {
   loadingAddresses = signal(false);
   loadingBranches = signal(false);
   pincodeError = signal<string | null>(null);
-  showAddAddress = false;
+  showAddAddress = signal(false);
+  savingAddress = signal(false);
+  addressError = signal<string | null>(null);
+
+  /* Address Form */
+  addressForm = this.fb.group({
+    label: ['', Validators.required],
+    address_line1: ['', Validators.required],
+    address_line2: [''],
+    city: ['', Validators.required],
+    state: ['', Validators.required],
+    pincode: ['', [Validators.required, Validators.pattern(/^\d{6}$/)]],
+    is_default: [false]
+  });
 
   ngOnInit(): void {
     this.loadServiceAreas();
@@ -751,6 +968,53 @@ export class CollectionTypeStepNewComponent implements OnInit {
 
   selectLab(lab: LabBranch): void {
     this.selectedLabId.set(lab.id);
+  }
+
+  openAddressModal(): void {
+    this.showAddAddress.set(true);
+    this.addressError.set(null);
+    this.addressForm.reset({ is_default: false });
+  }
+
+  closeAddressModal(): void {
+    this.showAddAddress.set(false);
+    this.addressForm.reset();
+    this.addressError.set(null);
+  }
+
+  saveAddress(): void {
+    if (this.addressForm.invalid) return;
+
+    this.savingAddress.set(true);
+    this.addressError.set(null);
+
+    const addressData = this.addressForm.value as Partial<UserAddress>;
+
+    this.userApi.addAddress(addressData).subscribe({
+      next: (newAddress) => {
+        this.savingAddress.set(false);
+        this.closeAddressModal();
+        
+        /* Add to list and auto-select */
+        const updated = [...this.addresses(), newAddress];
+        this.addresses.set(updated);
+        this.selectAddress(newAddress);
+      },
+      error: (err) => {
+        this.savingAddress.set(false);
+        let errorMessage = 'Failed to save address. Please try again.';
+        if (err.error) {
+          if (typeof err.error === 'string') {
+            errorMessage = err.error;
+          } else if (typeof err.error.detail === 'string') {
+            errorMessage = err.error.detail;
+          } else if (err.error.message) {
+            errorMessage = err.error.message;
+          }
+        }
+        this.addressError.set(errorMessage);
+      }
+    });
   }
 
   canProceed(): boolean {

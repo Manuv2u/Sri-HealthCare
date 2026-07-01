@@ -479,24 +479,26 @@ export class PaymentStepNewComponent implements OnInit {
     this.processing.set(true);
     this.error.set(null);
 
-    const items: { item_type: string; item_id: string }[] = [];
+    const test_ids: string[] = [];
+    const package_ids: string[] = [];
 
     for (const test of this.store.selectedTests()) {
-      items.push({ item_type: 'test', item_id: test.id });
+      test_ids.push(test.id);
     }
 
     for (const pkg of this.store.selectedPackages()) {
-      items.push({ item_type: 'package', item_id: pkg.id });
+      package_ids.push(pkg.id);
     }
 
     const bookingData = {
       patient_id: this.store.patientId() || undefined,
       collection_type: this.store.collectionType(),
-      slot_id: this.store.slotId(),
+      time_slot_id: this.store.slotId(),
       booking_date: this.store.slotDate(),
-      address_id: this.store.selectedAddressId() || undefined,
       lab_branch_id: this.store.labBranchId() || undefined,
-      items
+      pincode: this.store.pincode() || undefined,
+      test_ids,
+      package_ids
     };
 
     this.bookingApi.create(bookingData).subscribe({
@@ -513,7 +515,24 @@ export class PaymentStepNewComponent implements OnInit {
       },
       error: (err) => {
         console.error('Booking failed:', err);
-        this.error.set(err.error?.detail || 'Failed to create booking. Please try again.');
+        let errorMessage = 'Failed to create booking. Please try again.';
+        if (err.error) {
+          if (typeof err.error === 'string') {
+            errorMessage = err.error;
+          } else if (typeof err.error.detail === 'string') {
+            errorMessage = err.error.detail;
+          } else if (err.error.detail && typeof err.error.detail === 'object') {
+            // Handle detail as an object (e.g., validation errors)
+            if (Array.isArray(err.error.detail)) {
+              errorMessage = err.error.detail.map((d: any) => d.msg || d.message || JSON.stringify(d)).join(', ');
+            } else {
+              errorMessage = err.error.detail.message || JSON.stringify(err.error.detail);
+            }
+          } else if (err.error.message) {
+            errorMessage = err.error.message;
+          }
+        }
+        this.error.set(errorMessage);
         this.processing.set(false);
       }
     });

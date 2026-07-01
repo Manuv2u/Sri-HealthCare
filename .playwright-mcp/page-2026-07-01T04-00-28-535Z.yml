@@ -1,0 +1,144 @@
+- generic [ref=f4e3]:
+  - banner [ref=f4e137]:
+    - generic [ref=f4e139]:
+      - link "Sri Health Sri Health Diagnostics" [ref=f4e140] [cursor=pointer]:
+        - /url: /
+        - img "Sri Health" [ref=f4e141]
+        - generic [ref=f4e142]:
+          - generic [ref=f4e143]: Sri Health
+          - generic [ref=f4e144]: Diagnostics
+      - navigation [ref=f4e145]:
+        - link "Home" [ref=f4e146] [cursor=pointer]:
+          - /url: /
+        - link "Tests" [ref=f4e147] [cursor=pointer]:
+          - /url: /tests
+        - link "Packages" [ref=f4e148] [cursor=pointer]:
+          - /url: /packages
+        - link "My Bookings" [ref=f4e149] [cursor=pointer]:
+          - /url: /dashboard
+        - link "Reports" [ref=f4e150] [cursor=pointer]:
+          - /url: /reports
+        - link "About" [ref=f4e151] [cursor=pointer]:
+          - /url: /about
+        - link "Contact" [ref=f4e152] [cursor=pointer]:
+          - /url: /contact
+      - generic [ref=f4e153]:
+        - link "Book Test" [ref=f4e154] [cursor=pointer]:
+          - /url: /booking
+          - img [ref=f4e155]: add_circle_outline
+          - text: Book Test
+        - button "User menu" [ref=f4e157] [cursor=pointer]:
+          - generic [ref=f4e158]: QT
+          - img [ref=f4e159]: expand_more
+  - main [ref=f4e4]:
+    - generic [ref=f4e161]:
+      - generic [ref=f4e162]:
+        - generic [ref=f4e163]:
+          - paragraph [ref=f4e164]: Wednesday, 1 July 2026
+          - heading "Good morning, QA" [level=1] [ref=f4e165]
+          - paragraph [ref=f4e166]: Here's your health activity summary
+        - link "Book a Test" [ref=f4e167] [cursor=pointer]:
+          - /url: /booking
+          - img [ref=f4e168]
+          - generic [ref=f4e169]: Book a Test
+      - generic [ref=f4e170]:
+        - generic [ref=f4e171]:
+          - img [ref=f4e173]
+          - generic [ref=f4e175]:
+            - generic [ref=f4e176]: "0"
+            - generic [ref=f4e177]: Total Bookings
+        - generic [ref=f4e178]:
+          - img [ref=f4e180]
+          - generic [ref=f4e183]:
+            - generic [ref=f4e184]: "0"
+            - generic [ref=f4e185]: Upcoming
+        - generic [ref=f4e186]:
+          - img [ref=f4e188]
+          - generic [ref=f4e191]:
+            - generic [ref=f4e192]: "0"
+            - generic [ref=f4e193]: Completed
+        - generic [ref=f4e194]:
+          - img [ref=f4e196]
+          - generic [ref=f4e199]:
+            - generic [ref=f4e200]: "0"
+            - generic [ref=f4e201]: Reports Ready
+      - generic [ref=f4e202]:
+        - generic [ref=f4e203]:
+          - generic [ref=f4e204]:
+            - heading "Recent Bookings" [level=2] [ref=f4e205]
+            - link "View All" [ref=f4e206] [cursor=pointer]:
+              - /url: /dashboard/bookings
+          - generic "No bookings yet" [ref=f4e207]:
+            - generic [ref=f4e208]:
+              - heading "No bookings yet" [level=3] [ref=f4e210]
+              - paragraph [ref=f4e211]: Book your first health test today
+              - button "Book a Test" [ref=f4e214] [cursor=pointer]:
+                - generic [ref=f4e215]: Book a Test
+        - generic [ref=f4e216]:
+          - heading "Quick Actions" [level=2] [ref=f4e218]
+          - generic [ref=f4e219]:
+            - link "Book Test" [ref=f4e220] [cursor=pointer]:
+              - /url: /booking
+              - img [ref=f4e222]
+              - generic [ref=f4e223]: Book Test
+            - link "View Reports" [ref=f4e224] [cursor=pointer]:
+              - /url: /reports
+              - img [ref=f4e226]
+              - generic [ref=f4e229]: View Reports
+            - link "Family" [ref=f4e230] [cursor=pointer]:
+              - /url: /profile/family
+              - img [ref=f4e232]
+              - generic [ref=f4e237]: Family
+            - link "Browse Tests" [ref=f4e238] [cursor=pointer]:
+              - /url: /tests
+              - img [ref=f4e240]
+              - generic [ref=f4e243]: Browse Tests
+            - link "Packages" [ref=f4e244] [cursor=pointer]:
+              - /url: /packages
+              - img [ref=f4e246]
+              - generic [ref=f4e249]: Packages
+            - link "Settings" [ref=f4e250] [cursor=pointer]:
+              - /url: /profile
+              - img [ref=f4e252]
+              - generic [ref=f4e255]: Settings
+  - contentinfo [ref=f4e256]:
+    - generic [ref=f4e257]:
+      - generic [ref=f4e258]:
+        - generic [ref=f4e259]:
+          - img "Sri Health" [ref=f4e260]
+          - generic [ref=f4e261]: Sri Health
+        - paragraph [ref=f4e262]:
+          - text: Clinical precision.
+          - text: Expert care.
+        - generic [ref=f4e263]:
+          - link "Instagram" [ref=f4e264] [cursor=pointer]:
+            - /url: https://instagram.com
+            - img [ref=f4e265]
+          - link "Facebook" [ref=f4e267] [cursor=pointer]:
+            - /url: https://facebook.com
+            - img [ref=f4e268]
+      - generic [ref=f4e270]:
+        - generic [ref=f4e271]: Services
+        - link "Lab Tests" [ref=f4e272] [cursor=pointer]:
+          - /url: /tests
+        - link "Health Packages" [ref=f4e273] [cursor=pointer]:
+          - /url: /packages
+        - link "Book a Test" [ref=f4e274] [cursor=pointer]:
+          - /url: /booking
+        - link "My Reports" [ref=f4e275] [cursor=pointer]:
+          - /url: /reports
+      - generic [ref=f4e276]:
+        - generic [ref=f4e277]: Company
+        - link "About Us" [ref=f4e278] [cursor=pointer]:
+          - /url: /about
+        - link "Contact" [ref=f4e279] [cursor=pointer]:
+          - /url: /contact
+      - generic [ref=f4e280]:
+        - generic [ref=f4e281]: Account
+        - link "My Profile" [ref=f4e282] [cursor=pointer]:
+          - /url: /profile
+        - link "My Bookings" [ref=f4e283] [cursor=pointer]:
+          - /url: /dashboard
+    - generic [ref=f4e285]:
+      - generic [ref=f4e286]: © 2026 SRI Diagnostic Laboratory & Health Care
+      - generic [ref=f4e287]: All prices in ₹ (Indian Rupees)

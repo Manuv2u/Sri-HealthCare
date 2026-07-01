@@ -128,15 +128,15 @@ import { Package } from '../../../core/api/api.types';
                   <!-- Pricing row -->
                   <div class="card-footer">
                     <div class="price-block">
-                      @if (pkg.original_price > pkg.discounted_price) {
+                      @if (Number(pkg.original_price) > Number(pkg.discounted_price)) {
                         <div class="price-row-top">
-                          <span class="price-original">₹{{ pkg.original_price | number }}</span>
-                          <span class="save-badge">Save ₹{{ (pkg.original_price - pkg.discounted_price) | number }}</span>
+                          <span class="price-original">₹{{ Number(pkg.original_price) | number:'1.0-0' }}</span>
+                          <span class="save-badge">Save ₹{{ (Number(pkg.original_price) - Number(pkg.discounted_price)) | number:'1.0-0' }}</span>
                         </div>
                       }
                       <div class="price-row-main">
-                        <span class="price-final">₹{{ pkg.discounted_price | number }}</span>
-                        @if (pkg.original_price > pkg.discounted_price) {
+                        <span class="price-final">₹{{ Number(pkg.discounted_price) | number:'1.0-0' }}</span>
+                        @if (Number(pkg.original_price) > Number(pkg.discounted_price)) {
                           <span class="discount-pill">{{ discountPct(pkg) }}% off</span>
                         }
                       </div>
@@ -711,6 +711,9 @@ export class PackagesListComponent implements OnInit {
   loading = signal(true);
   error = signal<string | null>(null);
 
+  // Make Number available in template
+  Number = Number;
+
   constructor(private packageApi: PackageApiService, private router: Router) {}
 
   ngOnInit(): void { this.load(); }
@@ -719,14 +722,25 @@ export class PackagesListComponent implements OnInit {
     this.loading.set(true);
     this.error.set(null);
     this.packageApi.list().subscribe({
-      next: (res) => { this.packages.set(res.items); this.loading.set(false); },
+      next: (res) => {
+        // Ensure prices are numbers (backend sends Decimal as strings in JSON)
+        const normalized = res.items.map(pkg => ({
+          ...pkg,
+          original_price: Number(pkg.original_price),
+          discounted_price: Number(pkg.discounted_price)
+        }));
+        this.packages.set(normalized);
+        this.loading.set(false);
+      },
       error: () => { this.error.set('Failed to load packages. Please check your connection.'); this.loading.set(false); },
     });
   }
 
   discountPct(p: Package): number {
-    if (!p.original_price) return 0;
-    return Math.round((1 - p.discounted_price / p.original_price) * 100);
+    const original = Number(p.original_price);
+    const discounted = Number(p.discounted_price);
+    if (!original || original <= discounted) return 0;
+    return Math.round((1 - discounted / original) * 100);
   }
 
   book(p: Package): void {

@@ -1,0 +1,481 @@
+- main [ref=f10e29]:
+  - generic [ref=f10e31]:
+    - complementary [ref=f10e32]:
+      - generic [ref=f10e33]:
+        - img [ref=f10e35]: local_hospital
+        - generic [ref=f10e36]:
+          - generic [ref=f10e37]: Sri Health
+          - generic [ref=f10e38]: Admin Console
+        - button [ref=f10e39] [cursor=pointer]:
+          - img [ref=f10e40]: chevron_left
+      - navigation [ref=f10e41]:
+        - link "Dashboard" [ref=f10e42] [cursor=pointer]:
+          - /url: /admin/dashboard
+          - img [ref=f10e44]: dashboard
+          - generic [ref=f10e45]: Dashboard
+        - generic [ref=f10e47]: Operations
+        - link "Bookings" [ref=f10e48] [cursor=pointer]:
+          - /url: /admin/bookings
+          - img [ref=f10e50]: calendar_month
+          - generic [ref=f10e51]: Bookings
+        - link "Tests" [ref=f10e52] [cursor=pointer]:
+          - /url: /admin/tests
+          - img [ref=f10e54]: biotech
+          - generic [ref=f10e55]: Tests
+        - link "Packages" [ref=f10e56] [cursor=pointer]:
+          - /url: /admin/packages
+          - img [ref=f10e58]: inventory_2
+          - generic [ref=f10e59]: Packages
+        - link "Users" [ref=f10e61] [cursor=pointer]:
+          - /url: /admin/users
+          - img [ref=f10e63]: people
+          - generic [ref=f10e64]: Users
+        - link "Technicians" [ref=f10e65] [cursor=pointer]:
+          - /url: /admin/technicians
+          - img [ref=f10e67]: engineering
+          - generic [ref=f10e68]: Technicians
+        - link "Lab Branches" [ref=f10e69] [cursor=pointer]:
+          - /url: /admin/lab-branches
+          - img [ref=f10e71]: location_city
+          - generic [ref=f10e72]: Lab Branches
+        - link "Service Areas" [ref=f10e73] [cursor=pointer]:
+          - /url: /admin/service-areas
+          - img [ref=f10e75]: map
+          - generic [ref=f10e76]: Service Areas
+        - generic [ref=f10e78]: Insights
+        - link "Analytics" [ref=f10e79] [cursor=pointer]:
+          - /url: /admin/analytics
+          - img [ref=f10e81]: bar_chart
+          - generic [ref=f10e82]: Analytics
+        - generic [ref=f10e84]: Settings
+        - link "Cancellation" [ref=f10e85] [cursor=pointer]:
+          - /url: /admin/cancellation-config
+          - img [ref=f10e87]: cancel
+          - generic [ref=f10e88]: Cancellation
+        - link "Payment" [ref=f10e89] [cursor=pointer]:
+          - /url: /admin/payment-config
+          - img [ref=f10e91]: payments
+          - generic [ref=f10e92]: Payment
+        - link "Feature Flags" [ref=f10e93] [cursor=pointer]:
+          - /url: /admin/feature-flags
+          - img [ref=f10e95]: toggle_on
+          - generic [ref=f10e96]: Feature Flags
+      - generic [ref=f10e97]:
+        - generic [ref=f10e98]:
+          - img [ref=f10e100]: admin_panel_settings
+          - generic [ref=f10e101]:
+            - generic [ref=f10e102]: Admin
+            - generic [ref=f10e103]: Administrator
+        - generic [ref=f10e104]:
+          - link "Back to App" [ref=f10e105] [cursor=pointer]:
+            - /url: /tests
+            - img [ref=f10e106]: arrow_back
+            - generic [ref=f10e107]: Back to App
+          - button "Sign Out" [ref=f10e108] [cursor=pointer]:
+            - img [ref=f10e109]: logout
+            - generic [ref=f10e110]: Sign Out
+    - generic [ref=f10e111]:
+      - generic [ref=f10e112]:
+        - generic [ref=f10e114]:
+          - generic [ref=f10e115]: Admin
+          - img [ref=f10e116]: chevron_right
+          - generic [ref=f10e117]: Packages
+        - generic [ref=f10e121]: Admin
+      - generic [ref=f10e124]:
+        - generic [ref=f10e125]:
+          - generic [ref=f10e126]:
+            - heading "Health Packages" [level=1] [ref=f10e127]
+            - paragraph [ref=f10e128]: Manage bundled test packages and pricing
+          - button "Add Package" [ref=f10e130] [cursor=pointer]:
+            - generic [ref=f10e131]:
+              - img [ref=f10e132]
+              - text: Add Package
+        - generic [ref=f10e133]:
+          - generic [ref=f10e134]:
+            - generic [ref=f10e135]:
+              - img [ref=f10e137]
+              - generic [ref=f10e141]: Active
+            - heading "Heart Health Package" [level=3] [ref=f10e142]
+            - paragraph [ref=f10e143]: Comprehensive screening package to assess heart health, cholesterol levels, diabetes risk, and overall cardiovascular wellness.
+            - generic [ref=f10e144]:
+              - generic [ref=f10e145]: ₹9,999
+              - generic [ref=f10e146]: ₹11,950
+              - generic [ref=f10e147]: 16% off
+            - generic [ref=f10e148]:
+              - generic [ref=f10e149]: 7 tests included
+              - generic [ref=f10e150]:
+                - generic [ref=f10e151]: HbA1c (Glycated Haemoglobin)
+                - generic [ref=f10e152]: Lipid Profile
+                - generic [ref=f10e153]: Liver Function Test (LFT)
+                - generic [ref=f10e154]: +4 more
+            - generic [ref=f10e155]:
+              - button "Edit" [ref=f10e156] [cursor=pointer]:
+                - img [ref=f10e157]
+                - text: Edit
+              - button "Deactivate" [ref=f10e160] [cursor=pointer]
+              - button "Delete" [ref=f10e161] [cursor=pointer]:
+                - img [ref=f10e162]
+                - text: Delete
+          - generic [ref=f10e164]:
+            - generic [ref=f10e165]:
+              - img [ref=f10e167]
+              - generic [ref=f10e171]: Active
+            - heading "Senior Citizen Health Package" [level=3] [ref=f10e172]
+            - paragraph [ref=f10e173]: Comprehensive panel tailored for adults 60+. Covers cardiac, renal, hepatic, bone and metabolic health.
+            - generic [ref=f10e174]:
+              - generic [ref=f10e175]: ₹3,999
+              - generic [ref=f10e176]: ₹7,200
+              - generic [ref=f10e177]: 44% off
+            - generic [ref=f10e178]:
+              - generic [ref=f10e179]: 12 tests included
+              - generic [ref=f10e180]:
+                - generic [ref=f10e181]: HbA1c (Glycated Haemoglobin)
+                - generic [ref=f10e182]: Lipid Profile
+                - generic [ref=f10e183]: Liver Function Test (LFT)
+                - generic [ref=f10e184]: +9 more
+            - generic [ref=f10e185]:
+              - button "Edit" [ref=f10e186] [cursor=pointer]:
+                - img [ref=f10e187]
+                - text: Edit
+              - button "Deactivate" [ref=f10e190] [cursor=pointer]
+              - button "Delete" [ref=f10e191] [cursor=pointer]:
+                - img [ref=f10e192]
+                - text: Delete
+          - generic [ref=f10e194]:
+            - generic [ref=f10e195]:
+              - img [ref=f10e197]
+              - generic [ref=f10e201]: Active
+            - heading "Cardiac Risk Package" [level=3] [ref=f10e202]
+            - paragraph [ref=f10e203]: Advanced cardiac risk assessment combining lipid panel, high-sensitivity troponin, D-dimer and inflammatory markers.
+            - generic [ref=f10e204]:
+              - generic [ref=f10e205]: ₹2,499
+              - generic [ref=f10e206]: ₹3,570
+              - generic [ref=f10e207]: 30% off
+            - generic [ref=f10e208]:
+              - generic [ref=f10e209]: 6 tests included
+              - generic [ref=f10e210]:
+                - generic [ref=f10e211]: Lipid Profile
+                - generic [ref=f10e212]: Troponin I (High Sensitivity)
+                - generic [ref=f10e213]: D-Dimer
+                - generic [ref=f10e214]: +3 more
+            - generic [ref=f10e215]:
+              - button "Edit" [ref=f10e216] [cursor=pointer]:
+                - img [ref=f10e217]
+                - text: Edit
+              - button "Deactivate" [ref=f10e220] [cursor=pointer]
+              - button "Delete" [ref=f10e221] [cursor=pointer]:
+                - img [ref=f10e222]
+                - text: Delete
+          - generic [ref=f10e224]:
+            - generic [ref=f10e225]:
+              - img [ref=f10e227]
+              - generic [ref=f10e231]: Active
+            - heading "Fever & Infection Panel" [level=3] [ref=f10e232]
+            - paragraph [ref=f10e233]: Rapid infectious disease workup for fever of unknown origin — covers dengue, malaria, typhoid and inflammation.
+            - generic [ref=f10e234]:
+              - generic [ref=f10e235]: ₹1,299
+              - generic [ref=f10e236]: ₹2,170
+              - generic [ref=f10e237]: 40% off
+            - generic [ref=f10e238]:
+              - generic [ref=f10e239]: 6 tests included
+              - generic [ref=f10e240]:
+                - generic [ref=f10e241]: C-Reactive Protein (CRP)
+                - generic [ref=f10e242]: Dengue NS1 Antigen + IgM/IgG
+                - generic [ref=f10e243]: Malaria Parasite Test (MP)
+                - generic [ref=f10e244]: +3 more
+            - generic [ref=f10e245]:
+              - button "Edit" [ref=f10e246] [cursor=pointer]:
+                - img [ref=f10e247]
+                - text: Edit
+              - button "Deactivate" [ref=f10e250] [cursor=pointer]
+              - button "Delete" [ref=f10e251] [cursor=pointer]:
+                - img [ref=f10e252]
+                - text: Delete
+          - generic [ref=f10e254]:
+            - generic [ref=f10e255]:
+              - img [ref=f10e257]
+              - generic [ref=f10e261]: Active
+            - heading "Diabetes Care Package" [level=3] [ref=f10e262]
+            - paragraph [ref=f10e263]: Targeted panel for diabetes screening, monitoring and complication risk assessment.
+            - generic [ref=f10e264]:
+              - generic [ref=f10e265]: ₹1,499
+              - generic [ref=f10e266]: ₹2,650
+              - generic [ref=f10e267]: 43% off
+            - generic [ref=f10e268]:
+              - generic [ref=f10e269]: 6 tests included
+              - generic [ref=f10e270]:
+                - generic [ref=f10e271]: HbA1c (Glycated Haemoglobin)
+                - generic [ref=f10e272]: Insulin Fasting
+                - generic [ref=f10e273]: Lipid Profile
+                - generic [ref=f10e274]: +3 more
+            - generic [ref=f10e275]:
+              - button "Edit" [ref=f10e276] [cursor=pointer]:
+                - img [ref=f10e277]
+                - text: Edit
+              - button "Deactivate" [ref=f10e280] [cursor=pointer]
+              - button "Delete" [ref=f10e281] [cursor=pointer]:
+                - img [ref=f10e282]
+                - text: Delete
+          - generic [ref=f10e284]:
+            - generic [ref=f10e285]:
+              - img [ref=f10e287]
+              - generic [ref=f10e291]: Active
+            - heading "Basic Health Checkup" [level=3] [ref=f10e292]
+            - paragraph [ref=f10e293]: Essential screening panel for a quick annual health overview. Covers blood count, sugar, kidney and liver basics.
+            - generic [ref=f10e294]:
+              - generic [ref=f10e295]: ₹999
+              - generic [ref=f10e296]: ₹1,820
+              - generic [ref=f10e297]: 45% off
+            - generic [ref=f10e298]:
+              - generic [ref=f10e299]: 5 tests included
+              - generic [ref=f10e300]:
+                - generic [ref=f10e301]: Liver Function Test (LFT)
+                - generic [ref=f10e302]: Kidney Function Test (KFT)
+                - generic [ref=f10e303]: Urine Routine & Microscopy
+                - generic [ref=f10e304]: +2 more
+            - generic [ref=f10e305]:
+              - button "Edit" [ref=f10e306] [cursor=pointer]:
+                - img [ref=f10e307]
+                - text: Edit
+              - button "Deactivate" [ref=f10e310] [cursor=pointer]
+              - button "Delete" [ref=f10e311] [cursor=pointer]:
+                - img [ref=f10e312]
+                - text: Delete
+          - generic [ref=f10e314]:
+            - generic [ref=f10e315]:
+              - img [ref=f10e317]
+              - generic [ref=f10e321]: Active
+            - heading "Thyroid Profile Package" [level=3] [ref=f10e322]
+            - paragraph [ref=f10e323]: Complete thyroid assessment including full profile and individual TSH for accurate diagnosis.
+            - generic [ref=f10e324]:
+              - generic [ref=f10e325]: ₹1,799
+              - generic [ref=f10e326]: ₹2,900
+              - generic [ref=f10e327]: 38% off
+            - generic [ref=f10e328]:
+              - generic [ref=f10e329]: 5 tests included
+              - generic [ref=f10e330]:
+                - generic [ref=f10e331]: Thyroid Profile (T3, T4, TSH)
+                - generic [ref=f10e332]: TSH (Thyroid Stimulating Hormone)
+                - generic [ref=f10e333]: Vitamin D (25-OH)
+                - generic [ref=f10e334]: +2 more
+            - generic [ref=f10e335]:
+              - button "Edit" [ref=f10e336] [cursor=pointer]:
+                - img [ref=f10e337]
+                - text: Edit
+              - button "Deactivate" [ref=f10e340] [cursor=pointer]
+              - button "Delete" [ref=f10e341] [cursor=pointer]:
+                - img [ref=f10e342]
+                - text: Delete
+          - generic [ref=f10e344]:
+            - generic [ref=f10e345]:
+              - img [ref=f10e347]
+              - generic [ref=f10e351]: Active
+            - heading "Women Wellness Package" [level=3] [ref=f10e352]
+            - paragraph [ref=f10e353]: Designed for women's preventive health — covers hormones, thyroid, vitamins, iron and reproductive markers.
+            - generic [ref=f10e354]:
+              - generic [ref=f10e355]: ₹2,198
+              - generic [ref=f10e356]: ₹3,850
+              - generic [ref=f10e357]: 43% off
+            - generic [ref=f10e358]:
+              - generic [ref=f10e359]: 8 tests included
+              - generic [ref=f10e360]:
+                - generic [ref=f10e361]: Iron Studies (Serum Iron, TIBC, Ferritin)
+                - generic [ref=f10e362]: Thyroid Profile (T3, T4, TSH)
+                - generic [ref=f10e363]: Vitamin D (25-OH)
+                - generic [ref=f10e364]: +5 more
+            - generic [ref=f10e365]:
+              - button "Edit" [ref=f10e366] [cursor=pointer]:
+                - img [ref=f10e367]
+                - text: Edit
+              - button "Deactivate" [ref=f10e370] [cursor=pointer]
+              - button "Delete" [ref=f10e371] [cursor=pointer]:
+                - img [ref=f10e372]
+                - text: Delete
+          - generic [ref=f10e374]:
+            - generic [ref=f10e375]:
+              - img [ref=f10e377]
+              - generic [ref=f10e381]: Active
+            - heading "Advanced Full Body Checkup" [level=3] [ref=f10e382]
+            - paragraph [ref=f10e383]: Comprehensive 12-test panel covering haematology, metabolic, thyroid, vitamins and cardiac markers. 1.b ghfhf 2.hjjhgh 3.hgg 4.hgfhf 5.
+            - generic [ref=f10e384]:
+              - generic [ref=f10e385]: ₹3,499
+              - generic [ref=f10e386]: ₹6,350
+              - generic [ref=f10e387]: 45% off
+            - generic [ref=f10e388]:
+              - generic [ref=f10e389]: 12 tests included
+              - generic [ref=f10e390]:
+                - generic [ref=f10e391]: HbA1c (Glycated Haemoglobin)
+                - generic [ref=f10e392]: Lipid Profile
+                - generic [ref=f10e393]: Liver Function Test (LFT)
+                - generic [ref=f10e394]: +9 more
+            - generic [ref=f10e395]:
+              - button "Edit" [ref=f10e396] [cursor=pointer]:
+                - img [ref=f10e397]
+                - text: Edit
+              - button "Deactivate" [ref=f10e400] [cursor=pointer]
+              - button "Delete" [ref=f10e401] [cursor=pointer]:
+                - img [ref=f10e402]
+                - text: Delete
+        - dialog [ref=f10e404]:
+          - document [ref=f10e405]:
+            - generic [ref=f10e406]:
+              - heading "New Package" [level=2] [ref=f10e407]
+              - button "Close modal" [ref=f10e408] [cursor=pointer]:
+                - img [ref=f10e409]
+            - generic [ref=f10e412]:
+              - generic [ref=f10e413]:
+                - generic [ref=f10e414]:
+                  - generic [ref=f10e415]: Package Name *
+                  - textbox "e.g. Full Body Checkup" [ref=f10e416]: <img src=x onerror=alert(1)> QA Pkg
+                - generic [ref=f10e417]:
+                  - generic [ref=f10e418]: Original Price (₹) *
+                  - spinbutton [ref=f10e419]: "100"
+                - generic [ref=f10e420]:
+                  - generic [ref=f10e421]: Discounted Price (₹) *
+                  - spinbutton [ref=f10e422]: "-50"
+                - generic [ref=f10e423]:
+                  - generic [ref=f10e424]: Description
+                  - textbox [ref=f10e425]
+                - generic [ref=f10e426]:
+                  - generic [ref=f10e427]: Include Tests
+                  - generic [ref=f10e428]:
+                    - generic [ref=f10e429]:
+                      - img [ref=f10e430]
+                      - textbox "Search tests to add…" [ref=f10e433]
+                    - generic [ref=f10e434]:
+                      - generic [ref=f10e435] [cursor=pointer]:
+                        - checkbox "Insulin Fasting tes1 test ₹4555.00" [ref=f10e436]
+                        - generic [ref=f10e437]: Insulin Fasting tes1
+                        - generic [ref=f10e438]: test
+                        - generic [ref=f10e439]: ₹4555.00
+                      - generic [ref=f10e440] [cursor=pointer]:
+                        - checkbox "Insulin Fasting Diabetes ₹650.00" [ref=f10e441]
+                        - generic [ref=f10e442]: Insulin Fasting
+                        - generic [ref=f10e443]: Diabetes
+                        - generic [ref=f10e444]: ₹650.00
+                      - generic [ref=f10e445] [cursor=pointer]:
+                        - checkbox "Lipid Profile Cardiac ₹580.00" [ref=f10e446]
+                        - generic [ref=f10e447]: Lipid Profile
+                        - generic [ref=f10e448]: Cardiac
+                        - generic [ref=f10e449]: ₹580.00
+                      - generic [ref=f10e450] [cursor=pointer]:
+                        - checkbox "Troponin I (High Sensitivity) Cardiac ₹1200.00" [ref=f10e451]
+                        - generic [ref=f10e452]: Troponin I (High Sensitivity)
+                        - generic [ref=f10e453]: Cardiac
+                        - generic [ref=f10e454]: ₹1200.00
+                      - generic [ref=f10e455] [cursor=pointer]:
+                        - checkbox "D-Dimer Cardiac ₹1400.00" [ref=f10e456]
+                        - generic [ref=f10e457]: D-Dimer
+                        - generic [ref=f10e458]: Cardiac
+                        - generic [ref=f10e459]: ₹1400.00
+                      - generic [ref=f10e460] [cursor=pointer]:
+                        - checkbox "Liver Function Test (LFT) Biochemistry ₹680.00" [ref=f10e461]
+                        - generic [ref=f10e462]: Liver Function Test (LFT)
+                        - generic [ref=f10e463]: Biochemistry
+                        - generic [ref=f10e464]: ₹680.00
+                      - generic [ref=f10e465] [cursor=pointer]:
+                        - checkbox "Kidney Function Test (KFT) Biochemistry ₹620.00" [ref=f10e466]
+                        - generic [ref=f10e467]: Kidney Function Test (KFT)
+                        - generic [ref=f10e468]: Biochemistry
+                        - generic [ref=f10e469]: ₹620.00
+                      - generic [ref=f10e470] [cursor=pointer]:
+                        - checkbox "C-Reactive Protein (CRP) Biochemistry ₹320.00" [ref=f10e471]
+                        - generic [ref=f10e472]: C-Reactive Protein (CRP)
+                        - generic [ref=f10e473]: Biochemistry
+                        - generic [ref=f10e474]: ₹320.00
+                      - generic [ref=f10e475] [cursor=pointer]:
+                        - checkbox "Iron Studies (Serum Iron, TIBC, Ferritin) Biochemistry ₹780.00" [ref=f10e476]
+                        - generic [ref=f10e477]: Iron Studies (Serum Iron, TIBC, Ferritin)
+                        - generic [ref=f10e478]: Biochemistry
+                        - generic [ref=f10e479]: ₹780.00
+                      - generic [ref=f10e480] [cursor=pointer]:
+                        - checkbox "Thyroid Profile (T3, T4, TSH) Thyroid ₹720.00" [ref=f10e481]
+                        - generic [ref=f10e482]: Thyroid Profile (T3, T4, TSH)
+                        - generic [ref=f10e483]: Thyroid
+                        - generic [ref=f10e484]: ₹720.00
+                      - generic [ref=f10e485] [cursor=pointer]:
+                        - checkbox "TSH (Thyroid Stimulating Hormone) Thyroid ₹360.00" [ref=f10e486]
+                        - generic [ref=f10e487]: TSH (Thyroid Stimulating Hormone)
+                        - generic [ref=f10e488]: Thyroid
+                        - generic [ref=f10e489]: ₹360.00
+                      - generic [ref=f10e490] [cursor=pointer]:
+                        - checkbox "Vitamin D (25-OH) Hormones ₹950.00" [ref=f10e491]
+                        - generic [ref=f10e492]: Vitamin D (25-OH)
+                        - generic [ref=f10e493]: Hormones
+                        - generic [ref=f10e494]: ₹950.00
+                      - generic [ref=f10e495] [cursor=pointer]:
+                        - checkbox "Vitamin B12 Hormones ₹720.00" [ref=f10e496]
+                        - generic [ref=f10e497]: Vitamin B12
+                        - generic [ref=f10e498]: Hormones
+                        - generic [ref=f10e499]: ₹720.00
+                      - generic [ref=f10e500] [cursor=pointer]:
+                        - checkbox "PSA (Prostate Specific Antigen) Hormones ₹850.00" [ref=f10e501]
+                        - generic [ref=f10e502]: PSA (Prostate Specific Antigen)
+                        - generic [ref=f10e503]: Hormones
+                        - generic [ref=f10e504]: ₹850.00
+                      - generic [ref=f10e505] [cursor=pointer]:
+                        - checkbox "Urine Routine & Microscopy Urine Test ₹150.00" [ref=f10e506]
+                        - generic [ref=f10e507]: Urine Routine & Microscopy
+                        - generic [ref=f10e508]: Urine Test
+                        - generic [ref=f10e509]: ₹150.00
+                      - generic [ref=f10e510] [cursor=pointer]:
+                        - checkbox "Urine Culture & Sensitivity Urine Test ₹520.00" [ref=f10e511]
+                        - generic [ref=f10e512]: Urine Culture & Sensitivity
+                        - generic [ref=f10e513]: Urine Test
+                        - generic [ref=f10e514]: ₹520.00
+                      - generic [ref=f10e515] [cursor=pointer]:
+                        - checkbox "Pregnancy Test (Beta-HCG) Urine Test ₹380.00" [ref=f10e516]
+                        - generic [ref=f10e517]: Pregnancy Test (Beta-HCG)
+                        - generic [ref=f10e518]: Urine Test
+                        - generic [ref=f10e519]: ₹380.00
+                      - generic [ref=f10e520] [cursor=pointer]:
+                        - checkbox "Dengue NS1 Antigen + IgM/IgG Serology ₹850.00" [ref=f10e521]
+                        - generic [ref=f10e522]: Dengue NS1 Antigen + IgM/IgG
+                        - generic [ref=f10e523]: Serology
+                        - generic [ref=f10e524]: ₹850.00
+                      - generic [ref=f10e525] [cursor=pointer]:
+                        - checkbox "Malaria Parasite Test (MP) Serology ₹280.00" [ref=f10e526]
+                        - generic [ref=f10e527]: Malaria Parasite Test (MP)
+                        - generic [ref=f10e528]: Serology
+                        - generic [ref=f10e529]: ₹280.00
+                      - generic [ref=f10e530] [cursor=pointer]:
+                        - checkbox "Widal Test (Typhoid) Serology ₹220.00" [ref=f10e531]
+                        - generic [ref=f10e532]: Widal Test (Typhoid)
+                        - generic [ref=f10e533]: Serology
+                        - generic [ref=f10e534]: ₹220.00
+                      - generic [ref=f10e535] [cursor=pointer]:
+                        - checkbox "Allergy Panel (IgE — 20 Allergens) Serology ₹3200.00" [ref=f10e536]
+                        - generic [ref=f10e537]: Allergy Panel (IgE — 20 Allergens)
+                        - generic [ref=f10e538]: Serology
+                        - generic [ref=f10e539]: ₹3200.00
+                      - generic [ref=f10e540] [cursor=pointer]:
+                        - checkbox "Complete Blood Count (CBC) Haematology ₹350.00" [ref=f10e541]
+                        - generic [ref=f10e542]: Complete Blood Count (CBC)
+                        - generic [ref=f10e543]: Haematology
+                        - generic [ref=f10e544]: ₹350.00
+                      - generic [ref=f10e545] [cursor=pointer]:
+                        - checkbox "Erythrocyte Sedimentation Rate (ESR) Haematology ₹150.00" [ref=f10e546]
+                        - generic [ref=f10e547]: Erythrocyte Sedimentation Rate (ESR)
+                        - generic [ref=f10e548]: Haematology
+                        - generic [ref=f10e549]: ₹150.00
+                      - generic [ref=f10e550] [cursor=pointer]:
+                        - checkbox "Peripheral Blood Smear Haematology ₹280.00" [ref=f10e551]
+                        - generic [ref=f10e552]: Peripheral Blood Smear
+                        - generic [ref=f10e553]: Haematology
+                        - generic [ref=f10e554]: ₹280.00
+                      - generic [ref=f10e555] [cursor=pointer]:
+                        - checkbox "HbA1c (Glycated Haemoglobin) Diabetes ₹480.00" [ref=f10e556]
+                        - generic [ref=f10e557]: HbA1c (Glycated Haemoglobin)
+                        - generic [ref=f10e558]: Diabetes
+                        - generic [ref=f10e559]: ₹480.00
+                      - generic [ref=f10e560] [cursor=pointer]:
+                        - checkbox "Blood Sugar Fasting (BSF) Diabetes ₹120.00" [ref=f10e561]
+                        - generic [ref=f10e562]: Blood Sugar Fasting (BSF)
+                        - generic [ref=f10e563]: Diabetes
+                        - generic [ref=f10e564]: ₹120.00
+              - paragraph [ref=f10e573]: Price is required.
+            - generic [ref=f10e566]:
+              - button "Cancel" [ref=f10e568] [cursor=pointer]:
+                - generic [ref=f10e569]: Cancel
+              - button "Create Package" [active] [ref=f10e571] [cursor=pointer]:
+                - generic [ref=f10e572]: Create Package

@@ -44,9 +44,9 @@ import { AlertComponent } from '../../../shared/components/alert/alert.component
           <h3 class="pkg-name">{{ p.name }}</h3>
           @if (p.description) { <p class="pkg-desc">{{ p.description }}</p> }
           <div class="pkg-price">
-            <span class="discounted">₹{{ p.discounted_price.toLocaleString('en-IN') }}</span>
-            @if (p.original_price > p.discounted_price) {
-              <span class="original">₹{{ p.original_price.toLocaleString('en-IN') }}</span>
+            <span class="discounted">₹{{ Number(p.discounted_price).toLocaleString('en-IN') }}</span>
+            @if (Number(p.original_price) > Number(p.discounted_price)) {
+              <span class="original">₹{{ Number(p.original_price).toLocaleString('en-IN') }}</span>
               <span class="savings">{{ getSavings(p) }}% off</span>
             }
           </div>
@@ -167,6 +167,9 @@ export class AdminPackagesComponent implements OnInit {
   filteredAvailableTests = signal<Test[]>([]);
   f = { name:'', description:'', original_price:0, discounted_price:0, selectedTestIds:[] as string[] };
 
+  // Make Number available in template
+  Number = Number;
+
   constructor(private pkgApi: PackageApiService, private testApi: TestApiService) {}
 
   ngOnInit() {
@@ -177,7 +180,16 @@ export class AdminPackagesComponent implements OnInit {
   load() {
     this.loading.set(true);
     this.pkgApi.list({ include_inactive: true, page_size: 100 }).subscribe({
-      next: r => { this.packages.set(r.items); this.loading.set(false); },
+      next: r => {
+        // Ensure prices are numbers (backend sends Decimal as strings in JSON)
+        const normalized = r.items.map(pkg => ({
+          ...pkg,
+          original_price: Number(pkg.original_price),
+          discounted_price: Number(pkg.discounted_price)
+        }));
+        this.packages.set(normalized);
+        this.loading.set(false);
+      },
       error: () => { this.error.set('Failed to load packages.'); this.loading.set(false); }
     });
   }
@@ -188,7 +200,12 @@ export class AdminPackagesComponent implements OnInit {
   filterAvailableTests() { const q = this.testSearchQ.toLowerCase(); this.filteredAvailableTests.set(q ? this.allTests().filter(t => t.name.toLowerCase().includes(q) || t.category.toLowerCase().includes(q)) : [...this.allTests()]); }
   isSelected(t: Test) { return this.f.selectedTestIds.includes(t.id); }
   toggleTest(t: Test) { const idx = this.f.selectedTestIds.indexOf(t.id); idx >= 0 ? this.f.selectedTestIds.splice(idx, 1) : this.f.selectedTestIds.push(t.id); }
-  getSavings(p: Package) { return Math.round(((p.original_price - p.discounted_price) / p.original_price) * 100); }
+  getSavings(p: Package) {
+    const original = Number(p.original_price);
+    const discounted = Number(p.discounted_price);
+    if (!original || original <= discounted) return 0;
+    return Math.round(((original - discounted) / original) * 100);
+  }
 
   save() {
     if (!this.f.name.trim()) { this.formErr.set('Package name is required.'); return; }

@@ -1,0 +1,469 @@
+- generic [ref=f7e3]:
+  - banner [ref=f7e4]:
+    - generic [ref=f7e6]:
+      - link "Sri Health Sri Health Diagnostics" [ref=f7e7] [cursor=pointer]:
+        - /url: /
+        - img "Sri Health" [ref=f7e8]
+        - generic [ref=f7e9]:
+          - generic [ref=f7e10]: Sri Health
+          - generic [ref=f7e11]: Diagnostics
+      - navigation [ref=f7e12]:
+        - link "Home" [ref=f7e13] [cursor=pointer]:
+          - /url: /
+        - link "Tests" [ref=f7e14] [cursor=pointer]:
+          - /url: /tests
+        - link "Packages" [ref=f7e15] [cursor=pointer]:
+          - /url: /packages
+        - link "My Bookings" [ref=f7e16] [cursor=pointer]:
+          - /url: /dashboard
+        - link "Reports" [ref=f7e17] [cursor=pointer]:
+          - /url: /reports
+        - link "About" [ref=f7e18] [cursor=pointer]:
+          - /url: /about
+        - link "Contact" [ref=f7e19] [cursor=pointer]:
+          - /url: /contact
+      - generic [ref=f7e20]:
+        - link "Book Test" [ref=f7e21] [cursor=pointer]:
+          - /url: /booking
+          - img [ref=f7e22]: add_circle_outline
+          - text: Book Test
+        - button "User menu" [ref=f7e24] [cursor=pointer]:
+          - generic [ref=f7e25]: QT
+          - img [ref=f7e26]: expand_more
+  - main [ref=f7e27]:
+    - generic [ref=f7e29]:
+      - generic [ref=f7e33]:
+        - button "Patient Who is this for?" [ref=f7e165] [cursor=pointer]:
+          - img [ref=f7e166]
+          - generic [ref=f7e37]:
+            - generic [ref=f7e38]: Patient
+            - generic [ref=f7e39]: Who is this for?
+        - button "2 Tests Select tests" [disabled] [ref=f7e41]:
+          - generic [ref=f7e43]: "2"
+          - generic [ref=f7e44]:
+            - generic [ref=f7e45]: Tests
+            - generic [ref=f7e46]: Select tests
+        - button "3 Collection Home or lab" [disabled] [ref=f7e48]:
+          - generic [ref=f7e50]: "3"
+          - generic [ref=f7e51]:
+            - generic [ref=f7e52]: Collection
+            - generic [ref=f7e53]: Home or lab
+        - button "4 Schedule Pick a time" [disabled] [ref=f7e55]:
+          - generic [ref=f7e57]: "4"
+          - generic [ref=f7e58]:
+            - generic [ref=f7e59]: Schedule
+            - generic [ref=f7e60]: Pick a time
+        - button "5 Payment Complete order" [disabled] [ref=f7e62]:
+          - generic [ref=f7e64]: "5"
+          - generic [ref=f7e65]:
+            - generic [ref=f7e66]: Payment
+            - generic [ref=f7e67]: Complete order
+      - main [ref=f7e68]:
+        - generic [ref=f7e69]:
+          - generic [ref=f7e70]:
+            - generic [ref=f7e71]: Step 2 of 5
+            - heading "Tests" [level=1] [ref=f7e168]
+            - paragraph [ref=f7e73]: Choose from our comprehensive range of tests and health packages
+          - generic [ref=f7e170]:
+            - generic [ref=f7e171]:
+              - generic [ref=f7e172]:
+                - button "Individual Tests" [ref=f7e173] [cursor=pointer]:
+                  - img [ref=f7e174]
+                  - text: Individual Tests
+                - button "Health Packages" [ref=f7e176] [cursor=pointer]:
+                  - img [ref=f7e177]
+                  - text: Health Packages
+              - generic [ref=f7e179]:
+                - generic [ref=f7e180]:
+                  - textbox "Search tests by name or category..." [ref=f7e181]
+                  - img [ref=f7e182]
+                - combobox [ref=f7e185] [cursor=pointer]:
+                  - option "All Categories" [selected]
+                  - option "Biochemistry"
+                  - option "Cardiac"
+                  - option "Diabetes"
+                  - option "Haematology"
+                  - option "Hormones"
+                  - option "Serology"
+                  - option "Thyroid"
+                  - option "Urine Test"
+                  - option "test"
+            - generic [ref=f7e187]:
+              - button "test 3.00% OFF Insulin Fasting tes1 dfgdhfghfghgh ₹4418.35 ₹4555.00 24 hrs" [ref=f7e188] [cursor=pointer]:
+                - generic [ref=f7e189]:
+                  - generic [ref=f7e191]: test
+                  - generic [ref=f7e193]: 3.00% OFF
+                - heading "Insulin Fasting tes1" [level=4] [ref=f7e194]
+                - paragraph [ref=f7e195]: dfgdhfghfghgh
+                - generic [ref=f7e196]:
+                  - generic [ref=f7e197]:
+                    - generic [ref=f7e198]: ₹4418.35
+                    - generic [ref=f7e199]: ₹4555.00
+                  - generic [ref=f7e200]:
+                    - img [ref=f7e201]
+                    - text: 24 hrs
+                - img [ref=f7e205]
+              - button "Diabetes 10.00% OFF Insulin Fasting Measures fasting insulin levels to assess insulin resistance and beta-cell function. Used in PCOS and metabolic syndrome evaluation. ₹585 ₹650.00 8 hrs" [ref=f7e207] [cursor=pointer]:
+                - generic [ref=f7e208]:
+                  - generic [ref=f7e210]: Diabetes
+                  - generic [ref=f7e212]: 10.00% OFF
+                - heading "Insulin Fasting" [level=4] [ref=f7e213]
+                - paragraph [ref=f7e214]: Measures fasting insulin levels to assess insulin resistance and beta-cell function. Used in PCOS and metabolic syndrome evaluation.
+                - generic [ref=f7e215]:
+                  - generic [ref=f7e216]:
+                    - generic [ref=f7e217]: ₹585
+                    - generic [ref=f7e218]: ₹650.00
+                  - generic [ref=f7e219]:
+                    - img [ref=f7e220]
+                    - text: 8 hrs
+                - img [ref=f7e224]
+              - 'button "Cardiac 15.00% OFF Lipid Profile Comprehensive panel: Total cholesterol, LDL, HDL, VLDL and triglycerides. Essential for cardiovascular risk assessment. ₹493 ₹580.00 6 hrs" [ref=f7e226] [cursor=pointer]':
+                - generic [ref=f7e227]:
+                  - generic [ref=f7e229]: Cardiac
+                  - generic [ref=f7e231]: 15.00% OFF
+                - heading "Lipid Profile" [level=4] [ref=f7e232]
+                - paragraph [ref=f7e233]: "Comprehensive panel: Total cholesterol, LDL, HDL, VLDL and triglycerides. Essential for cardiovascular risk assessment."
+                - generic [ref=f7e234]:
+                  - generic [ref=f7e235]:
+                    - generic [ref=f7e236]: ₹493
+                    - generic [ref=f7e237]: ₹580.00
+                  - generic [ref=f7e238]:
+                    - img [ref=f7e239]
+                    - text: 6 hrs
+                - img [ref=f7e243]
+              - button "Cardiac Troponin I (High Sensitivity) Highly sensitive cardiac biomarker for early detection of myocardial injury and acute myocardial infarction. ₹1200 4 hrs" [ref=f7e245] [cursor=pointer]:
+                - generic [ref=f7e248]: Cardiac
+                - heading "Troponin I (High Sensitivity)" [level=4] [ref=f7e249]
+                - paragraph [ref=f7e250]: Highly sensitive cardiac biomarker for early detection of myocardial injury and acute myocardial infarction.
+                - generic [ref=f7e251]:
+                  - generic [ref=f7e253]: ₹1200
+                  - generic [ref=f7e254]:
+                    - img [ref=f7e255]
+                    - text: 4 hrs
+                - img [ref=f7e259]
+              - button "Cardiac D-Dimer Fibrin degradation product used to rule out deep vein thrombosis (DVT), pulmonary embolism and DIC. ₹1400 6 hrs" [ref=f7e261] [cursor=pointer]:
+                - generic [ref=f7e264]: Cardiac
+                - heading "D-Dimer" [level=4] [ref=f7e265]
+                - paragraph [ref=f7e266]: Fibrin degradation product used to rule out deep vein thrombosis (DVT), pulmonary embolism and DIC.
+                - generic [ref=f7e267]:
+                  - generic [ref=f7e269]: ₹1400
+                  - generic [ref=f7e270]:
+                    - img [ref=f7e271]
+                    - text: 6 hrs
+                - img [ref=f7e275]
+              - 'button "Biochemistry 10.00% OFF Liver Function Test (LFT) Panel of 10 tests: bilirubin (total/direct), ALT, AST, ALP, GGT, albumin, total protein and globulin. ₹612 ₹680.00 6 hrs" [ref=f7e277] [cursor=pointer]':
+                - generic [ref=f7e278]:
+                  - generic [ref=f7e280]: Biochemistry
+                  - generic [ref=f7e282]: 10.00% OFF
+                - heading "Liver Function Test (LFT)" [level=4] [ref=f7e283]
+                - paragraph [ref=f7e284]: "Panel of 10 tests: bilirubin (total/direct), ALT, AST, ALP, GGT, albumin, total protein and globulin."
+                - generic [ref=f7e285]:
+                  - generic [ref=f7e286]:
+                    - generic [ref=f7e287]: ₹612
+                    - generic [ref=f7e288]: ₹680.00
+                  - generic [ref=f7e289]:
+                    - img [ref=f7e290]
+                    - text: 6 hrs
+                - img [ref=f7e294]
+              - button "Biochemistry 10.00% OFF Kidney Function Test (KFT) Creatinine, blood urea nitrogen, uric acid, eGFR and electrolytes (Na, K, Cl). Evaluates renal health. ₹558 ₹620.00 6 hrs" [ref=f7e296] [cursor=pointer]:
+                - generic [ref=f7e297]:
+                  - generic [ref=f7e299]: Biochemistry
+                  - generic [ref=f7e301]: 10.00% OFF
+                - heading "Kidney Function Test (KFT)" [level=4] [ref=f7e302]
+                - paragraph [ref=f7e303]: Creatinine, blood urea nitrogen, uric acid, eGFR and electrolytes (Na, K, Cl). Evaluates renal health.
+                - generic [ref=f7e304]:
+                  - generic [ref=f7e305]:
+                    - generic [ref=f7e306]: ₹558
+                    - generic [ref=f7e307]: ₹620.00
+                  - generic [ref=f7e308]:
+                    - img [ref=f7e309]
+                    - text: 6 hrs
+                - img [ref=f7e313]
+              - button "Biochemistry C-Reactive Protein (CRP) Acute-phase protein that rises sharply with systemic inflammation, bacterial infection and tissue injury. ₹320 4 hrs" [ref=f7e315] [cursor=pointer]:
+                - generic [ref=f7e318]: Biochemistry
+                - heading "C-Reactive Protein (CRP)" [level=4] [ref=f7e319]
+                - paragraph [ref=f7e320]: Acute-phase protein that rises sharply with systemic inflammation, bacterial infection and tissue injury.
+                - generic [ref=f7e321]:
+                  - generic [ref=f7e323]: ₹320
+                  - generic [ref=f7e324]:
+                    - img [ref=f7e325]
+                    - text: 4 hrs
+                - img [ref=f7e329]
+              - button "Biochemistry 10.00% OFF Iron Studies (Serum Iron, TIBC, Ferritin) Comprehensive iron status panel including serum iron, total iron-binding capacity and ferritin for anaemia workup. ₹702 ₹780.00 8 hrs" [ref=f7e331] [cursor=pointer]:
+                - generic [ref=f7e332]:
+                  - generic [ref=f7e334]: Biochemistry
+                  - generic [ref=f7e336]: 10.00% OFF
+                - heading "Iron Studies (Serum Iron, TIBC, Ferritin)" [level=4] [ref=f7e337]
+                - paragraph [ref=f7e338]: Comprehensive iron status panel including serum iron, total iron-binding capacity and ferritin for anaemia workup.
+                - generic [ref=f7e339]:
+                  - generic [ref=f7e340]:
+                    - generic [ref=f7e341]: ₹702
+                    - generic [ref=f7e342]: ₹780.00
+                  - generic [ref=f7e343]:
+                    - img [ref=f7e344]
+                    - text: 8 hrs
+                - img [ref=f7e348]
+              - button "Thyroid 15.00% OFF Thyroid Profile (T3, T4, TSH) Complete thyroid function panel measuring total T3, total T4 and TSH. Screens for hypothyroidism and hyperthyroidism. ₹612 ₹720.00 8 hrs" [ref=f7e350] [cursor=pointer]:
+                - generic [ref=f7e351]:
+                  - generic [ref=f7e353]: Thyroid
+                  - generic [ref=f7e355]: 15.00% OFF
+                - heading "Thyroid Profile (T3, T4, TSH)" [level=4] [ref=f7e356]
+                - paragraph [ref=f7e357]: Complete thyroid function panel measuring total T3, total T4 and TSH. Screens for hypothyroidism and hyperthyroidism.
+                - generic [ref=f7e358]:
+                  - generic [ref=f7e359]:
+                    - generic [ref=f7e360]: ₹612
+                    - generic [ref=f7e361]: ₹720.00
+                  - generic [ref=f7e362]:
+                    - img [ref=f7e363]
+                    - text: 8 hrs
+                - img [ref=f7e367]
+              - button "Thyroid TSH (Thyroid Stimulating Hormone) Single most sensitive test for thyroid dysfunction. Elevated in hypothyroidism; suppressed in hyperthyroidism. ₹360 6 hrs" [ref=f7e369] [cursor=pointer]:
+                - generic [ref=f7e372]: Thyroid
+                - heading "TSH (Thyroid Stimulating Hormone)" [level=4] [ref=f7e373]
+                - paragraph [ref=f7e374]: Single most sensitive test for thyroid dysfunction. Elevated in hypothyroidism; suppressed in hyperthyroidism.
+                - generic [ref=f7e375]:
+                  - generic [ref=f7e377]: ₹360
+                  - generic [ref=f7e378]:
+                    - img [ref=f7e379]
+                    - text: 6 hrs
+                - img [ref=f7e383]
+              - button "Hormones 10.00% OFF Vitamin D (25-OH) Measures 25-hydroxyvitamin D3 levels. Deficiency linked to bone loss, immune dysfunction and fatigue. ₹855 ₹950.00 12 hrs" [ref=f7e385] [cursor=pointer]:
+                - generic [ref=f7e386]:
+                  - generic [ref=f7e388]: Hormones
+                  - generic [ref=f7e390]: 10.00% OFF
+                - heading "Vitamin D (25-OH)" [level=4] [ref=f7e391]
+                - paragraph [ref=f7e392]: Measures 25-hydroxyvitamin D3 levels. Deficiency linked to bone loss, immune dysfunction and fatigue.
+                - generic [ref=f7e393]:
+                  - generic [ref=f7e394]:
+                    - generic [ref=f7e395]: ₹855
+                    - generic [ref=f7e396]: ₹950.00
+                  - generic [ref=f7e397]:
+                    - img [ref=f7e398]
+                    - text: 12 hrs
+                - img [ref=f7e402]
+              - button "Hormones 10.00% OFF Vitamin B12 Detects cobalamin deficiency associated with megaloblastic anaemia, peripheral neuropathy and cognitive decline. ₹648 ₹720.00 8 hrs" [ref=f7e404] [cursor=pointer]:
+                - generic [ref=f7e405]:
+                  - generic [ref=f7e407]: Hormones
+                  - generic [ref=f7e409]: 10.00% OFF
+                - heading "Vitamin B12" [level=4] [ref=f7e410]
+                - paragraph [ref=f7e411]: Detects cobalamin deficiency associated with megaloblastic anaemia, peripheral neuropathy and cognitive decline.
+                - generic [ref=f7e412]:
+                  - generic [ref=f7e413]:
+                    - generic [ref=f7e414]: ₹648
+                    - generic [ref=f7e415]: ₹720.00
+                  - generic [ref=f7e416]:
+                    - img [ref=f7e417]
+                    - text: 8 hrs
+                - img [ref=f7e421]
+              - button "Hormones PSA (Prostate Specific Antigen) Screening marker for prostate cancer and benign prostatic hyperplasia. Recommended for men over 50. ₹850 12 hrs" [ref=f7e423] [cursor=pointer]:
+                - generic [ref=f7e426]: Hormones
+                - heading "PSA (Prostate Specific Antigen)" [level=4] [ref=f7e427]
+                - paragraph [ref=f7e428]: Screening marker for prostate cancer and benign prostatic hyperplasia. Recommended for men over 50.
+                - generic [ref=f7e429]:
+                  - generic [ref=f7e431]: ₹850
+                  - generic [ref=f7e432]:
+                    - img [ref=f7e433]
+                    - text: 12 hrs
+                - img [ref=f7e437]
+              - button "Urine Test Urine Routine & Microscopy Physical, chemical and microscopic examination of urine. Detects UTI, kidney disease, diabetes and liver disorders. ₹150 3 hrs" [ref=f7e439] [cursor=pointer]:
+                - generic [ref=f7e442]: Urine Test
+                - heading "Urine Routine & Microscopy" [level=4] [ref=f7e443]
+                - paragraph [ref=f7e444]: Physical, chemical and microscopic examination of urine. Detects UTI, kidney disease, diabetes and liver disorders.
+                - generic [ref=f7e445]:
+                  - generic [ref=f7e447]: ₹150
+                  - generic [ref=f7e448]:
+                    - img [ref=f7e449]
+                    - text: 3 hrs
+                - img [ref=f7e453]
+              - button "Urine Test Urine Culture & Sensitivity Identifies causative organisms of urinary tract infections and determines antibiotic sensitivity profile. ₹520 48 hrs" [ref=f7e455] [cursor=pointer]:
+                - generic [ref=f7e458]: Urine Test
+                - heading "Urine Culture & Sensitivity" [level=4] [ref=f7e459]
+                - paragraph [ref=f7e460]: Identifies causative organisms of urinary tract infections and determines antibiotic sensitivity profile.
+                - generic [ref=f7e461]:
+                  - generic [ref=f7e463]: ₹520
+                  - generic [ref=f7e464]:
+                    - img [ref=f7e465]
+                    - text: 48 hrs
+                - img [ref=f7e469]
+              - button "Urine Test Pregnancy Test (Beta-HCG) Quantitative serum beta-HCG for early pregnancy confirmation and monitoring. More sensitive than urine strip tests. ₹380 4 hrs" [ref=f7e471] [cursor=pointer]:
+                - generic [ref=f7e474]: Urine Test
+                - heading "Pregnancy Test (Beta-HCG)" [level=4] [ref=f7e475]
+                - paragraph [ref=f7e476]: Quantitative serum beta-HCG for early pregnancy confirmation and monitoring. More sensitive than urine strip tests.
+                - generic [ref=f7e477]:
+                  - generic [ref=f7e479]: ₹380
+                  - generic [ref=f7e480]:
+                    - img [ref=f7e481]
+                    - text: 4 hrs
+                - img [ref=f7e485]
+              - button "Serology 10.00% OFF Dengue NS1 Antigen + IgM/IgG Combo rapid test detecting NS1 antigen (early phase) and IgM/IgG antibodies (late phase) for dengue fever. ₹765 ₹850.00 4 hrs" [ref=f7e487] [cursor=pointer]:
+                - generic [ref=f7e488]:
+                  - generic [ref=f7e490]: Serology
+                  - generic [ref=f7e492]: 10.00% OFF
+                - heading "Dengue NS1 Antigen + IgM/IgG" [level=4] [ref=f7e493]
+                - paragraph [ref=f7e494]: Combo rapid test detecting NS1 antigen (early phase) and IgM/IgG antibodies (late phase) for dengue fever.
+                - generic [ref=f7e495]:
+                  - generic [ref=f7e496]:
+                    - generic [ref=f7e497]: ₹765
+                    - generic [ref=f7e498]: ₹850.00
+                  - generic [ref=f7e499]:
+                    - img [ref=f7e500]
+                    - text: 4 hrs
+                - img [ref=f7e504]
+              - button "Serology Malaria Parasite Test (MP) Rapid antigen test detecting Plasmodium falciparum and P. vivax antigens. Results in under 30 minutes. ₹280 2 hrs" [ref=f7e506] [cursor=pointer]:
+                - generic [ref=f7e509]: Serology
+                - heading "Malaria Parasite Test (MP)" [level=4] [ref=f7e510]
+                - paragraph [ref=f7e511]: Rapid antigen test detecting Plasmodium falciparum and P. vivax antigens. Results in under 30 minutes.
+                - generic [ref=f7e512]:
+                  - generic [ref=f7e514]: ₹280
+                  - generic [ref=f7e515]:
+                    - img [ref=f7e516]
+                    - text: 2 hrs
+                - img [ref=f7e520]
+              - button "Serology Widal Test (Typhoid) Tube agglutination test for Salmonella typhi and paratyphi antibodies. Used in typhoid fever diagnosis. ₹220 4 hrs" [ref=f7e522] [cursor=pointer]:
+                - generic [ref=f7e525]: Serology
+                - heading "Widal Test (Typhoid)" [level=4] [ref=f7e526]
+                - paragraph [ref=f7e527]: Tube agglutination test for Salmonella typhi and paratyphi antibodies. Used in typhoid fever diagnosis.
+                - generic [ref=f7e528]:
+                  - generic [ref=f7e530]: ₹220
+                  - generic [ref=f7e531]:
+                    - img [ref=f7e532]
+                    - text: 4 hrs
+                - img [ref=f7e536]
+              - button "Serology 10.00% OFF Allergy Panel (IgE — 20 Allergens) Measures specific IgE antibodies against 20 common allergens including dust mites, pollen, food and pet dander. ₹2880 ₹3200.00 24 hrs" [ref=f7e538] [cursor=pointer]:
+                - generic [ref=f7e539]:
+                  - generic [ref=f7e541]: Serology
+                  - generic [ref=f7e543]: 10.00% OFF
+                - heading "Allergy Panel (IgE — 20 Allergens)" [level=4] [ref=f7e544]
+                - paragraph [ref=f7e545]: Measures specific IgE antibodies against 20 common allergens including dust mites, pollen, food and pet dander.
+                - generic [ref=f7e546]:
+                  - generic [ref=f7e547]:
+                    - generic [ref=f7e548]: ₹2880
+                    - generic [ref=f7e549]: ₹3200.00
+                  - generic [ref=f7e550]:
+                    - img [ref=f7e551]
+                    - text: 24 hrs
+                - img [ref=f7e555]
+              - button "Haematology 10.00% OFF Complete Blood Count (CBC) Measures RBC, WBC, haemoglobin, haematocrit and platelets. Essential for detecting anaemia, infection and blood disorders. ₹315 ₹350.00 6 hrs" [ref=f7e557] [cursor=pointer]:
+                - generic [ref=f7e558]:
+                  - generic [ref=f7e560]: Haematology
+                  - generic [ref=f7e562]: 10.00% OFF
+                - heading "Complete Blood Count (CBC)" [level=4] [ref=f7e563]
+                - paragraph [ref=f7e564]: Measures RBC, WBC, haemoglobin, haematocrit and platelets. Essential for detecting anaemia, infection and blood disorders.
+                - generic [ref=f7e565]:
+                  - generic [ref=f7e566]:
+                    - generic [ref=f7e567]: ₹315
+                    - generic [ref=f7e568]: ₹350.00
+                  - generic [ref=f7e569]:
+                    - img [ref=f7e570]
+                    - text: 6 hrs
+                - img [ref=f7e574]
+              - button "Haematology Erythrocyte Sedimentation Rate (ESR) Non-specific marker of inflammation, infection and autoimmune conditions. Often ordered alongside CRP. ₹150 4 hrs" [ref=f7e576] [cursor=pointer]:
+                - generic [ref=f7e579]: Haematology
+                - heading "Erythrocyte Sedimentation Rate (ESR)" [level=4] [ref=f7e580]
+                - paragraph [ref=f7e581]: Non-specific marker of inflammation, infection and autoimmune conditions. Often ordered alongside CRP.
+                - generic [ref=f7e582]:
+                  - generic [ref=f7e584]: ₹150
+                  - generic [ref=f7e585]:
+                    - img [ref=f7e586]
+                    - text: 4 hrs
+                - img [ref=f7e590]
+              - button "Haematology Peripheral Blood Smear Microscopic examination of blood cell morphology to detect malaria parasites, abnormal cells and platelet clumping. ₹280 8 hrs" [ref=f7e592] [cursor=pointer]:
+                - generic [ref=f7e595]: Haematology
+                - heading "Peripheral Blood Smear" [level=4] [ref=f7e596]
+                - paragraph [ref=f7e597]: Microscopic examination of blood cell morphology to detect malaria parasites, abnormal cells and platelet clumping.
+                - generic [ref=f7e598]:
+                  - generic [ref=f7e600]: ₹280
+                  - generic [ref=f7e601]:
+                    - img [ref=f7e602]
+                    - text: 8 hrs
+                - img [ref=f7e606]
+              - button "Diabetes 10.00% OFF HbA1c (Glycated Haemoglobin) Reflects average blood glucose over the past 2–3 months. Gold standard for long-term diabetes monitoring and diagnosis. ₹432 ₹480.00 6 hrs" [ref=f7e608] [cursor=pointer]:
+                - generic [ref=f7e609]:
+                  - generic [ref=f7e611]: Diabetes
+                  - generic [ref=f7e613]: 10.00% OFF
+                - heading "HbA1c (Glycated Haemoglobin)" [level=4] [ref=f7e614]
+                - paragraph [ref=f7e615]: Reflects average blood glucose over the past 2–3 months. Gold standard for long-term diabetes monitoring and diagnosis.
+                - generic [ref=f7e616]:
+                  - generic [ref=f7e617]:
+                    - generic [ref=f7e618]: ₹432
+                    - generic [ref=f7e619]: ₹480.00
+                  - generic [ref=f7e620]:
+                    - img [ref=f7e621]
+                    - text: 6 hrs
+                - img [ref=f7e625]
+              - button "Diabetes Blood Sugar Fasting (BSF) Measures plasma glucose after a minimum 8-hour fast. Primary screening test for Type 2 diabetes and pre-diabetes. ₹120 4 hrs" [ref=f7e627] [cursor=pointer]:
+                - generic [ref=f7e630]: Diabetes
+                - heading "Blood Sugar Fasting (BSF)" [level=4] [ref=f7e631]
+                - paragraph [ref=f7e632]: Measures plasma glucose after a minimum 8-hour fast. Primary screening test for Type 2 diabetes and pre-diabetes.
+                - generic [ref=f7e633]:
+                  - generic [ref=f7e635]: ₹120
+                  - generic [ref=f7e636]:
+                    - img [ref=f7e637]
+                    - text: 4 hrs
+                - img [ref=f7e641]
+            - generic [ref=f7e643]:
+              - button "Back" [ref=f7e645] [cursor=pointer]:
+                - generic [ref=f7e646]:
+                  - img [ref=f7e647]
+                  - text: Back
+              - button "Continue" [disabled] [ref=f7e650]:
+                - generic [ref=f7e651]:
+                  - text: Continue
+                  - img [ref=f7e652]
+        - complementary [ref=f7e84]:
+          - generic [ref=f7e85]:
+            - img [ref=f7e87]
+            - generic [ref=f7e89]:
+              - generic [ref=f7e90]: NABL Accredited
+              - generic [ref=f7e91]: Quality assured testing
+          - generic [ref=f7e92]:
+            - img [ref=f7e94]
+            - generic [ref=f7e97]:
+              - generic [ref=f7e98]: Reports in 24 hrs
+              - generic [ref=f7e99]: Quick turnaround
+          - generic [ref=f7e100]:
+            - img [ref=f7e102]
+            - generic [ref=f7e105]:
+              - generic [ref=f7e106]: Free Home Collection
+              - generic [ref=f7e107]: No extra charges
+  - contentinfo [ref=f7e108]:
+    - generic [ref=f7e109]:
+      - generic [ref=f7e110]:
+        - generic [ref=f7e111]:
+          - img "Sri Health" [ref=f7e112]
+          - generic [ref=f7e113]: Sri Health
+        - paragraph [ref=f7e114]:
+          - text: Clinical precision.
+          - text: Expert care.
+        - generic [ref=f7e115]:
+          - link "Instagram" [ref=f7e116] [cursor=pointer]:
+            - /url: https://instagram.com
+            - img [ref=f7e117]
+          - link "Facebook" [ref=f7e119] [cursor=pointer]:
+            - /url: https://facebook.com
+            - img [ref=f7e120]
+      - generic [ref=f7e122]:
+        - generic [ref=f7e123]: Services
+        - link "Lab Tests" [ref=f7e124] [cursor=pointer]:
+          - /url: /tests
+        - link "Health Packages" [ref=f7e125] [cursor=pointer]:
+          - /url: /packages
+        - link "Book a Test" [ref=f7e126] [cursor=pointer]:
+          - /url: /booking
+        - link "My Reports" [ref=f7e127] [cursor=pointer]:
+          - /url: /reports
+      - generic [ref=f7e128]:
+        - generic [ref=f7e129]: Company
+        - link "About Us" [ref=f7e130] [cursor=pointer]:
+          - /url: /about
+        - link "Contact" [ref=f7e131] [cursor=pointer]:
+          - /url: /contact
+      - generic [ref=f7e132]:
+        - generic [ref=f7e133]: Account
+        - link "My Profile" [ref=f7e134] [cursor=pointer]:
+          - /url: /profile
+        - link "My Bookings" [ref=f7e135] [cursor=pointer]:
+          - /url: /dashboard
+    - generic [ref=f7e137]:
+      - generic [ref=f7e138]: © 2026 SRI Diagnostic Laboratory & Health Care
+      - generic [ref=f7e139]: All prices in ₹ (Indian Rupees)

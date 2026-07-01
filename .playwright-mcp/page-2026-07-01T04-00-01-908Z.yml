@@ -1,0 +1,52 @@
+- main [ref=f4e4]:
+  - generic [ref=f4e80]:
+    - complementary [ref=f4e81]:
+      - link "Sri Health Care Diagnostic Laboratory" [ref=f4e83] [cursor=pointer]:
+        - /url: /
+        - img [ref=f4e85]
+        - generic [ref=f4e89]:
+          - generic [ref=f4e90]: Sri Health Care
+          - generic [ref=f4e91]: Diagnostic Laboratory
+      - generic [ref=f4e92]:
+        - heading "Verify Your Phone Number" [level=1] [ref=f4e93]:
+          - text: Verify Your
+          - text: Phone Number
+        - paragraph [ref=f4e94]: We've sent a verification code to your phone number. Please enter it to continue.
+        - generic [ref=f4e95]:
+          - generic [ref=f4e96]:
+            - generic [ref=f4e97]: 📱
+            - generic [ref=f4e98]: SMS Verification
+          - generic [ref=f4e99]:
+            - generic [ref=f4e100]: ⚡
+            - generic [ref=f4e101]: Instant Access
+          - generic [ref=f4e102]:
+            - generic [ref=f4e103]: 🔒
+            - generic [ref=f4e104]: Secure Login
+          - generic [ref=f4e105]:
+            - generic [ref=f4e106]: ✓
+            - generic [ref=f4e107]: One-Time Code
+      - paragraph [ref=f4e109]: © 2026 Sri Diagnostic Laboratory. All rights reserved.
+    - main [ref=f4e110]:
+      - generic [ref=f4e111]:
+        - img [ref=f4e114]
+        - generic [ref=f4e116]:
+          - heading "Verify Your Phone" [level=2] [ref=f4e117]
+          - paragraph [ref=f4e118]:
+            - text: We've sent a 6-digit code to
+            - strong [ref=f4e119]: +91 90****0001
+        - generic [ref=f4e120]:
+          - generic [ref=f4e121]:
+            - textbox [active] [ref=f4e122]
+            - textbox [ref=f4e123]
+            - textbox [ref=f4e124]
+            - textbox [ref=f4e125]
+            - textbox [ref=f4e126]
+            - textbox [ref=f4e127]
+          - button "Verify OTP" [disabled] [ref=f4e128]
+        - paragraph [ref=f4e130]:
+          - text: Resend code in
+          - strong [ref=f4e131]: 0:30
+        - link "Back to login" [ref=f4e134] [cursor=pointer]:
+          - /url: /auth/login
+          - img [ref=f4e135]
+          - text: Back to login

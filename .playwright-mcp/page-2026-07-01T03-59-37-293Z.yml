@@ -1,0 +1,67 @@
+- main [ref=f4e4]:
+  - generic [ref=f4e6]:
+    - complementary [ref=f4e7]:
+      - link "Sri Health Care Diagnostic Laboratory" [ref=f4e9] [cursor=pointer]:
+        - /url: /
+        - img [ref=f4e11]
+        - generic [ref=f4e15]:
+          - generic [ref=f4e16]: Sri Health Care
+          - generic [ref=f4e17]: Diagnostic Laboratory
+      - generic [ref=f4e18]:
+        - heading "Fast, Secure & Reliable Laboratory Management" [level=1] [ref=f4e19]:
+          - text: Fast, Secure & Reliable
+          - text: Laboratory Management
+        - paragraph [ref=f4e20]: Access your health records, book tests, and manage appointments from anywhere.
+        - generic [ref=f4e21]:
+          - generic [ref=f4e22]:
+            - generic [ref=f4e23]: 🏠
+            - generic [ref=f4e24]: Home Sample Collection
+          - generic [ref=f4e25]:
+            - generic [ref=f4e26]: ✓
+            - generic [ref=f4e27]: NABL Certified Labs
+          - generic [ref=f4e28]:
+            - generic [ref=f4e29]: ⏰
+            - generic [ref=f4e30]: Reports in 24-48 Hours
+          - generic [ref=f4e31]:
+            - generic [ref=f4e32]: 🔒
+            - generic [ref=f4e33]: Secure & Private
+      - paragraph [ref=f4e35]: © 2026 Sri Diagnostic Laboratory. All rights reserved.
+    - main [ref=f4e36]:
+      - generic [ref=f4e37]:
+        - generic [ref=f4e38]:
+          - heading "Welcome back" [level=2] [ref=f4e39]
+          - paragraph [ref=f4e40]: Sign in to access your health dashboard
+        - generic [ref=f4e41]:
+          - button "Password" [ref=f4e42] [cursor=pointer]:
+            - img [ref=f4e43]
+            - text: Password
+          - button "Phone OTP" [ref=f4e46] [cursor=pointer]:
+            - img [ref=f4e47]
+            - text: Phone OTP
+        - generic [ref=f4e49]:
+          - generic [ref=f4e50]:
+            - generic [ref=f4e51]: Email or Phone
+            - generic [ref=f4e52]:
+              - img
+              - textbox "Email or Phone" [ref=f4e53]:
+                - /placeholder: Enter your email or phone number
+          - generic [ref=f4e54]:
+            - generic [ref=f4e55]: Password
+            - generic [ref=f4e56]:
+              - img
+              - textbox "Password" [ref=f4e57]:
+                - /placeholder: Enter your password
+              - button [ref=f4e58] [cursor=pointer]:
+                - img [ref=f4e59]
+          - generic [ref=f4e62]:
+            - generic [ref=f4e63] [cursor=pointer]:
+              - checkbox "Remember me" [ref=f4e64]
+              - generic [ref=f4e65]: Remember me
+            - link "Forgot password?" [ref=f4e66] [cursor=pointer]:
+              - /url: /auth/forgot-password
+          - button "Sign In" [disabled] [ref=f4e67]
+        - generic [ref=f4e69]: or
+        - paragraph [ref=f4e71]:
+          - text: Don't have an account?
+          - link "Create account" [ref=f4e72] [cursor=pointer]:
+            - /url: /auth/register
