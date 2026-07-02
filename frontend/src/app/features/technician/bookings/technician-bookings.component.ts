@@ -34,11 +34,16 @@ const STATUS_CONFIG: Record<string, { chip: string; chipText: string; dot: strin
 };
 
 // Technician-facing next actions per current status
+// Note: "sample_collected" used to jump straight to "completed", but a booking
+// can no longer be completed without an uploaded report — the lab-processing
+// steps from here (reached_lab -> sample_delivered -> processing ->
+// report_ready -> completed) are now driven by the admin, not the field
+// technician, so the only action offered here is the handoff to the lab.
 const TECH_ACTIONS: Record<string, { status: string; label: string; danger?: boolean }[]> = {
   technician_assigned: [{ status: 'on_the_way', label: 'Start — On the Way' }],
   accepted:            [{ status: 'on_the_way', label: 'On the Way' }],
   on_the_way:          [{ status: 'sample_collected', label: 'Sample Collected' }, { status: 'unable_to_collect', label: 'Unable to Collect', danger: true }],
-  sample_collected:    [{ status: 'completed', label: 'Mark Completed' }],
+  sample_collected:    [{ status: 'reached_lab', label: 'Mark Reached Lab' }],
 };
 
 const FILTER_CHIPS = ['technician_assigned', 'on_the_way', 'sample_collected', 'completed', 'unable_to_collect'];
@@ -121,6 +126,14 @@ const FILTER_CHIPS = ['technician_assigned', 'on_the_way', 'sample_collected', '
                     @if (detailMap()[b.id]; as d) {
                     <div class="detail-panel">
                       <div class="dp-section">
+                        <span class="dp-title">Booking</span>
+                        <div class="dp-row"><span class="dp-k">Booking ID</span><span class="dp-v mono">{{ d.reference_number }}</span></div>
+                        <div class="dp-row"><span class="dp-k">Date &amp; Time</span><span class="dp-v">{{ d.booking_date | date:'d MMM yyyy' }}<span *ngIf="d.time_slot"> · {{ d.time_slot.start_time }} – {{ d.time_slot.end_time }}</span></span></div>
+                        <div class="dp-row"><span class="dp-k">Collection Type</span><span class="dp-v">{{ d.collection_type | titlecase }}</span></div>
+                        <div class="dp-row"><span class="dp-k">Payment Status</span><span class="dp-v">{{ d.payment_status | titlecase }}</span></div>
+                        <div class="dp-row"><span class="dp-k">Booking Status</span><span class="dp-v">{{ label(d.status) }}</span></div>
+                      </div>
+                      <div class="dp-section">
                         <span class="dp-title">Patient</span>
                         <div class="dp-row"><span class="dp-k">Name</span><span class="dp-v">{{ d.patient_name || '—' }}<span class="dp-rel" *ngIf="d.patient_relationship"> ({{ d.patient_relationship }})</span></span></div>
                         @if (d.patient_gender) { <div class="dp-row"><span class="dp-k">Gender</span><span class="dp-v">{{ d.patient_gender | titlecase }}</span></div> }
@@ -135,16 +148,21 @@ const FILTER_CHIPS = ['technician_assigned', 'on_the_way', 'sample_collected', '
                         <div class="dp-section">
                           <span class="dp-title">Collection Address</span>
                           <p class="dp-addr">{{ d.address.address_line1 }}<span *ngIf="d.address.address_line2">, {{ d.address.address_line2 }}</span>, {{ d.address.city }}, {{ d.address.state }} - {{ d.address.pincode }}</p>
+                          <a class="dp-maps-link" [href]="mapsUrl(d.address)" target="_blank" rel="noopener">
+                            <mat-icon>location_on</mat-icon> View on Google Maps
+                          </a>
                         </div>
                       }
-                      <div class="dp-section">
-                        <span class="dp-title">Schedule</span>
-                        @if (d.time_slot) { <div class="dp-row"><span class="dp-k">Slot</span><span class="dp-v">{{ d.time_slot.start_time }} – {{ d.time_slot.end_time }}</span></div> }
-                        @if (d.lab_branch) { <div class="dp-row"><span class="dp-k">Lab</span><span class="dp-v">{{ d.lab_branch.name }}</span></div> }
-                      </div>
+                      @if (d.lab_branch) {
+                        <div class="dp-section">
+                          <span class="dp-title">Lab Branch</span>
+                          <div class="dp-row"><span class="dp-k">Name</span><span class="dp-v">{{ d.lab_branch.name }}</span></div>
+                          <p class="dp-addr">{{ d.lab_branch.address }}, {{ d.lab_branch.city }} - {{ d.lab_branch.pincode }}</p>
+                        </div>
+                      }
                       @if (d.items && d.items.length) {
                         <div class="dp-section">
-                          <span class="dp-title">Tests / Packages</span>
+                          <span class="dp-title">Assigned Tests</span>
                           <ul class="dp-items">
                             @for (it of d.items; track it.id) { <li>{{ it.item_name || it.item_type }}</li> }
                           </ul>
@@ -299,11 +317,13 @@ const FILTER_CHIPS = ['technician_assigned', 'on_the_way', 'sample_collected', '
     .dp-section { display:flex; flex-direction:column; gap:.25rem; }
     .dp-title { font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin-bottom:.1rem; }
     .dp-row { display:flex; gap:.5rem; font-size:.8rem; }
-    .dp-k { width:80px; flex-shrink:0; color:var(--muted); }
+    .dp-k { width:110px; flex-shrink:0; color:var(--muted); }
     .dp-v { color:var(--text); font-weight:500; word-break:break-word; }
     .dp-v a { color:var(--emerald-700); text-decoration:none; }
+    .dp-v.mono { font-family:'JetBrains Mono','SF Mono','Fira Code',monospace; font-size:.75rem; }
     .dp-rel { color:var(--muted); font-weight:400; }
     .dp-addr { margin:0; font-size:.8rem; color:var(--text-secondary); line-height:1.5; }
+    .dp-maps-link { display:inline-flex; align-items:center; gap:.3rem; margin-top:.4rem; font-size:.78rem; font-weight:600; color:var(--emerald-700); text-decoration:none; mat-icon { font-size:1rem; width:1rem; height:1rem; } &:hover { text-decoration:underline; } }
     .dp-items { margin:.1rem 0 0; padding-left:1.1rem; font-size:.8rem; color:var(--text-secondary); }
     .dp-items li { margin-bottom:.15rem; }
     .notes-block { display:flex; gap:.625rem; padding:.65rem .875rem; background:var(--emerald-50); border-radius:10px; border:1px solid var(--emerald-100); }
@@ -384,6 +404,13 @@ export class TechnicianBookingsComponent implements OnInit {
   label(s: string): string { return STATUS_LABELS[s] ?? s; }
   statusConfig(s: string) { return STATUS_CONFIG[s] ?? { chip: '#F1F5F9', chipText: '#475569', dot: '#94A3B8', border: '#94A3B8' }; }
   actionsFor(status: string) { return TECH_ACTIONS[status] ?? []; }
+
+  /** No lat/long is stored for addresses — build a Google Maps search link
+   * from the structured address text instead of requiring geocoding. */
+  mapsUrl(address: { address_line1: string; address_line2?: string; city: string; state: string; pincode: string }): string {
+    const parts = [address.address_line1, address.address_line2, address.city, address.state, address.pincode].filter(Boolean);
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(parts.join(', '))}`;
+  }
 
   load(): void {
     this.loading.set(true);

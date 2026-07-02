@@ -5,6 +5,7 @@ import { BookingWizardStore } from '../../../core/store/booking-wizard.store';
 import { ServiceAreaApiService } from '../../../core/api/services/service-area-api.service';
 import { LabBranchApiService } from '../../../core/api/services/lab-branch-api.service';
 import { UserApiService } from '../../../core/api/services/user-api.service';
+import { SettingsApiService, CancellationSetting } from '../../../core/api/services/settings-api.service';
 import { ServiceArea, LabBranch, UserAddress } from '../../../core/api/api.types';
 import { ButtonComponent, SpinnerComponent, BadgeComponent, ModalComponent, AlertComponent } from '../../../shared/components';
 
@@ -118,6 +119,13 @@ type CollectionType = 'home' | 'lab';
 
       <!-- Home Collection Details -->
       @if (collectionType() === 'home') {
+        @if (cancellationNoticeText()) {
+          <div class="notice-banner">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span>{{ cancellationNoticeText() }}</span>
+          </div>
+        }
+
         <div class="details-section">
           <h4 class="details-section__title">Select Delivery Address</h4>
           
@@ -519,6 +527,27 @@ type CollectionType = 'home' | 'lab';
     }
 
     /* Details Section */
+    .notice-banner {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.625rem;
+      background: #FFF7ED;
+      border: 1px solid #FED7AA;
+      color: #9A3412;
+      border-radius: 0.75rem;
+      padding: 0.875rem 1rem;
+      font-size: 0.8125rem;
+      line-height: 1.5;
+      margin-bottom: 1rem;
+
+      svg {
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+        margin-top: 1px;
+      }
+    }
+
     .details-section {
       padding: 1.25rem;
       background: #F8FAFC;
@@ -882,11 +911,13 @@ export class CollectionTypeStepNewComponent implements OnInit {
   private serviceAreaApi = inject(ServiceAreaApiService);
   private labBranchApi = inject(LabBranchApiService);
   private userApi = inject(UserApiService);
+  private settingsApi = inject(SettingsApiService);
   private fb = inject(FormBuilder);
   readonly store = inject(BookingWizardStore);
 
   /* State */
   collectionType = signal<CollectionType | null>(null);
+  cancellationSetting = signal<CancellationSetting | null>(null);
   addresses = signal<UserAddress[]>([]);
   labBranches = signal<LabBranch[]>([]);
   serviceAreas = signal<ServiceArea[]>([]);
@@ -913,6 +944,17 @@ export class CollectionTypeStepNewComponent implements OnInit {
   ngOnInit(): void {
     this.loadServiceAreas();
     this.loadLabBranches();
+    this.settingsApi.getCancellationSetting().subscribe({
+      next: s => this.cancellationSetting.set(s),
+      error: () => this.cancellationSetting.set(null),
+    });
+  }
+
+  cancellationNoticeText(): string {
+    const s = this.cancellationSetting();
+    if (!s) return '';
+    const amount = s.charge_type === 'percentage' ? `${s.charge_value}%` : `₹${s.charge_value}`;
+    return `Home Collection bookings may incur a ${amount} cancellation charge if cancelled after confirmation or technician assignment.`;
   }
 
   private loadServiceAreas(): void {

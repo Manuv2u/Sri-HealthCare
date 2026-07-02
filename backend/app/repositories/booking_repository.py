@@ -12,7 +12,9 @@ from sqlalchemy.orm import selectinload
 
 from app.models.booking import Booking, BookingItem, BookingSlotCount, BookingStatusHistory
 from app.models.payment import Payment, Refund
+from app.models.report import Report
 from app.models.service import TimeSlot
+from app.utils import timezone as lab_tz
 
 
 # Valid state machine transitions (technician/sequential flow)
@@ -22,7 +24,11 @@ _VALID_TRANSITIONS: dict[str, list[str]] = {
     "technician_assigned": ["accepted", "on_the_way", "cancelled"],
     "accepted": ["on_the_way", "cancelled"],
     "on_the_way": ["sample_collected", "unable_to_collect"],
-    "sample_collected": ["reached_lab", "completed"],
+    # "completed" was previously reachable directly from here, letting a booking
+    # skip report_ready entirely — a report must exist before completion (see
+    # the REPORT_REQUIRED check in update_status), so the only forward path is
+    # through the lab-processing steps below.
+    "sample_collected": ["reached_lab"],
     "reached_lab": ["sample_delivered"],
     "sample_delivered": ["processing"],
     "processing": ["report_ready"],
@@ -81,9 +87,7 @@ class BookingRepository:
         self, booking: Booking, slot: TimeSlot
     ) -> None:
         """Raise 422 if the booking is within 2 hours of the slot start."""
-        slot_dt = datetime.combine(booking.booking_date, slot.start_time).replace(
-            tzinfo=timezone.utc
-        )
+        slot_dt = lab_tz.to_utc(booking.booking_date, slot.start_time)
         if datetime.now(timezone.utc) + timedelta(hours=2) >= slot_dt:
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -152,6 +156,15 @@ class BookingRepository:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail={"error_code": "SLOT_NOT_FOUND", "message": "Time slot not found"},
+            )
+
+        if lab_tz.to_utc(booking_date, slot.start_time) <= datetime.now(timezone.utc):
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail={
+                    "error_code": "SLOT_IN_PAST",
+                    "message": "This time slot has already passed and can no longer be booked",
+                },
             )
 
         if confirmed_count >= slot.slot_capacity:
@@ -357,7 +370,7 @@ class BookingRepository:
                     payment_id=payment.id,
                     amount=refund_amount,
                     reason=f"Booking cancelled. {charge_desc}",
-                    status="pending",
+                    status="initiated",
                     initiated_by=cancelled_by,
                     initiated_at=now,
                 )
@@ -441,6 +454,15 @@ class BookingRepository:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail={"error_code": "SLOT_NOT_FOUND", "message": "New time slot not found"},
+            )
+
+        if lab_tz.to_utc(new_booking_date, new_slot.start_time) <= datetime.now(timezone.utc):
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail={
+                    "error_code": "SLOT_IN_PAST",
+                    "message": "This time slot has already passed and can no longer be booked",
+                },
             )
 
         if row[0] >= new_slot.slot_capacity:
@@ -536,6 +558,23 @@ class BookingRepository:
                     },
                 )
 
+        # A booking can never be completed without an uploaded report — enforced
+        # here (not only in BookingService) so there is no bypass path, including
+        # for admins. report_service.upload_report() calls this method directly
+        # for its own "report_ready" transition, so this is the single choke point.
+        if new_status == "completed":
+            report_count_result = await self.db.execute(
+                select(func.count()).select_from(Report).where(Report.booking_id == booking_id)
+            )
+            if report_count_result.scalar_one() == 0:
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    detail={
+                        "error_code": "REPORT_REQUIRED",
+                        "message": "A report must be uploaded before this booking can be completed",
+                    },
+                )
+
         now = datetime.now(timezone.utc)
         update_values: dict = {"status": new_status}
         ts_field = _TRANSITION_TIMESTAMPS.get(new_status)
@@ -559,3 +598,18 @@ class BookingRepository:
         )
         await self.db.flush()
         return await self._get_booking_with_items(booking_id)  # type: ignore[return-value]
+
+    # ── payment sync ─────────────────────────────────────────────────────────
+
+    async def sync_payment_status(self, booking_id: uuid.UUID, payment_status: str) -> None:
+        """Mirror a Payment's status onto its Booking.payment_status.
+
+        Payment.status and Booking.payment_status are two separate columns;
+        nothing previously kept them in sync (a paid Payment could sit next to
+        a Booking still reporting payment_status="pending" forever). This is
+        the single place that should be called whenever a payment is confirmed.
+        """
+        await self.db.execute(
+            update(Booking).where(Booking.id == booking_id).values(payment_status=payment_status)
+        )
+        await self.db.flush()

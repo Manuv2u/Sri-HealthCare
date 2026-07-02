@@ -1,0 +1,130 @@
+- main [ref=f4e4]:
+  - generic [ref=f4e77]:
+    - complementary [ref=f4e78]:
+      - generic [ref=f4e79]:
+        - img [ref=f4e81]: local_hospital
+        - generic [ref=f4e82]:
+          - generic [ref=f4e83]: Sri Health
+          - generic [ref=f4e84]: Admin Console
+        - button [ref=f4e85] [cursor=pointer]:
+          - img [ref=f4e86]: chevron_left
+      - navigation [ref=f4e87]:
+        - link "Dashboard" [ref=f4e88] [cursor=pointer]:
+          - /url: /admin/dashboard
+          - img [ref=f4e90]: dashboard
+          - generic [ref=f4e91]: Dashboard
+        - generic [ref=f4e94]: Operations
+        - link "Bookings" [ref=f4e95] [cursor=pointer]:
+          - /url: /admin/bookings
+          - img [ref=f4e97]: calendar_month
+          - generic [ref=f4e98]: Bookings
+        - link "Tests" [ref=f4e99] [cursor=pointer]:
+          - /url: /admin/tests
+          - img [ref=f4e101]: biotech
+          - generic [ref=f4e102]: Tests
+        - link "Packages" [ref=f4e103] [cursor=pointer]:
+          - /url: /admin/packages
+          - img [ref=f4e105]: inventory_2
+          - generic [ref=f4e106]: Packages
+        - link "Users" [ref=f4e107] [cursor=pointer]:
+          - /url: /admin/users
+          - img [ref=f4e109]: people
+          - generic [ref=f4e110]: Users
+        - link "Technicians" [ref=f4e111] [cursor=pointer]:
+          - /url: /admin/technicians
+          - img [ref=f4e113]: engineering
+          - generic [ref=f4e114]: Technicians
+        - link "Lab Branches" [ref=f4e115] [cursor=pointer]:
+          - /url: /admin/lab-branches
+          - img [ref=f4e117]: location_city
+          - generic [ref=f4e118]: Lab Branches
+        - link "Service Areas" [ref=f4e119] [cursor=pointer]:
+          - /url: /admin/service-areas
+          - img [ref=f4e121]: map
+          - generic [ref=f4e122]: Service Areas
+        - generic [ref=f4e124]: Insights
+        - link "Analytics" [ref=f4e125] [cursor=pointer]:
+          - /url: /admin/analytics
+          - img [ref=f4e127]: bar_chart
+          - generic [ref=f4e128]: Analytics
+        - generic [ref=f4e130]: Settings
+        - link "Cancellation" [ref=f4e131] [cursor=pointer]:
+          - /url: /admin/cancellation-config
+          - img [ref=f4e133]: cancel
+          - generic [ref=f4e134]: Cancellation
+        - link "Payment" [ref=f4e135] [cursor=pointer]:
+          - /url: /admin/payment-config
+          - img [ref=f4e137]: payments
+          - generic [ref=f4e138]: Payment
+        - link "Feature Flags" [ref=f4e139] [cursor=pointer]:
+          - /url: /admin/feature-flags
+          - img [ref=f4e141]: toggle_on
+          - generic [ref=f4e142]: Feature Flags
+      - generic [ref=f4e143]:
+        - generic [ref=f4e144]:
+          - img [ref=f4e146]: admin_panel_settings
+          - generic [ref=f4e147]:
+            - generic [ref=f4e148]: Admin
+            - generic [ref=f4e149]: Administrator
+        - generic [ref=f4e150]:
+          - link "Back to App" [ref=f4e151] [cursor=pointer]:
+            - /url: /tests
+            - img [ref=f4e152]: arrow_back
+            - generic [ref=f4e153]: Back to App
+          - button "Sign Out" [ref=f4e154] [cursor=pointer]:
+            - img [ref=f4e155]: logout
+            - generic [ref=f4e156]: Sign Out
+    - generic [ref=f4e157]:
+      - generic [ref=f4e158]:
+        - generic [ref=f4e160]:
+          - generic [ref=f4e161]: Admin
+          - img [ref=f4e162]: chevron_right
+          - generic [ref=f4e163]: Dashboard
+        - generic [ref=f4e167]: Admin
+      - generic [ref=f4e170]:
+        - generic [ref=f4e171]:
+          - generic [ref=f4e172]:
+            - paragraph [ref=f4e173]: Sri Health Admin Panel
+            - heading "Good morning, Admin" [level=1] [ref=f4e174]
+            - paragraph [ref=f4e175]: Thursday, 2 July 2026
+          - generic [ref=f4e178]: Live
+        - generic [ref=f4e179]:
+          - generic [ref=f4e180]:
+            - generic [ref=f4e181]: "28"
+            - generic [ref=f4e182]: Total Users
+          - generic [ref=f4e183]:
+            - generic [ref=f4e184]: "5"
+            - generic [ref=f4e185]: Bookings Today
+          - generic [ref=f4e186]:
+            - generic [ref=f4e187]: "9"
+            - generic [ref=f4e188]: This Month
+          - generic [ref=f4e189]:
+            - generic [ref=f4e190]: "0"
+            - generic [ref=f4e191]: Pending
+        - generic [ref=f4e192]:
+          - heading "Quick Actions" [level=2] [ref=f4e193]
+          - generic [ref=f4e194]:
+            - link "👥 Users" [ref=f4e195] [cursor=pointer]:
+              - /url: /admin/users
+              - generic [ref=f4e196]: 👥
+              - generic [ref=f4e197]: Users
+            - link "🧪 Tests" [ref=f4e198] [cursor=pointer]:
+              - /url: /admin/tests
+              - generic [ref=f4e199]: 🧪
+              - generic [ref=f4e200]: Tests
+            - link "📦 Packages" [ref=f4e201] [cursor=pointer]:
+              - /url: /admin/packages
+              - generic [ref=f4e202]: 📦
+              - generic [ref=f4e203]: Packages
+            - link "📅 Bookings" [ref=f4e204] [cursor=pointer]:
+              - /url: /admin/bookings
+              - generic [ref=f4e205]: 📅
+              - generic [ref=f4e206]: Bookings
+            - link "👨‍🔬 Technicians" [ref=f4e207] [cursor=pointer]:
+              - /url: /admin/technicians
+              - generic [ref=f4e208]: 👨‍🔬
+              - generic [ref=f4e209]: Technicians
+            - link "📊 Analytics" [ref=f4e210] [cursor=pointer]:
+              - /url: /admin/analytics
+              - generic [ref=f4e211]: 📊
+              - generic [ref=f4e212]: Analytics

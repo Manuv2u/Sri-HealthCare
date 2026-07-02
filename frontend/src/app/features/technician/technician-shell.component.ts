@@ -9,6 +9,7 @@ interface NavItem { label: string; icon: string; path: string; }
 
 const NAV_ITEMS: NavItem[] = [
   { label: 'My Assignments', icon: 'calendar_month', path: '/technician/bookings' },
+  { label: 'Back to Main Site', icon: 'home', path: '/' },
 ];
 
 @Component({
@@ -20,7 +21,7 @@ const NAV_ITEMS: NavItem[] = [
       <!-- Sidebar -->
       <aside class="sidebar" [class.open]="sidebarOpen()">
         <div class="sidebar-header">
-          <div class="portal-brand">
+          <a routerLink="/technician/bookings" class="portal-brand" (click)="sidebarOpen.set(false)">
             <div class="brand-icon-wrap">
               <mat-icon class="brand-icon">vaccines</mat-icon>
             </div>
@@ -28,7 +29,7 @@ const NAV_ITEMS: NavItem[] = [
               <span class="brand-title">Sri Health</span>
               <span class="brand-sub">Field Technician</span>
             </div>
-          </div>
+          </a>
           <button class="close-btn" (click)="sidebarOpen.set(false)" aria-label="Close menu">
             <mat-icon>close</mat-icon>
           </button>
@@ -72,12 +73,12 @@ const NAV_ITEMS: NavItem[] = [
           <button class="menu-btn" (click)="sidebarOpen.set(true)" aria-label="Open menu">
             <mat-icon>menu</mat-icon>
           </button>
-          <div class="topbar-brand">
+          <a routerLink="/technician/bookings" class="topbar-brand">
             <div class="topbar-icon-wrap">
               <mat-icon>vaccines</mat-icon>
             </div>
             <span class="topbar-title">Sri Health</span>
-          </div>
+          </a>
           <div class="topbar-spacer"></div>
           <div class="topbar-user">
             <div class="topbar-avatar">{{ initials() }}</div>
@@ -139,6 +140,11 @@ const NAV_ITEMS: NavItem[] = [
       align-items: center;
       gap: .75rem;
       flex: 1;
+      text-decoration: none;
+      color: inherit;
+      border-radius: 8px;
+      transition: opacity .15s;
+      &:hover { opacity: .85; }
     }
 
     .brand-icon-wrap {
@@ -346,6 +352,11 @@ const NAV_ITEMS: NavItem[] = [
       display: flex;
       align-items: center;
       gap: .6rem;
+      text-decoration: none;
+      color: inherit;
+      cursor: pointer;
+      transition: opacity .15s;
+      &:hover { opacity: .8; }
     }
 
     .topbar-icon-wrap {

@@ -35,6 +35,10 @@ export class AdminApiService {
     return this.http.patch<any>(`/admin/users/${id}/deactivate`, {});
   }
 
+  changeUserRole(id: string, newRole: 'user' | 'technician'): Observable<any> {
+    return this.http.patch<any>(`/admin/users/${id}/change-role`, { new_role: newRole });
+  }
+
   // ── Analytics ──────────────────────────────────────────────────────────────
   getAnalytics(params: { date_from?: string; date_to?: string } = {}): Observable<any> {
     let p = new HttpParams();

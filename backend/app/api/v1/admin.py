@@ -16,6 +16,7 @@ from app.middleware.auth import require_roles
 from app.models.service import ServiceRequest
 from app.models.user import User
 from app.schemas.service_areas import ServiceRequestOut
+from app.schemas.users import ChangeUserRoleRequest
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -172,6 +173,64 @@ async def deactivate_user(
     user.tokens_invalidated_at = datetime.now(timezone.utc)
     await db.flush()
     return {"message": "User deactivated"}
+
+
+@router.patch("/users/{user_id}/change-role")
+async def change_user_role(
+    user_id: uuid.UUID,
+    body: ChangeUserRoleRequest,
+    current_user: dict = Depends(require_roles("admin")),
+    db: AsyncSession = Depends(get_db_session),
+) -> dict:
+    """Toggle a user's role between "user" (patient) and "technician".
+
+    Converting to technician creates (or reactivates a previously
+    soft-deleted) Technician profile linked to this user, reusing the same
+    User+Technician linkage as POST /technicians/create-account. Converting
+    back to "user" soft-deletes that profile so they drop out of assignment
+    pools (auto-assign, technician list) immediately.
+    """
+    from fastapi import HTTPException, status as http_status
+    from app.models.service import Technician
+    from app.repositories.technician_repository import TechnicianRepository
+
+    result = await db.execute(select(User).where(User.id == user_id, User.deleted_at.is_(None)))
+    user = result.scalar_one_or_none()
+    if user is None:
+        raise HTTPException(status_code=http_status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    if user.role == body.new_role:
+        raise HTTPException(
+            status_code=http_status.HTTP_400_BAD_REQUEST,
+            detail={"error_code": "ROLE_UNCHANGED", "message": f"User already has role '{body.new_role}'"},
+        )
+    if user.role not in ("user", "technician"):
+        raise HTTPException(
+            status_code=http_status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail={"error_code": "UNSUPPORTED_ROLE_CHANGE", "message": "Only user/technician roles can be toggled here"},
+        )
+
+    tech_repo = TechnicianRepository(db)
+
+    if body.new_role == "technician":
+        # Look up any existing Technician profile for this user, including a
+        # soft-deleted one from a prior user->technician->user round trip.
+        existing_result = await db.execute(select(Technician).where(Technician.user_id == user_id))
+        existing = existing_result.scalar_one_or_none()
+        if existing is not None:
+            existing.is_active = True
+            existing.deleted_at = None
+        else:
+            await tech_repo.create(user_id=user.id, name=user.name, phone=user.phone or "", email=user.email or "")
+        user.role = "technician"
+    else:
+        tech = await tech_repo.get_by_user_id(user_id)
+        if tech is not None:
+            await tech_repo.soft_delete(tech.id)
+        user.role = "user"
+
+    await db.commit()
+    return {"message": f"User role changed to '{body.new_role}'"}
 
 
 # ── Service requests ──────────────────────────────────────────────────────────

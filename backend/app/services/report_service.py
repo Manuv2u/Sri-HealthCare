@@ -59,7 +59,11 @@ class ReportService:
         storage_key = f"reports/{booking_id}/{uuid.uuid4()}.pdf"
         await self.storage.upload(file_bytes, storage_key, "application/pdf")
 
-        # Persist report record
+        # Persist report record. Old reports for this booking are kept, not
+        # deleted — a DB trigger enforces a 90-day retention period on the
+        # `reports` table for audit/compliance, so a delete here would raise.
+        # See list_by_booking() below, which surfaces only the newest report
+        # as the booking's "current" one.
         report = await self.repo.create(
             booking_id=booking_id,
             storage_key=storage_key,
@@ -69,11 +73,15 @@ class ReportService:
             uploader_role=uploader_role,
         )
 
-        # Update booking status to report_ready
-        await self.booking_repo.update_status(
-            booking_id, "report_ready", changed_by=uploaded_by, is_admin=True,
-            reason="Report uploaded"
-        )
+        # Update booking status to report_ready — but not if the report is being
+        # replaced on a booking that's already completed or cancelled; otherwise
+        # a routine re-upload (e.g. a corrected report) would silently revert a
+        # completed booking back to report_ready.
+        if booking.status not in ("completed", "cancelled"):
+            await self.booking_repo.update_status(
+                booking_id, "report_ready", changed_by=uploaded_by, is_admin=True,
+                reason="Report uploaded"
+            )
 
         logger.info("report_uploaded: report_id=%s booking_id=%s", report.id, booking_id)
 
@@ -128,6 +136,11 @@ class ReportService:
 
     async def list_by_booking(self, booking_id: uuid.UUID) -> list[dict]:
         items = await self.repo.list_by_booking(booking_id)
+        # Superseded reports are kept in the DB for the retention period (see
+        # upload_report) but only the most recent upload is the "current"
+        # report for a booking — surface just that one.
+        if items:
+            items = items[:1]
         return [_report_to_dict(r) for r in items]
 
     def validate_download_token(self, token: str) -> dict:

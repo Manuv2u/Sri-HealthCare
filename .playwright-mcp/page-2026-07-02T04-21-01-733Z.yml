@@ -1,0 +1,427 @@
+- main [ref=f6e4]:
+  - generic [ref=f6e6]:
+    - complementary [ref=f6e7]:
+      - generic [ref=f6e8]:
+        - img [ref=f6e10]: local_hospital
+        - generic [ref=f6e11]:
+          - generic [ref=f6e12]: Sri Health
+          - generic [ref=f6e13]: Admin Console
+        - button [ref=f6e14] [cursor=pointer]:
+          - img [ref=f6e15]: chevron_left
+      - navigation [ref=f6e16]:
+        - link "Dashboard" [ref=f6e17] [cursor=pointer]:
+          - /url: /admin/dashboard
+          - img [ref=f6e19]: dashboard
+          - generic [ref=f6e20]: Dashboard
+        - generic [ref=f6e22]: Operations
+        - link "Bookings" [ref=f6e23] [cursor=pointer]:
+          - /url: /admin/bookings
+          - img [ref=f6e25]: calendar_month
+          - generic [ref=f6e26]: Bookings
+        - link "Tests" [ref=f6e28] [cursor=pointer]:
+          - /url: /admin/tests
+          - img [ref=f6e30]: biotech
+          - generic [ref=f6e31]: Tests
+        - link "Packages" [ref=f6e32] [cursor=pointer]:
+          - /url: /admin/packages
+          - img [ref=f6e34]: inventory_2
+          - generic [ref=f6e35]: Packages
+        - link "Users" [ref=f6e36] [cursor=pointer]:
+          - /url: /admin/users
+          - img [ref=f6e38]: people
+          - generic [ref=f6e39]: Users
+        - link "Technicians" [ref=f6e40] [cursor=pointer]:
+          - /url: /admin/technicians
+          - img [ref=f6e42]: engineering
+          - generic [ref=f6e43]: Technicians
+        - link "Lab Branches" [ref=f6e44] [cursor=pointer]:
+          - /url: /admin/lab-branches
+          - img [ref=f6e46]: location_city
+          - generic [ref=f6e47]: Lab Branches
+        - link "Service Areas" [ref=f6e48] [cursor=pointer]:
+          - /url: /admin/service-areas
+          - img [ref=f6e50]: map
+          - generic [ref=f6e51]: Service Areas
+        - generic [ref=f6e53]: Insights
+        - link "Analytics" [ref=f6e54] [cursor=pointer]:
+          - /url: /admin/analytics
+          - img [ref=f6e56]: bar_chart
+          - generic [ref=f6e57]: Analytics
+        - generic [ref=f6e59]: Settings
+        - link "Cancellation" [ref=f6e60] [cursor=pointer]:
+          - /url: /admin/cancellation-config
+          - img [ref=f6e62]: cancel
+          - generic [ref=f6e63]: Cancellation
+        - link "Payment" [ref=f6e64] [cursor=pointer]:
+          - /url: /admin/payment-config
+          - img [ref=f6e66]: payments
+          - generic [ref=f6e67]: Payment
+        - link "Feature Flags" [ref=f6e68] [cursor=pointer]:
+          - /url: /admin/feature-flags
+          - img [ref=f6e70]: toggle_on
+          - generic [ref=f6e71]: Feature Flags
+      - generic [ref=f6e72]:
+        - generic [ref=f6e73]:
+          - img [ref=f6e75]: admin_panel_settings
+          - generic [ref=f6e76]:
+            - generic [ref=f6e77]: Admin
+            - generic [ref=f6e78]: Administrator
+        - generic [ref=f6e79]:
+          - link "Back to App" [ref=f6e80] [cursor=pointer]:
+            - /url: /tests
+            - img [ref=f6e81]: arrow_back
+            - generic [ref=f6e82]: Back to App
+          - button "Sign Out" [ref=f6e83] [cursor=pointer]:
+            - img [ref=f6e84]: logout
+            - generic [ref=f6e85]: Sign Out
+    - generic [ref=f6e86]:
+      - generic [ref=f6e87]:
+        - generic [ref=f6e89]:
+          - generic [ref=f6e90]: Admin
+          - img [ref=f6e91]: chevron_right
+          - generic [ref=f6e92]: Bookings
+        - generic [ref=f6e96]: Admin
+      - generic [ref=f6e99]:
+        - generic [ref=f6e101]:
+          - heading "All Bookings" [level=1] [ref=f6e102]
+          - paragraph [ref=f6e103]: View and manage all patient appointment bookings
+        - generic [ref=f6e104]:
+          - generic [ref=f6e105]:
+            - img [ref=f6e106]
+            - textbox "Search reference number…" [ref=f6e109]
+          - combobox [ref=f6e110] [cursor=pointer]:
+            - option "All Status" [selected]
+            - option "Booked"
+            - option "Technician Assigned"
+            - option "Accepted"
+            - option "On The Way"
+            - option "Sample Collected"
+            - option "Reached Lab"
+            - option "Sample Delivered"
+            - option "Processing"
+            - option "Report Ready"
+            - option "Completed"
+            - option "Cancelled"
+          - combobox [ref=f6e111] [cursor=pointer]:
+            - option "All Types" [selected]
+            - option "Home Collection"
+            - option "Lab Visit"
+          - generic [ref=f6e112]: 34 bookings
+        - table [ref=f6e114]:
+          - rowgroup [ref=f6e115]:
+            - row "Reference Date Type Amount Status Payment Created Actions" [ref=f6e116]:
+              - columnheader "Reference" [ref=f6e117]
+              - columnheader "Date" [ref=f6e118]
+              - columnheader "Type" [ref=f6e119]
+              - columnheader "Amount" [ref=f6e120]
+              - columnheader "Status" [ref=f6e121]
+              - columnheader "Payment" [ref=f6e122]
+              - columnheader "Created" [ref=f6e123]
+              - columnheader "Actions" [ref=f6e124]
+          - rowgroup [ref=f6e125]:
+            - row "SRI-2026-000034 03 Jul 2026 🏠 Home ₹3,999 Report Ready Paid 02 Jul Manage" [ref=f6e126]:
+              - cell "SRI-2026-000034" [ref=f6e127]
+              - cell "03 Jul 2026" [ref=f6e128]
+              - cell "🏠 Home" [ref=f6e129]
+              - cell "₹3,999" [ref=f6e130]
+              - cell "Report Ready" [ref=f6e131]:
+                - generic [ref=f6e133]: Report Ready
+              - cell "Paid" [ref=f6e134]:
+                - generic [ref=f6e136]: Paid
+              - cell "02 Jul" [ref=f6e137]
+              - cell "Manage" [ref=f6e138]:
+                - button "Manage" [ref=f6e139] [cursor=pointer]
+            - row "SRI-2026-000033 02 Jul 2026 🏠 Home ₹493 Booked Paid 02 Jul Manage" [ref=f6e140]:
+              - cell "SRI-2026-000033" [ref=f6e141]
+              - cell "02 Jul 2026" [ref=f6e142]
+              - cell "🏠 Home" [ref=f6e143]
+              - cell "₹493" [ref=f6e144]
+              - cell "Booked" [ref=f6e145]:
+                - generic [ref=f6e147]: Booked
+              - cell "Paid" [ref=f6e148]:
+                - generic [ref=f6e150]: Paid
+              - cell "02 Jul" [ref=f6e151]
+              - cell "Manage" [ref=f6e152]:
+                - button "Manage" [ref=f6e153] [cursor=pointer]
+            - row "SRI-2026-000032 02 Jul 2026 🏥 Lab ₹3,999 Report Ready Paid 01 Jul Manage" [ref=f6e154]:
+              - cell "SRI-2026-000032" [ref=f6e155]
+              - cell "02 Jul 2026" [ref=f6e156]
+              - cell "🏥 Lab" [ref=f6e157]
+              - cell "₹3,999" [ref=f6e158]
+              - cell "Report Ready" [ref=f6e159]:
+                - generic [ref=f6e161]: Report Ready
+              - cell "Paid" [ref=f6e162]:
+                - generic [ref=f6e164]: Paid
+              - cell "01 Jul" [ref=f6e165]
+              - cell "Manage" [ref=f6e166]:
+                - button "Manage" [ref=f6e167] [cursor=pointer]
+            - row "SRI-2026-000031 02 Jul 2026 🏠 Home ₹585 Technician Assigned Paid 01 Jul Manage" [ref=f6e168]:
+              - cell "SRI-2026-000031" [ref=f6e169]
+              - cell "02 Jul 2026" [ref=f6e170]
+              - cell "🏠 Home" [ref=f6e171]
+              - cell "₹585" [ref=f6e172]
+              - cell "Technician Assigned" [ref=f6e173]:
+                - generic [ref=f6e175]: Technician Assigned
+              - cell "Paid" [ref=f6e176]:
+                - generic [ref=f6e178]: Paid
+              - cell "01 Jul" [ref=f6e179]
+              - cell "Manage" [ref=f6e180]:
+                - button "Manage" [ref=f6e181] [cursor=pointer]
+            - row "SRI-2026-000030 02 Jul 2026 🏠 Home ₹585 Technician Assigned Paid 01 Jul Manage" [ref=f6e182]:
+              - cell "SRI-2026-000030" [ref=f6e183]
+              - cell "02 Jul 2026" [ref=f6e184]
+              - cell "🏠 Home" [ref=f6e185]
+              - cell "₹585" [ref=f6e186]
+              - cell "Technician Assigned" [ref=f6e187]:
+                - generic [ref=f6e189]: Technician Assigned
+              - cell "Paid" [ref=f6e190]:
+                - generic [ref=f6e192]: Paid
+              - cell "01 Jul" [ref=f6e193]
+              - cell "Manage" [ref=f6e194]:
+                - button "Manage" [ref=f6e195] [cursor=pointer]
+            - row "SRI-2026-000029 02 Jul 2026 🏠 Home ₹4,418.35 Accepted Pending 01 Jul Manage" [ref=f6e196]:
+              - cell "SRI-2026-000029" [ref=f6e197]
+              - cell "02 Jul 2026" [ref=f6e198]
+              - cell "🏠 Home" [ref=f6e199]
+              - cell "₹4,418.35" [ref=f6e200]
+              - cell "Accepted" [ref=f6e201]:
+                - generic [ref=f6e203]: Accepted
+              - cell "Pending" [ref=f6e204]:
+                - generic [ref=f6e206]: Pending
+              - cell "01 Jul" [ref=f6e207]
+              - cell "Manage" [ref=f6e208]:
+                - button "Manage" [ref=f6e209] [cursor=pointer]
+            - row "SRI-2026-000028 09 Jul 2026 🏥 Lab ₹315 Technician Assigned Pending 01 Jul Manage" [ref=f6e210]:
+              - cell "SRI-2026-000028" [ref=f6e211]
+              - cell "09 Jul 2026" [ref=f6e212]
+              - cell "🏥 Lab" [ref=f6e213]
+              - cell "₹315" [ref=f6e214]
+              - cell "Technician Assigned" [ref=f6e215]:
+                - generic [ref=f6e217]: Technician Assigned
+              - cell "Pending" [ref=f6e218]:
+                - generic [ref=f6e220]: Pending
+              - cell "01 Jul" [ref=f6e221]
+              - cell "Manage" [ref=f6e222]:
+                - button "Manage" [ref=f6e223] [cursor=pointer]
+            - row "SRI-2026-000027 01 Jul 2026 🏥 Lab ₹9,999 Cancelled Paid 01 Jul Manage" [ref=f6e224]:
+              - cell "SRI-2026-000027" [ref=f6e225]
+              - cell "01 Jul 2026" [ref=f6e226]
+              - cell "🏥 Lab" [ref=f6e227]
+              - cell "₹9,999" [ref=f6e228]
+              - cell "Cancelled" [ref=f6e229]:
+                - generic [ref=f6e231]: Cancelled
+              - cell "Paid" [ref=f6e232]:
+                - generic [ref=f6e234]: Paid
+              - cell "01 Jul" [ref=f6e235]
+              - cell "Manage" [ref=f6e236]:
+                - button "Manage" [ref=f6e237] [cursor=pointer]
+            - row "SRI-2026-000026 30 Jun 2026 🏠 Home ₹9,999 Completed Pending 01 Jul Manage" [ref=f6e238]:
+              - cell "SRI-2026-000026" [ref=f6e239]
+              - cell "30 Jun 2026" [ref=f6e240]
+              - cell "🏠 Home" [ref=f6e241]
+              - cell "₹9,999" [ref=f6e242]
+              - cell "Completed" [ref=f6e243]:
+                - generic [ref=f6e245]: Completed
+              - cell "Pending" [ref=f6e246]:
+                - generic [ref=f6e248]: Pending
+              - cell "01 Jul" [ref=f6e249]
+              - cell "Manage" [ref=f6e250]:
+                - button "Manage" [ref=f6e251] [cursor=pointer]
+            - row "SRI-2026-000025 30 Jun 2026 🏠 Home ₹9,999 Completed Pending 01 Jul Manage" [ref=f6e252]:
+              - cell "SRI-2026-000025" [ref=f6e253]
+              - cell "30 Jun 2026" [ref=f6e254]
+              - cell "🏠 Home" [ref=f6e255]
+              - cell "₹9,999" [ref=f6e256]
+              - cell "Completed" [ref=f6e257]:
+                - generic [ref=f6e259]: Completed
+              - cell "Pending" [ref=f6e260]:
+                - generic [ref=f6e262]: Pending
+              - cell "01 Jul" [ref=f6e263]
+              - cell "Manage" [ref=f6e264]:
+                - button "Manage" [ref=f6e265] [cursor=pointer]
+            - row "SRI-2026-000024 01 Jul 2026 🏥 Lab ₹315 Booked Pending 01 Jul Manage" [ref=f6e266]:
+              - cell "SRI-2026-000024" [ref=f6e267]
+              - cell "01 Jul 2026" [ref=f6e268]
+              - cell "🏥 Lab" [ref=f6e269]
+              - cell "₹315" [ref=f6e270]
+              - cell "Booked" [ref=f6e271]:
+                - generic [ref=f6e273]: Booked
+              - cell "Pending" [ref=f6e274]:
+                - generic [ref=f6e276]: Pending
+              - cell "01 Jul" [ref=f6e277]
+              - cell "Manage" [ref=f6e278]:
+                - button "Manage" [ref=f6e279] [cursor=pointer]
+            - row "SRI-2026-000023 30 Jun 2026 🏠 Home ₹912 Booked Pending 30 Jun Manage" [ref=f6e280]:
+              - cell "SRI-2026-000023" [ref=f6e281]
+              - cell "30 Jun 2026" [ref=f6e282]
+              - cell "🏠 Home" [ref=f6e283]
+              - cell "₹912" [ref=f6e284]
+              - cell "Booked" [ref=f6e285]:
+                - generic [ref=f6e287]: Booked
+              - cell "Pending" [ref=f6e288]:
+                - generic [ref=f6e290]: Pending
+              - cell "30 Jun" [ref=f6e291]
+              - cell "Manage" [ref=f6e292]:
+                - button "Manage" [ref=f6e293] [cursor=pointer]
+            - row "SRI-2026-000022 29 Jun 2026 🏥 Lab ₹4,418.35 Booked Pending 30 Jun Manage" [ref=f6e294]:
+              - cell "SRI-2026-000022" [ref=f6e295]
+              - cell "29 Jun 2026" [ref=f6e296]
+              - cell "🏥 Lab" [ref=f6e297]
+              - cell "₹4,418.35" [ref=f6e298]
+              - cell "Booked" [ref=f6e299]:
+                - generic [ref=f6e301]: Booked
+              - cell "Pending" [ref=f6e302]:
+                - generic [ref=f6e304]: Pending
+              - cell "30 Jun" [ref=f6e305]
+              - cell "Manage" [ref=f6e306]:
+                - button "Manage" [ref=f6e307] [cursor=pointer]
+            - row "SRI-2026-000021 30 Jun 2026 🏥 Lab ₹2,198 Completed Pending 30 Jun Manage" [ref=f6e308]:
+              - cell "SRI-2026-000021" [ref=f6e309]
+              - cell "30 Jun 2026" [ref=f6e310]
+              - cell "🏥 Lab" [ref=f6e311]
+              - cell "₹2,198" [ref=f6e312]
+              - cell "Completed" [ref=f6e313]:
+                - generic [ref=f6e315]: Completed
+              - cell "Pending" [ref=f6e316]:
+                - generic [ref=f6e318]: Pending
+              - cell "30 Jun" [ref=f6e319]
+              - cell "Manage" [ref=f6e320]:
+                - button "Manage" [ref=f6e321] [cursor=pointer]
+            - row "SRI-2026-000020 22 Jun 2026 🏥 Lab ₹432 Completed Pending 22 Jun Manage" [ref=f6e322]:
+              - cell "SRI-2026-000020" [ref=f6e323]
+              - cell "22 Jun 2026" [ref=f6e324]
+              - cell "🏥 Lab" [ref=f6e325]
+              - cell "₹432" [ref=f6e326]
+              - cell "Completed" [ref=f6e327]:
+                - generic [ref=f6e329]: Completed
+              - cell "Pending" [ref=f6e330]:
+                - generic [ref=f6e332]: Pending
+              - cell "22 Jun" [ref=f6e333]
+              - cell "Manage" [ref=f6e334]:
+                - button "Manage" [ref=f6e335] [cursor=pointer]
+            - row "SRI-2026-000019 22 Jun 2026 🏥 Lab ₹1,431 Sample Collected Pending 22 Jun Manage" [ref=f6e336]:
+              - cell "SRI-2026-000019" [ref=f6e337]
+              - cell "22 Jun 2026" [ref=f6e338]
+              - cell "🏥 Lab" [ref=f6e339]
+              - cell "₹1,431" [ref=f6e340]
+              - cell "Sample Collected" [ref=f6e341]:
+                - generic [ref=f6e343]: Sample Collected
+              - cell "Pending" [ref=f6e344]:
+                - generic [ref=f6e346]: Pending
+              - cell "22 Jun" [ref=f6e347]
+              - cell "Manage" [ref=f6e348]:
+                - button "Manage" [ref=f6e349] [cursor=pointer]
+            - row "SRI-2026-000018 26 Jun 2026 🏥 Lab ₹280 Cancelled Pending 20 Jun Manage" [ref=f6e350]:
+              - cell "SRI-2026-000018" [ref=f6e351]
+              - cell "26 Jun 2026" [ref=f6e352]
+              - cell "🏥 Lab" [ref=f6e353]
+              - cell "₹280" [ref=f6e354]
+              - cell "Cancelled" [ref=f6e355]:
+                - generic [ref=f6e357]: Cancelled
+              - cell "Pending" [ref=f6e358]:
+                - generic [ref=f6e360]: Pending
+              - cell "20 Jun" [ref=f6e361]
+              - cell "Manage" [ref=f6e362]:
+                - button "Manage" [ref=f6e363] [cursor=pointer]
+            - row "SRI-2026-000017 20 Jun 2026 🏥 Lab ₹999 Unable To Collect Pending 20 Jun Manage" [ref=f6e364]:
+              - cell "SRI-2026-000017" [ref=f6e365]
+              - cell "20 Jun 2026" [ref=f6e366]
+              - cell "🏥 Lab" [ref=f6e367]
+              - cell "₹999" [ref=f6e368]
+              - cell "Unable To Collect" [ref=f6e369]:
+                - generic [ref=f6e371]: Unable To Collect
+              - cell "Pending" [ref=f6e372]:
+                - generic [ref=f6e374]: Pending
+              - cell "20 Jun" [ref=f6e375]
+              - cell "Manage" [ref=f6e376]:
+                - button "Manage" [ref=f6e377] [cursor=pointer]
+            - row "SRI-2026-000016 29 Mar 2026 🏥 Lab ₹999 Booked Pending 29 Mar Manage" [ref=f6e378]:
+              - cell "SRI-2026-000016" [ref=f6e379]
+              - cell "29 Mar 2026" [ref=f6e380]
+              - cell "🏥 Lab" [ref=f6e381]
+              - cell "₹999" [ref=f6e382]
+              - cell "Booked" [ref=f6e383]:
+                - generic [ref=f6e385]: Booked
+              - cell "Pending" [ref=f6e386]:
+                - generic [ref=f6e388]: Pending
+              - cell "29 Mar" [ref=f6e389]
+              - cell "Manage" [ref=f6e390]:
+                - button "Manage" [ref=f6e391] [cursor=pointer]
+            - row "SRI-2026-000015 28 Mar 2026 🏥 Lab ₹432 Booked Pending 29 Mar Manage" [ref=f6e392]:
+              - cell "SRI-2026-000015" [ref=f6e393]
+              - cell "28 Mar 2026" [ref=f6e394]
+              - cell "🏥 Lab" [ref=f6e395]
+              - cell "₹432" [ref=f6e396]
+              - cell "Booked" [ref=f6e397]:
+                - generic [ref=f6e399]: Booked
+              - cell "Pending" [ref=f6e400]:
+                - generic [ref=f6e402]: Pending
+              - cell "29 Mar" [ref=f6e403]
+              - cell "Manage" [ref=f6e404]:
+                - button "Manage" [ref=f6e405] [cursor=pointer]
+            - row "SRI-2026-000014 24 Mar 2026 🏥 Lab ₹7,829 Booked Pending 21 Mar Manage" [ref=f6e406]:
+              - cell "SRI-2026-000014" [ref=f6e407]
+              - cell "24 Mar 2026" [ref=f6e408]
+              - cell "🏥 Lab" [ref=f6e409]
+              - cell "₹7,829" [ref=f6e410]
+              - cell "Booked" [ref=f6e411]:
+                - generic [ref=f6e413]: Booked
+              - cell "Pending" [ref=f6e414]:
+                - generic [ref=f6e416]: Pending
+              - cell "21 Mar" [ref=f6e417]
+              - cell "Manage" [ref=f6e418]:
+                - button "Manage" [ref=f6e419] [cursor=pointer]
+            - row "SRI-2026-000013 25 Mar 2026 🏥 Lab ₹400 Booked Pending 21 Mar Manage" [ref=f6e420]:
+              - cell "SRI-2026-000013" [ref=f6e421]
+              - cell "25 Mar 2026" [ref=f6e422]
+              - cell "🏥 Lab" [ref=f6e423]
+              - cell "₹400" [ref=f6e424]
+              - cell "Booked" [ref=f6e425]:
+                - generic [ref=f6e427]: Booked
+              - cell "Pending" [ref=f6e428]:
+                - generic [ref=f6e430]: Pending
+              - cell "21 Mar" [ref=f6e431]
+              - cell "Manage" [ref=f6e432]:
+                - button "Manage" [ref=f6e433] [cursor=pointer]
+            - row "SRI-2026-000012 26 Mar 2026 🏥 Lab ₹400 Booked Pending 21 Mar Manage" [ref=f6e434]:
+              - cell "SRI-2026-000012" [ref=f6e435]
+              - cell "26 Mar 2026" [ref=f6e436]
+              - cell "🏥 Lab" [ref=f6e437]
+              - cell "₹400" [ref=f6e438]
+              - cell "Booked" [ref=f6e439]:
+                - generic [ref=f6e441]: Booked
+              - cell "Pending" [ref=f6e442]:
+                - generic [ref=f6e444]: Pending
+              - cell "21 Mar" [ref=f6e445]
+              - cell "Manage" [ref=f6e446]:
+                - button "Manage" [ref=f6e447] [cursor=pointer]
+            - row "SRI-2026-000011 23 Mar 2026 🏥 Lab ₹705 Booked Pending 21 Mar Manage" [ref=f6e448]:
+              - cell "SRI-2026-000011" [ref=f6e449]
+              - cell "23 Mar 2026" [ref=f6e450]
+              - cell "🏥 Lab" [ref=f6e451]
+              - cell "₹705" [ref=f6e452]
+              - cell "Booked" [ref=f6e453]:
+                - generic [ref=f6e455]: Booked
+              - cell "Pending" [ref=f6e456]:
+                - generic [ref=f6e458]: Pending
+              - cell "21 Mar" [ref=f6e459]
+              - cell "Manage" [ref=f6e460]:
+                - button "Manage" [ref=f6e461] [cursor=pointer]
+            - row "SRI-2026-000010 25 Mar 2026 🏥 Lab ₹120 Booked Pending 21 Mar Manage" [ref=f6e462]:
+              - cell "SRI-2026-000010" [ref=f6e463]
+              - cell "25 Mar 2026" [ref=f6e464]
+              - cell "🏥 Lab" [ref=f6e465]
+              - cell "₹120" [ref=f6e466]
+              - cell "Booked" [ref=f6e467]:
+                - generic [ref=f6e469]: Booked
+              - cell "Pending" [ref=f6e470]:
+                - generic [ref=f6e472]: Pending
+              - cell "21 Mar" [ref=f6e473]
+              - cell "Manage" [ref=f6e474]:
+                - button "Manage" [ref=f6e475] [cursor=pointer]
+        - generic [ref=f6e476]:
+          - button [disabled] [ref=f6e477]:
+            - img [ref=f6e478]
+          - generic [ref=f6e480]: Page 1 of 2
+          - button [ref=f6e481] [cursor=pointer]:
+            - img [ref=f6e482]

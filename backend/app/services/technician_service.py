@@ -96,6 +96,26 @@ class TechnicianService:
             )
         await self.repo.soft_delete(technician_id)
 
+    def _validate_technician_applicable(self, booking) -> None:  # type: ignore[no-untyped-def]
+        """Technician assignment only makes sense for home-collection bookings —
+        patients visit the lab themselves for lab-visit bookings."""
+        if booking.collection_type != "home":
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail={
+                    "error_code": "TECHNICIAN_NOT_APPLICABLE",
+                    "message": "Technician assignment only applies to home collection bookings",
+                },
+            )
+        if booking.payment_status != "paid":
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail={
+                    "error_code": "PAYMENT_REQUIRED",
+                    "message": "This home collection booking must be paid before a technician can be assigned",
+                },
+            )
+
     async def assign_to_booking(
         self,
         technician_id: uuid.UUID,
@@ -120,6 +140,8 @@ class TechnicianService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail={"error_code": "BOOKING_NOT_FOUND", "message": "Booking not found"},
             )
+
+        self._validate_technician_applicable(booking)
 
         # Check daily booking limit
         count = await self.repo.get_daily_booking_count(technician_id, booking.booking_date)
@@ -264,6 +286,8 @@ class TechnicianService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail={"error_code": "BOOKING_NOT_FOUND", "message": "Booking not found"},
             )
+
+        self._validate_technician_applicable(booking)
 
         # Resolve service area from pincode or lab_branch
         service_area = None

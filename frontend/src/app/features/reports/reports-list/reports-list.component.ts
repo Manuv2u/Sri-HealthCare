@@ -362,6 +362,8 @@ import { PaginationComponent } from '../../../shared/components/pagination.compo
       top: 50%;
       transform: translateY(-50%);
       pointer-events: none;
+      width: 16px;
+      height: 16px;
     }
 
     .rl-search {

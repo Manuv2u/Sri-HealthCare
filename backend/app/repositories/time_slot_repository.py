@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.booking import BookingSlotCount
 from app.models.service import TimeSlot
+from app.utils import timezone as lab_tz
 
 
 class TimeSlotRepository:
@@ -106,8 +107,14 @@ class TimeSlotRepository:
         result = await self.db.execute(stmt)
         rows = result.all()
 
+        local_now = lab_tz.local_now()
+        is_today = booking_date == local_now.date()
+
         available = []
         for row in rows:
+            if is_today and row.start_time <= local_now.time():
+                continue
+
             remaining = row.slot_capacity - row.confirmed_count
             if remaining > 0:
                 # Format label e.g. "7:00 AM – 8:00 AM"

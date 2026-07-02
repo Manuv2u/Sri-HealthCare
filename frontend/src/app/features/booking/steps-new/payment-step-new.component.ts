@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { BookingWizardStore } from '../../../core/store/booking-wizard.store';
 import { BookingApiService } from '../../../core/api/services/booking-api.service';
 import { PaymentApiService } from '../../../core/api/services/payment-api.service';
+import { SettingsApiService, CancellationSetting } from '../../../core/api/services/settings-api.service';
 import { ButtonComponent, SpinnerComponent, BadgeComponent, AlertComponent } from '../../../shared/components';
 
 @Component({
@@ -100,11 +101,19 @@ import { ButtonComponent, SpinnerComponent, BadgeComponent, AlertComponent } fro
         </div>
       </div>
 
+      <!-- Cancellation charge notice (home collection only) -->
+      @if (store.collectionType() === 'home' && cancellationNoticeText()) {
+        <div class="notice-banner">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span>{{ cancellationNoticeText() }}</span>
+        </div>
+      }
+
       <!-- Payment Methods -->
       <div class="payment-methods">
         <h4 class="methods-title">Payment Method</h4>
-        
-        <button 
+
+        <button
           type="button"
           class="method-card"
           [class.method-card--selected]="selectedMethod() === 'online'"
@@ -127,27 +136,29 @@ import { ButtonComponent, SpinnerComponent, BadgeComponent, AlertComponent } fro
           </div>
         </button>
 
-        <button 
-          type="button"
-          class="method-card"
-          [class.method-card--selected]="selectedMethod() === 'cod'"
-          (click)="selectMethod('cod')"
-        >
-          <div class="method-card__icon method-card__icon--cod">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
-            </svg>
-          </div>
-          <div class="method-card__content">
-            <span class="method-card__name">Pay on Collection</span>
-            <span class="method-card__desc">Cash or UPI at the time of sample collection</span>
-          </div>
-          <div class="method-card__check" [class.method-card__check--visible]="selectedMethod() === 'cod'">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <polyline points="20 6 9 17 4 12"/>
-            </svg>
-          </div>
-        </button>
+        @if (store.collectionType() === 'lab') {
+          <button
+            type="button"
+            class="method-card"
+            [class.method-card--selected]="selectedMethod() === 'cod'"
+            (click)="selectMethod('cod')"
+          >
+            <div class="method-card__icon method-card__icon--cod">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+              </svg>
+            </div>
+            <div class="method-card__content">
+              <span class="method-card__name">Pay at Lab</span>
+              <span class="method-card__desc">Cash, card or UPI at the lab — no payment required now</span>
+            </div>
+            <div class="method-card__check" [class.method-card__check--visible]="selectedMethod() === 'cod'">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </div>
+          </button>
+        }
       </div>
 
       <!-- Error Alert -->
@@ -312,6 +323,27 @@ import { ButtonComponent, SpinnerComponent, BadgeComponent, AlertComponent } fro
       color: #0F172A;
     }
 
+    /* Cancellation notice */
+    .notice-banner {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.625rem;
+      background: #FFF7ED;
+      border: 1px solid #FED7AA;
+      color: #9A3412;
+      border-radius: 0.75rem;
+      padding: 0.875rem 1rem;
+      font-size: 0.8125rem;
+      line-height: 1.5;
+
+      svg {
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+        margin-top: 1px;
+      }
+    }
+
     /* Payment Methods */
     .payment-methods {
       display: flex;
@@ -446,12 +478,14 @@ export class PaymentStepNewComponent implements OnInit {
   readonly store = inject(BookingWizardStore);
   private bookingApi = inject(BookingApiService);
   private paymentApi = inject(PaymentApiService);
+  private settingsApi = inject(SettingsApiService);
   private router = inject(Router);
 
   /* State */
   selectedMethod = signal<'online' | 'cod'>('online');
   processing = signal(false);
   error = signal<string | null>(null);
+  cancellationSetting = signal<CancellationSetting | null>(null);
 
   subtotal = computed(() => {
     const testsTotal = this.store.selectedTests().reduce((sum, t) => sum + t.price, 0);
@@ -463,9 +497,28 @@ export class PaymentStepNewComponent implements OnInit {
 
   totalAmount = computed(() => this.subtotal() + this.gstAmount());
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.settingsApi.getCancellationSetting().subscribe({
+      next: s => this.cancellationSetting.set(s),
+      error: () => this.cancellationSetting.set(null),
+    });
+    // Lab-visit bookings default to "cod" (pay at lab); home-collection bookings
+    // must pay online — the "Pay at Lab" card is hidden for home above, but
+    // guard the default here too in case collection type changes mid-flow.
+    if (this.store.collectionType() !== 'home') {
+      this.selectedMethod.set('cod');
+    }
+  }
+
+  cancellationNoticeText(): string {
+    const s = this.cancellationSetting();
+    if (!s) return '';
+    const amount = s.charge_type === 'percentage' ? `${s.charge_value}%` : `₹${s.charge_value}`;
+    return `Home Collection bookings may incur a ${amount} cancellation charge if cancelled after confirmation or technician assignment.`;
+  }
 
   selectMethod(method: 'online' | 'cod'): void {
+    if (method === 'cod' && this.store.collectionType() === 'home') return;
     this.selectedMethod.set(method);
   }
 

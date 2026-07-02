@@ -41,6 +41,7 @@ class Settings(BaseSettings):
 
     # Business rules
     gst_rate: float = 0.18
+    lab_timezone: str = "Asia/Kolkata"
 
     # Environment
     env_profile: str = "local"

@@ -5,7 +5,13 @@ import uuid
 from datetime import date, datetime
 
 from pydantic import BaseModel, field_validator, model_validator
-from typing import Any
+from typing import Any, Literal
+
+
+class ChangeUserRoleRequest(BaseModel):
+    # Deliberately excludes "admin" — role escalation to admin is a separate,
+    # higher-risk action than the user<->technician toggle this endpoint serves.
+    new_role: Literal["user", "technician"]
 
 
 class UserProfileOut(BaseModel):

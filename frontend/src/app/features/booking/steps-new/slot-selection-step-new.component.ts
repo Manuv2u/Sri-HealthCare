@@ -80,12 +80,12 @@ interface DateOption {
         } @else {
           <div class="slots-grid">
             @for (slot of availableSlots(); track slot.id) {
-              <button 
+              <button
                 type="button"
                 class="slot-card"
                 [class.slot-card--selected]="selectedSlotId() === slot.id"
-                [class.slot-card--full]="slot.remaining_capacity <= 0"
-                [disabled]="slot.remaining_capacity <= 0"
+                [class.slot-card--full]="slot.remaining_capacity <= 0 || isSlotPast(slot)"
+                [disabled]="slot.remaining_capacity <= 0 || isSlotPast(slot)"
                 (click)="selectSlot(slot)"
               >
                 <div class="slot-card__time">
@@ -95,7 +95,9 @@ interface DateOption {
                   {{ formatTime(slot.start_time) }} - {{ formatTime(slot.end_time) }}
                 </div>
                 <div class="slot-card__info">
-                  @if (slot.remaining_capacity <= 0) {
+                  @if (isSlotPast(slot)) {
+                    <app-badge variant="error" size="sm">Passed</app-badge>
+                  } @else if (slot.remaining_capacity <= 0) {
                     <app-badge variant="error" size="sm">Full</app-badge>
                   } @else if (slot.remaining_capacity <= 3) {
                     <app-badge variant="warning" size="sm">{{ slot.remaining_capacity }} left</app-badge>
@@ -541,8 +543,20 @@ export class SlotSelectionStepNewComponent implements OnInit {
   }
 
   selectSlot(slot: TimeSlot): void {
-    if (slot.remaining_capacity <= 0) return;
+    if (slot.remaining_capacity <= 0 || this.isSlotPast(slot)) return;
     this.selectedSlotId.set(slot.id);
+  }
+
+  /** UX-only guard against picking an already-passed slot for today — the
+   * backend is the actual source of truth and re-validates on booking creation. */
+  isSlotPast(slot: TimeSlot): boolean {
+    const todayStr = this.dateOptions().find(d => d.isToday)?.dateStr;
+    if (this.selectedDate() !== todayStr) return false;
+
+    const [hours, minutes] = slot.start_time.split(':').map(Number);
+    const slotDate = new Date();
+    slotDate.setHours(hours, minutes, 0, 0);
+    return slotDate.getTime() <= Date.now();
   }
 
   formatTime(time: string): string {

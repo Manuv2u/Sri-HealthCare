@@ -101,6 +101,8 @@ class BookingOut(BaseModel):
     payment: dict | None = None
     assigned_technician: dict | None = None
     status_history: list[dict] = []
+    reports: list[dict] = []
+    refund: dict | None = None
 
     model_config = {"from_attributes": True}
 

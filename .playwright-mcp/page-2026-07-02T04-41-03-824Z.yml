@@ -1,0 +1,111 @@
+- main [ref=e4]:
+  - generic [ref=e6]:
+    - complementary [ref=e7]:
+      - generic [ref=e8]:
+        - img [ref=e10]: local_hospital
+        - generic [ref=e11]:
+          - generic [ref=e12]: Sri Health
+          - generic [ref=e13]: Admin Console
+        - button [ref=e14] [cursor=pointer]:
+          - img [ref=e15]: chevron_left
+      - navigation [ref=e16]:
+        - link "Dashboard" [ref=e17] [cursor=pointer]:
+          - /url: /admin/dashboard
+          - img [ref=e19]: dashboard
+          - generic [ref=e20]: Dashboard
+        - generic [ref=e22]: Operations
+        - link "Bookings" [ref=e23] [cursor=pointer]:
+          - /url: /admin/bookings
+          - img [ref=e25]: calendar_month
+          - generic [ref=e26]: Bookings
+        - link "Tests" [ref=e28] [cursor=pointer]:
+          - /url: /admin/tests
+          - img [ref=e30]: biotech
+          - generic [ref=e31]: Tests
+        - link "Packages" [ref=e32] [cursor=pointer]:
+          - /url: /admin/packages
+          - img [ref=e34]: inventory_2
+          - generic [ref=e35]: Packages
+        - link "Users" [ref=e36] [cursor=pointer]:
+          - /url: /admin/users
+          - img [ref=e38]: people
+          - generic [ref=e39]: Users
+        - link "Technicians" [ref=e40] [cursor=pointer]:
+          - /url: /admin/technicians
+          - img [ref=e42]: engineering
+          - generic [ref=e43]: Technicians
+        - link "Lab Branches" [ref=e44] [cursor=pointer]:
+          - /url: /admin/lab-branches
+          - img [ref=e46]: location_city
+          - generic [ref=e47]: Lab Branches
+        - link "Service Areas" [ref=e48] [cursor=pointer]:
+          - /url: /admin/service-areas
+          - img [ref=e50]: map
+          - generic [ref=e51]: Service Areas
+        - generic [ref=e53]: Insights
+        - link "Analytics" [ref=e54] [cursor=pointer]:
+          - /url: /admin/analytics
+          - img [ref=e56]: bar_chart
+          - generic [ref=e57]: Analytics
+        - generic [ref=e59]: Settings
+        - link "Cancellation" [ref=e60] [cursor=pointer]:
+          - /url: /admin/cancellation-config
+          - img [ref=e62]: cancel
+          - generic [ref=e63]: Cancellation
+        - link "Payment" [ref=e64] [cursor=pointer]:
+          - /url: /admin/payment-config
+          - img [ref=e66]: payments
+          - generic [ref=e67]: Payment
+        - link "Feature Flags" [ref=e68] [cursor=pointer]:
+          - /url: /admin/feature-flags
+          - img [ref=e70]: toggle_on
+          - generic [ref=e71]: Feature Flags
+      - generic [ref=e72]:
+        - generic [ref=e73]:
+          - img [ref=e75]: admin_panel_settings
+          - generic [ref=e76]:
+            - generic [ref=e77]: Admin
+            - generic [ref=e78]: Administrator
+        - generic [ref=e79]:
+          - link "Back to App" [ref=e80] [cursor=pointer]:
+            - /url: /tests
+            - img [ref=e81]: arrow_back
+            - generic [ref=e82]: Back to App
+          - button "Sign Out" [ref=e83] [cursor=pointer]:
+            - img [ref=e84]: logout
+            - generic [ref=e85]: Sign Out
+    - generic [ref=e86]:
+      - generic [ref=e87]:
+        - generic [ref=e89]:
+          - generic [ref=e90]: Admin
+          - img [ref=e91]: chevron_right
+          - generic [ref=e92]: Bookings
+        - generic [ref=e96]: Admin
+      - generic [ref=e99]:
+        - generic [ref=e101]:
+          - heading "All Bookings" [level=1] [ref=e102]
+          - paragraph [ref=e103]: View and manage all patient appointment bookings
+        - generic [ref=e104]:
+          - generic [ref=e105]:
+            - img [ref=e106]
+            - textbox "Search reference number…" [ref=e109]
+          - combobox [ref=e110] [cursor=pointer]:
+            - option "All Status" [selected]
+            - option "Booked"
+            - option "Technician Assigned"
+            - option "Accepted"
+            - option "On The Way"
+            - option "Sample Collected"
+            - option "Reached Lab"
+            - option "Sample Delivered"
+            - option "Processing"
+            - option "Report Ready"
+            - option "Completed"
+            - option "Cancelled"
+          - combobox [ref=e111] [cursor=pointer]:
+            - option "All Types" [selected]
+            - option "Home Collection"
+            - option "Lab Visit"
+          - generic [ref=e112]: 0 bookings
+        - status "Loading" [ref=e115]:
+          - img [ref=e116]

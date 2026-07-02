@@ -225,12 +225,14 @@ class BookingService:
 
     async def _enrich_detail(self, data: dict, booking: Booking) -> None:
         """Augment a booking dict with patient, contact, address, slot, lab, payment,
-        assigned technician and full status-history timeline for the detail view."""
+        assigned technician, uploaded reports, refund status and full status-history
+        timeline for the detail view."""
         from sqlalchemy import select
         from app.models.user import User, FamilyMember, UserAddress
         from app.models.service import TimeSlot, LabBranch, Technician, TechnicianAssignment
-        from app.models.payment import Payment
+        from app.models.payment import Payment, Refund
         from app.models.booking import BookingStatusHistory
+        from app.services.report_service import ReportService
 
         # ── Booking owner (contact) ──
         owner = (await self.db.execute(select(User).where(User.id == booking.user_id))).scalar_one_or_none()
@@ -294,13 +296,38 @@ class BookingService:
         payment = (await self.db.execute(select(Payment).where(Payment.booking_id == booking.id))).scalar_one_or_none()
         if payment is not None:
             data["payment"] = {
+                "id": str(payment.id),
                 "method": payment.method,
                 "status": payment.status,
                 "amount": float(payment.amount),
                 "gst_amount": float(payment.gst_amount),
                 "invoice_number": payment.invoice_number,
                 "paid_at": payment.paid_at.isoformat() if payment.paid_at else None,
+                "notes": payment.notes,
             }
+
+            # ── Refund (latest, if any) ──
+            refund = (
+                await self.db.execute(
+                    select(Refund)
+                    .where(Refund.payment_id == payment.id)
+                    .order_by(Refund.initiated_at.desc())
+                )
+            ).scalars().first()
+            if refund is not None:
+                data["refund"] = {
+                    "id": str(refund.id),
+                    "amount": float(refund.amount),
+                    "reason": refund.reason,
+                    "status": refund.status,
+                    "transaction_reference": refund.transaction_reference,
+                    "remarks": refund.remarks,
+                    "initiated_at": refund.initiated_at.isoformat() if refund.initiated_at else None,
+                    "completed_at": refund.completed_at.isoformat() if refund.completed_at else None,
+                }
+
+        # ── Uploaded reports ──
+        data["reports"] = await ReportService(self.db).list_by_booking(booking.id)
 
         # ── Assigned technician ──
         assignment = (

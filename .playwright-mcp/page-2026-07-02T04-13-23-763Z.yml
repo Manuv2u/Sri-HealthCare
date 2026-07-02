@@ -1,0 +1,37 @@
+- generic [ref=f2e3]:
+  - banner [ref=f2e4]:
+    - generic [ref=f2e6]:
+      - link "Sri Health Sri Health Diagnostics" [ref=f2e7] [cursor=pointer]:
+        - /url: /
+        - img "Sri Health" [ref=f2e8]
+        - generic [ref=f2e9]:
+          - generic [ref=f2e10]: Sri Health
+          - generic [ref=f2e11]: Diagnostics
+      - navigation [ref=f2e12]:
+        - link "Home" [ref=f2e13] [cursor=pointer]:
+          - /url: /
+        - link "Tests" [ref=f2e14] [cursor=pointer]:
+          - /url: /tests
+        - link "Packages" [ref=f2e15] [cursor=pointer]:
+          - /url: /packages
+        - link "My Bookings" [ref=f2e16] [cursor=pointer]:
+          - /url: /dashboard
+        - link "Reports" [ref=f2e17] [cursor=pointer]:
+          - /url: /reports
+        - link "About" [ref=f2e18] [cursor=pointer]:
+          - /url: /about
+        - link "Contact" [ref=f2e19] [cursor=pointer]:
+          - /url: /contact
+        - link "Admin" [ref=f2e20] [cursor=pointer]:
+          - /url: /admin
+          - img [ref=f2e21]: admin_panel_settings
+          - text: Admin
+      - generic [ref=f2e22]:
+        - link "Book Test" [ref=f2e23] [cursor=pointer]:
+          - /url: /booking
+          - img [ref=f2e24]: add_circle_outline
+          - text: Book Test
+        - button "User menu" [ref=f2e26] [cursor=pointer]:
+          - generic [ref=f2e27]: A
+          - img [ref=f2e28]: expand_more
+  - main [ref=f2e29]

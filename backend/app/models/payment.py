@@ -30,6 +30,7 @@ class Payment(TimestampMixin, Base):
     gst_amount: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False, server_default="0")
     invoice_number: Mapped[str | None] = mapped_column(String(50), nullable=True, unique=True)
     paid_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
 
 
 class Refund(Base):
@@ -53,3 +54,5 @@ class Refund(Base):
     )
     initiated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    remarks: Mapped[str | None] = mapped_column(Text, nullable=True)
+    transaction_reference: Mapped[str | None] = mapped_column(String(100), nullable=True)

@@ -103,18 +103,28 @@ class RefundRepository:
         await self.db.refresh(refund)
         return refund
 
+    async def get_by_id(self, refund_id: uuid.UUID) -> Refund | None:
+        result = await self.db.execute(select(Refund).where(Refund.id == refund_id))
+        return result.scalar_one_or_none()
+
     async def update_refund_status(
         self,
         refund_id: uuid.UUID,
         status: str,
         gateway_refund_id: str | None = None,
         completed_at: datetime | None = None,
+        remarks: str | None = None,
+        transaction_reference: str | None = None,
     ) -> Refund | None:
         values: dict = {"status": status}
         if gateway_refund_id is not None:
             values["gateway_refund_id"] = gateway_refund_id
         if completed_at is not None:
             values["completed_at"] = completed_at
+        if remarks is not None:
+            values["remarks"] = remarks
+        if transaction_reference is not None:
+            values["transaction_reference"] = transaction_reference
 
         await self.db.execute(
             update(Refund).where(Refund.id == refund_id).values(**values)

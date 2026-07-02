@@ -2,6 +2,8 @@ import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { BookingApiService } from '../../../core/api/services/booking-api.service';
+import { ReportApiService } from '../../../core/api/services/report-api.service';
+import { SettingsApiService, CancellationSetting } from '../../../core/api/services/settings-api.service';
 import { Booking } from '../../../core/api/api.types';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
 import { BadgeComponent } from '../../../shared/components/badge/badge.component';
@@ -31,6 +33,13 @@ import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
     <app-alert type="error">{{ error() }}</app-alert>
   } @else if (booking()) {
     <div class="detail-layout">
+
+      @if (isConfirmation() && booking()!.collection_type === 'home' && cancellationSetting()) {
+        <div class="notice-banner">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span>Booking confirmed. Note: {{ cancellationNoticeText() }}</span>
+        </div>
+      }
 
       <!-- Header Card -->
       <div class="header-card">
@@ -114,6 +123,38 @@ import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
         </div>
       }
 
+      <!-- Reports -->
+      @if (booking()!.reports?.length) {
+        <div class="tests-card">
+          <h2 class="card-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+            Reports
+          </h2>
+          <ul class="item-list">
+            @for (r of booking()!.reports!; track r.id) {
+              <li>
+                <span>{{ r.file_name }}</span>
+                <button class="btn-link" (click)="downloadReport(r.id)">Download</button>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+
+      <!-- Refund -->
+      @if (booking()!.refund; as rf) {
+        <div class="info-card">
+          <h2 class="card-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+            Refund
+          </h2>
+          <div class="info-rows">
+            <div class="info-row"><span class="info-label">Amount</span><span class="info-val">₹{{ rf.amount.toLocaleString('en-IN') }}</span></div>
+            <div class="info-row"><span class="info-label">Status</span><app-badge [color]="refundColor(rf.status)">{{ formatStatus(rf.status) }}</app-badge></div>
+          </div>
+        </div>
+      }
+
       <!-- Notes / Cancellation Reason -->
       @if (booking()!.technician_notes) {
         <div class="notes-card info">
@@ -125,6 +166,24 @@ import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
         <div class="notes-card error">
           <h3>Cancellation Reason</h3>
           <p>{{ booking()!.cancellation_reason }}</p>
+        </div>
+      }
+
+      <!-- Timeline -->
+      @if (booking()!.status_history?.length) {
+        <div class="tests-card">
+          <h2 class="card-title">Booking Timeline</h2>
+          <ul class="timeline">
+            @for (h of booking()!.status_history!; track $index) {
+              <li class="tl-item">
+                <span class="tl-dot"></span>
+                <div class="tl-body">
+                  <span class="tl-status">{{ formatStatus(h.to_status) }}</span>
+                  @if (h.changed_at) { <span class="tl-time">{{ h.changed_at | date:'dd MMM yyyy, HH:mm' }}</span> }
+                </div>
+              </li>
+            }
+          </ul>
         </div>
       }
 
@@ -197,6 +256,16 @@ import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
       &.info { background:#F0F9FF; border-color:#BAE6FD; h3 { color:#0369A1; } p { color:#075985; } }
       &.error { background:#FEF2F2; border-color:#FECACA; h3 { color:#B91C1C; } p { color:#991B1B; } }
     }
+    .notice-banner { display:flex; align-items:flex-start; gap:0.625rem; background:#FFF7ED; border:1px solid #FED7AA; color:#9A3412; border-radius:0.75rem; padding:0.875rem 1rem; font-size:0.8125rem; line-height:1.5; svg { flex-shrink:0; margin-top:1px; } }
+    .item-list { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:0.375rem; }
+    .item-list li { display:flex; justify-content:space-between; align-items:center; gap:0.75rem; font-size:0.8125rem; color:#475569; padding:0.5rem 0.75rem; background:#F8FAFC; border-radius:0.5rem; }
+    .btn-link { background:none; border:none; font-size:0.8125rem; font-weight:600; color:#4F46E5; cursor:pointer; padding:0; &:hover { text-decoration:underline; } }
+    .timeline { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:0.875rem; }
+    .tl-item { display:flex; gap:0.625rem; }
+    .tl-dot { width:10px; height:10px; border-radius:50%; background:#6366F1; flex-shrink:0; margin-top:0.25rem; box-shadow:0 0 0 3px rgba(99,102,241,.15); }
+    .tl-body { display:flex; flex-direction:column; gap:0.125rem; }
+    .tl-status { font-size:0.8125rem; font-weight:600; color:#0F172A; }
+    .tl-time { font-size:0.6875rem; color:#94A3B8; }
     .actions-row { display:flex; justify-content:flex-end; padding-top:0.5rem; }
     .cancel-form { display:flex; flex-direction:column; gap:1rem; }
     .cancel-hint { font-size:0.875rem; color:#475569; margin:0; }
@@ -219,8 +288,15 @@ export class BookingDetailComponent implements OnInit {
   cancelling = signal(false);
   showCancelModal = signal(false);
   cancelReason = new FormControl('', Validators.required);
+  cancellationSetting = signal<CancellationSetting | null>(null);
 
-  constructor(private route: ActivatedRoute, private router: Router, private bookingApi: BookingApiService) {}
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private bookingApi: BookingApiService,
+    private reportApi: ReportApiService,
+    private settingsApi: SettingsApiService,
+  ) {}
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id')!;
@@ -228,11 +304,39 @@ export class BookingDetailComponent implements OnInit {
       next: b => { this.booking.set(b); this.loading.set(false); },
       error: () => { this.error.set('Failed to load booking.'); this.loading.set(false); }
     });
+    if (this.isConfirmation()) {
+      this.settingsApi.getCancellationSetting().subscribe({
+        next: s => this.cancellationSetting.set(s),
+        error: () => this.cancellationSetting.set(null),
+      });
+    }
   }
+
+  isConfirmation(): boolean {
+    return this.route.snapshot.queryParamMap.get('success') === 'true';
+  }
+
+  cancellationNoticeText(): string {
+    const s = this.cancellationSetting();
+    if (!s) return '';
+    const amount = s.charge_type === 'percentage' ? `${s.charge_value}%` : `₹${s.charge_value}`;
+    return `Home Collection bookings may incur a ${amount} cancellation charge if cancelled after confirmation or technician assignment.`;
+  }
+
+  downloadReport(reportId: string) {
+    this.reportApi.getDownloadUrl(reportId).subscribe({
+      next: (r) => window.open(r.download_url, '_blank'),
+      error: () => this.error.set('Failed to generate download link.'),
+    });
+  }
+
+  refundColor(s: string) { const m: Record<string,string> = { initiated:'warning', approved:'info', completed:'success', failed:'error' }; return m[s] ?? 'default'; }
+
+  private readonly cancellableStatuses = new Set(['booked', 'technician_assigned', 'accepted']);
 
   canCancel() {
     const s = this.booking()?.status;
-    return s === 'pending' || s === 'confirmed';
+    return !!s && this.cancellableStatuses.has(s);
   }
 
   cancelBooking() {

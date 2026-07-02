@@ -1,0 +1,280 @@
+- main [ref=e4]:
+  - generic [ref=e6]:
+    - complementary [ref=e7]:
+      - generic [ref=e8]:
+        - img [ref=e10]: local_hospital
+        - generic [ref=e11]:
+          - generic [ref=e12]: Sri Health
+          - generic [ref=e13]: Admin Console
+        - button [ref=e14] [cursor=pointer]:
+          - img [ref=e15]: chevron_left
+      - navigation [ref=e16]:
+        - link "Dashboard" [ref=e17] [cursor=pointer]:
+          - /url: /admin/dashboard
+          - img [ref=e19]: dashboard
+          - generic [ref=e20]: Dashboard
+        - generic [ref=e22]: Operations
+        - link "Bookings" [ref=e23] [cursor=pointer]:
+          - /url: /admin/bookings
+          - img [ref=e25]: calendar_month
+          - generic [ref=e26]: Bookings
+        - link "Tests" [ref=e28] [cursor=pointer]:
+          - /url: /admin/tests
+          - img [ref=e30]: biotech
+          - generic [ref=e31]: Tests
+        - link "Packages" [ref=e32] [cursor=pointer]:
+          - /url: /admin/packages
+          - img [ref=e34]: inventory_2
+          - generic [ref=e35]: Packages
+        - link "Users" [ref=e36] [cursor=pointer]:
+          - /url: /admin/users
+          - img [ref=e38]: people
+          - generic [ref=e39]: Users
+        - link "Technicians" [ref=e40] [cursor=pointer]:
+          - /url: /admin/technicians
+          - img [ref=e42]: engineering
+          - generic [ref=e43]: Technicians
+        - link "Lab Branches" [ref=e44] [cursor=pointer]:
+          - /url: /admin/lab-branches
+          - img [ref=e46]: location_city
+          - generic [ref=e47]: Lab Branches
+        - link "Service Areas" [ref=e48] [cursor=pointer]:
+          - /url: /admin/service-areas
+          - img [ref=e50]: map
+          - generic [ref=e51]: Service Areas
+        - generic [ref=e53]: Insights
+        - link "Analytics" [ref=e54] [cursor=pointer]:
+          - /url: /admin/analytics
+          - img [ref=e56]: bar_chart
+          - generic [ref=e57]: Analytics
+        - generic [ref=e59]: Settings
+        - link "Cancellation" [ref=e60] [cursor=pointer]:
+          - /url: /admin/cancellation-config
+          - img [ref=e62]: cancel
+          - generic [ref=e63]: Cancellation
+        - link "Payment" [ref=e64] [cursor=pointer]:
+          - /url: /admin/payment-config
+          - img [ref=e66]: payments
+          - generic [ref=e67]: Payment
+        - link "Feature Flags" [ref=e68] [cursor=pointer]:
+          - /url: /admin/feature-flags
+          - img [ref=e70]: toggle_on
+          - generic [ref=e71]: Feature Flags
+      - generic [ref=e72]:
+        - generic [ref=e73]:
+          - img [ref=e75]: admin_panel_settings
+          - generic [ref=e76]:
+            - generic [ref=e77]: Admin
+            - generic [ref=e78]: Administrator
+        - generic [ref=e79]:
+          - link "Back to App" [ref=e80] [cursor=pointer]:
+            - /url: /tests
+            - img [ref=e81]: arrow_back
+            - generic [ref=e82]: Back to App
+          - button "Sign Out" [ref=e83] [cursor=pointer]:
+            - img [ref=e84]: logout
+            - generic [ref=e85]: Sign Out
+    - generic [ref=e86]:
+      - generic [ref=e87]:
+        - generic [ref=e89]:
+          - generic [ref=e90]: Admin
+          - img [ref=e91]: chevron_right
+          - generic [ref=e92]: Bookings
+        - generic [ref=e96]: Admin
+      - generic [ref=e99]:
+        - generic [ref=e491] [cursor=pointer]:
+          - img [ref=e492]
+          - text: Back to Bookings
+        - generic [ref=e494]:
+          - generic [ref=e495]:
+            - generic [ref=e496]:
+              - generic [ref=e497]: SRI-2026-000034
+              - heading "SRI-2026-000034" [level=1] [ref=e498]
+              - paragraph [ref=e499]: 03 Jul 2026 · Home Collection
+            - generic [ref=e502]: Report Ready
+          - generic [ref=e503]:
+            - generic [ref=e504]:
+              - heading "Patient & Contact" [level=2] [ref=e505]:
+                - img [ref=e506]
+                - text: Patient & Contact
+              - generic [ref=e509]:
+                - generic [ref=e510]:
+                  - generic [ref=e511]: Patient
+                  - generic [ref=e512]: Manu V (Self)
+                - generic [ref=e513]:
+                  - generic [ref=e514]: Booked by
+                  - generic [ref=e515]: Manu V
+                - generic [ref=e516]:
+                  - generic [ref=e517]: Phone
+                  - generic [ref=e518]: "+919901569231"
+                - generic [ref=e519]:
+                  - generic [ref=e520]: Email
+                  - generic [ref=e521]: manuv2u@gmail.com
+            - generic [ref=e522]:
+              - heading "Schedule" [level=2] [ref=e523]:
+                - img [ref=e524]
+                - text: Schedule
+              - generic [ref=e526]:
+                - generic [ref=e527]:
+                  - generic [ref=e528]: Date
+                  - generic [ref=e529]: 03 Jul 2026
+                - generic [ref=e530]:
+                  - generic [ref=e531]: Time Slot
+                  - generic [ref=e532]: 16:00 – 18:00
+                - generic [ref=e533]:
+                  - generic [ref=e534]: Type
+                  - generic [ref=e535]: Home Collection
+            - generic [ref=e536]:
+              - heading "Collection Address" [level=2] [ref=e537]:
+                - img [ref=e538]
+                - text: Collection Address
+              - paragraph [ref=e541]:
+                - strong [ref=e542]: Home
+                - text: NO 2248 1st cross Subramani layout Near manu school, vijinapura Ramamurthy Nagar
+                - text: Bangalore, Karnataka - 560016
+            - generic [ref=e543]:
+              - heading "Payment" [level=2] [ref=e544]:
+                - img [ref=e545]
+                - text: Payment
+              - generic [ref=e547]:
+                - generic [ref=e548]:
+                  - generic [ref=e549]: Method
+                  - generic [ref=e550]: Card
+                - generic [ref=e551]:
+                  - generic [ref=e552]: Status
+                  - generic [ref=e554]: Paid
+                - generic [ref=e555]:
+                  - generic [ref=e556]: Amount
+                  - generic [ref=e557]: ₹4,700
+                - generic [ref=e558]:
+                  - generic [ref=e559]: GST
+                  - generic [ref=e560]: ₹719.82
+                - generic [ref=e561]:
+                  - generic [ref=e562]: Invoice
+                  - generic [ref=e563]: INV-20260702035456-E6546E
+            - generic [ref=e564]:
+              - heading "Assigned Technician" [level=2] [ref=e565]:
+                - img [ref=e566]
+                - text: Assigned Technician
+              - generic [ref=e569]:
+                - generic [ref=e570]:
+                  - generic [ref=e571]: Name
+                  - generic [ref=e572]: Ravi
+                - generic [ref=e573]:
+                  - generic [ref=e574]: Phone
+                  - generic [ref=e575]: "1212121213"
+                - generic [ref=e576]:
+                  - generic [ref=e577]: Response
+                  - generic [ref=e578]: Pending
+          - generic [ref=e579]:
+            - heading "Tests & Packages (1)" [level=2] [ref=e580]:
+              - img [ref=e581]
+              - text: Tests & Packages (1)
+            - generic [ref=e584]:
+              - generic [ref=e585]:
+                - generic [ref=e586]: Item
+                - generic [ref=e587]: Price
+              - generic [ref=e588]:
+                - generic [ref=e589]: Senior Citizen Health Package
+                - generic [ref=e590]: ₹3999.0
+              - generic [ref=e591]:
+                - generic [ref=e592]: Total
+                - generic [ref=e593]: ₹3,999
+          - generic [ref=e594]:
+            - heading "Uploaded Reports (1)" [level=2] [ref=e595]:
+              - img [ref=e596]
+              - text: Uploaded Reports (1)
+            - list [ref=e598]:
+              - listitem [ref=e599]:
+                - generic [ref=e600]: test-report.pdf (0.00 MB)
+                - button "Download" [ref=e601] [cursor=pointer]
+            - generic [ref=e602]:
+              - button "Choose File" [ref=e603]
+              - button "Replace Report" [disabled] [ref=e604]
+            - paragraph [ref=e605]: PDF only, up to 20 MB. Uploading a new report replaces the previous one.
+          - generic [ref=e606]:
+            - heading "Admin Actions" [level=2] [ref=e607]
+            - generic [ref=e608]:
+              - heading "Update Status" [level=3] [ref=e609]
+              - generic [ref=e610]:
+                - combobox [ref=e611]:
+                  - option "Booked"
+                  - option "Technician Assigned"
+                  - option "Accepted"
+                  - option "On The Way"
+                  - option "Sample Collected"
+                  - option "Reached Lab"
+                  - option "Sample Delivered"
+                  - option "Processing"
+                  - option "Report Ready" [selected]
+                  - option "Completed"
+                  - option "Cancelled"
+                - button "Update" [disabled] [ref=e612]
+            - generic [ref=e613]:
+              - heading "Assign Technician" [level=3] [ref=e614]
+              - generic [ref=e615]:
+                - combobox [ref=e616]:
+                  - option "Select technician…" [selected]
+                  - option "Nav Test Tech (9812300001)"
+                  - option "RAVI Kumar (9901296686)"
+                  - option "Ravi (1212121213)"
+                  - option "UI Tech 21777 (9340792069)"
+                  - option "Test Tech 29526 (9453758963)"
+                  - option "Manu V (9901569231)"
+                  - option "Raju (1111111111)"
+                - button "Assign" [disabled] [ref=e617]
+              - button "⚡ Auto-assign nearest technician" [ref=e618] [cursor=pointer]
+            - generic [ref=e619]:
+              - heading "Cancel Booking" [level=3] [ref=e620]
+              - button "Cancel this booking" [ref=e621] [cursor=pointer]
+          - generic [ref=e622]:
+            - heading "Booking Timeline" [level=2] [ref=e623]
+            - list [ref=e624]:
+              - listitem [ref=e625]:
+                - generic [ref=e627]:
+                  - generic [ref=e628]: Booked
+                  - generic [ref=e629]: 02 Jul 2026, 09:24
+              - listitem [ref=e630]:
+                - generic [ref=e632]:
+                  - generic [ref=e633]: Technician Assigned
+                  - generic [ref=e634]: 02 Jul 2026, 09:25
+                  - generic [ref=e635]: Technician Ravi assigned
+              - listitem [ref=e636]:
+                - generic [ref=e638]:
+                  - generic [ref=e639]: On The Way
+                  - generic [ref=e640]: 02 Jul 2026, 09:27
+              - listitem [ref=e641]:
+                - generic [ref=e643]:
+                  - generic [ref=e644]: Sample Collected
+                  - generic [ref=e645]: 02 Jul 2026, 09:27
+              - listitem [ref=e646]:
+                - generic [ref=e648]:
+                  - generic [ref=e649]: Reached Lab
+                  - generic [ref=e650]: 02 Jul 2026, 09:28
+              - listitem [ref=e651]:
+                - generic [ref=e653]:
+                  - generic [ref=e654]: Sample Delivered
+                  - generic [ref=e655]: 02 Jul 2026, 09:28
+              - listitem [ref=e656]:
+                - generic [ref=e658]:
+                  - generic [ref=e659]: Processing
+                  - generic [ref=e660]: 02 Jul 2026, 09:29
+              - listitem [ref=e661]:
+                - generic [ref=e663]:
+                  - generic [ref=e664]: Report Ready
+                  - generic [ref=e665]: 02 Jul 2026, 09:29
+              - listitem [ref=e666]:
+                - generic [ref=e668]:
+                  - generic [ref=e669]: Report Ready
+                  - generic [ref=e670]: 02 Jul 2026, 09:44
+                  - generic [ref=e671]: Report uploaded
+              - listitem [ref=e672]:
+                - generic [ref=e674]:
+                  - generic [ref=e675]: Report Ready
+                  - generic [ref=e676]: 02 Jul 2026, 09:45
+                  - generic [ref=e677]: Report uploaded
+              - listitem [ref=e678]:
+                - generic [ref=e680]:
+                  - generic [ref=e681]: Report Ready
+                  - generic [ref=e682]: 02 Jul 2026, 09:48
+                  - generic [ref=e683]: Report uploaded

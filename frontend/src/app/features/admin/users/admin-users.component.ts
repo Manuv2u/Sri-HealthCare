@@ -81,15 +81,26 @@ import { AvatarComponent } from '../../../shared/components/avatar/avatar.compon
               <td><app-badge [color]="u.is_active ? 'success' : 'error'" size="sm">{{ u.is_active ? 'Active' : 'Inactive' }}</app-badge></td>
               <td class="text-sm text-muted">{{ u.created_at | date:'dd MMM yyyy' }}</td>
               <td>
-                @if (u.is_active) {
-                  <button class="act-btn danger" (click)="deactivate(u)" title="Deactivate">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
-                  </button>
-                } @else {
-                  <button class="act-btn success" (click)="activate(u)" title="Activate">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                  </button>
-                }
+                <div class="row-actions">
+                  @if (u.is_active) {
+                    <button class="act-btn danger" (click)="deactivate(u)" title="Deactivate">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+                    </button>
+                  } @else {
+                    <button class="act-btn success" (click)="activate(u)" title="Activate">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    </button>
+                  }
+                  @if (u.role === 'user') {
+                    <button class="act-btn role" (click)="changeRole(u, 'technician')" title="Make Technician">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.24 12.24a6 6 0 00-8.49-8.49L5 10.5V19h8.5z"/><line x1="16" y1="8" x2="2" y2="22"/><line x1="17.5" y1="15" x2="9" y2="15"/></svg>
+                    </button>
+                  } @else if (u.role === 'technician') {
+                    <button class="act-btn role" (click)="changeRole(u, 'user')" title="Make Patient">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    </button>
+                  }
+                </div>
               </td>
             </tr>
           }
@@ -132,7 +143,8 @@ import { AvatarComponent } from '../../../shared/components/avatar/avatar.compon
     .text-sm { font-size:0.875rem; }
     .text-muted { color:#94A3B8; }
     .empty-td { text-align:center; color:#94A3B8; padding:3rem !important; }
-    .act-btn { display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border:1px solid #E2E8F0; border-radius:0.5rem; background:#FFFFFF; cursor:pointer; transition:all 150ms; svg { width:16px; height:16px; } &.danger { color:#EF4444; &:hover { background:#FEF2F2; border-color:#FCA5A5; } } &.success { color:#38A169; &:hover { background:#F0FFF4; border-color:#68D391; } } }
+    .row-actions { display:flex; gap:0.5rem; }
+    .act-btn { display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border:1px solid #E2E8F0; border-radius:0.5rem; background:#FFFFFF; cursor:pointer; transition:all 150ms; svg { width:16px; height:16px; } &.danger { color:#EF4444; &:hover { background:#FEF2F2; border-color:#FCA5A5; } } &.success { color:#38A169; &:hover { background:#F0FFF4; border-color:#68D391; } } &.role { color:#4F46E5; &:hover { background:#EEF2FF; border-color:#C7D2FE; } } }
     .pagination { display:flex; align-items:center; justify-content:center; gap:1rem; }
     .pg-btn { display:flex; align-items:center; justify-content:center; width:36px; height:36px; border:1px solid #E2E8F0; border-radius:0.5rem; background:#FFFFFF; cursor:pointer; transition:all 150ms; &:hover:not(:disabled) { border-color:#38B2AC; color:#2C7A7B; } &:disabled { opacity:.4; cursor:not-allowed; } }
     .pg-info { font-size:0.875rem; color:#475569; }
@@ -165,5 +177,13 @@ export class AdminUsersComponent implements OnInit {
   onPage(p: number) { this.page.set(p); this.load(); }
   activate(u: any) { this.adminApi.activateUser(u.id).subscribe({ next: () => this.load() }); }
   deactivate(u: any) { if (!confirm(`Deactivate ${u.name}?`)) return; this.adminApi.deactivateUser(u.id).subscribe({ next: () => this.load() }); }
+  changeRole(u: any, newRole: 'user' | 'technician') {
+    const label = newRole === 'technician' ? 'a Technician' : 'a Patient';
+    if (!confirm(`Make ${u.name} ${label}?`)) return;
+    this.adminApi.changeUserRole(u.id, newRole).subscribe({
+      next: () => this.load(),
+      error: (err) => alert(err?.error?.detail?.message || err?.error?.detail || 'Failed to change role.'),
+    });
+  }
   roleColor(r: string) { const m: Record<string,string> = { user:'primary', admin:'secondary', technician:'accent' }; return m[r] ?? 'default'; }
 }

@@ -52,7 +52,7 @@ async def get_download_url(
 async def list_reports(
     page: int = 1,
     page_size: int = 20,
-    current_user: dict = Depends(require_roles("admin", "user")),
+    current_user: dict = Depends(require_roles("admin", "user", "technician")),
     db: AsyncSession = Depends(get_db_session),
 ) -> ReportListResponse:
     svc = ReportService(db)

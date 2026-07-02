@@ -130,6 +130,8 @@ export interface Booking {
   payment?: BookingPayment;
   assigned_technician?: AssignedTechnician;
   status_history?: BookingStatusHistoryEntry[];
+  reports?: Report[];
+  refund?: Refund;
 }
 
 export interface BookingAddress {
@@ -156,12 +158,25 @@ export interface BookingLabBranch {
 }
 
 export interface BookingPayment {
+  id?: string;
   method: string;
   status: string;
   amount: number;
   gst_amount: number;
   invoice_number?: string;
   paid_at?: string;
+  notes?: string;
+}
+
+export interface Refund {
+  id: string;
+  amount: number;
+  reason: string;
+  status: 'initiated' | 'approved' | 'completed' | 'failed';
+  transaction_reference?: string;
+  remarks?: string;
+  initiated_at?: string;
+  completed_at?: string;
 }
 
 export interface AssignedTechnician {
