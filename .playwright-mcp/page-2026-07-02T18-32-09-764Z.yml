@@ -1,0 +1,166 @@
+- generic [ref=f7e3]:
+  - banner [ref=f7e4]:
+    - generic [ref=f7e6]:
+      - link "Sri Health Sri Health Diagnostics" [ref=f7e7] [cursor=pointer]:
+        - /url: /
+        - img "Sri Health" [ref=f7e8]
+        - generic [ref=f7e9]:
+          - generic [ref=f7e10]: Sri Health
+          - generic [ref=f7e11]: Diagnostics
+      - generic [ref=f7e12]:
+        - button "User menu" [ref=f7e14] [cursor=pointer]:
+          - generic [ref=f7e15]: A
+          - img [ref=f7e16]: expand_more
+        - button "Toggle menu" [ref=f7e17] [cursor=pointer]
+  - main [ref=f7e21]:
+    - generic [ref=f7e22]:
+      - generic [ref=f7e24]:
+        - generic [ref=f7e25]:
+          - img [ref=f7e26]: local_hospital
+          - generic [ref=f7e27]: Trusted Diagnostics Since 2010
+        - heading "Precision care for every family in Karnataka" [level=1] [ref=f7e28]:
+          - text: Precision care for every
+          - emphasis [ref=f7e29]: family in Karnataka
+        - paragraph [ref=f7e30]: SRI Diagnostic Laboratory & Health Care combines state-of-the-art technology with expert pathologists — delivering accurate, timely results you can rely on, right here in Shivamogga.
+        - generic [ref=f7e31]:
+          - link "Explore Tests" [ref=f7e32] [cursor=pointer]:
+            - /url: /tests
+            - img [ref=f7e33]: science
+            - text: Explore Tests
+          - link "Get in Touch" [ref=f7e34] [cursor=pointer]:
+            - /url: /contact
+            - text: Get in Touch
+            - img [ref=f7e35]: arrow_forward
+      - generic [ref=f7e37]:
+        - generic [ref=f7e38]: Our Foundation
+        - heading "Built on trust, driven by accuracy" [level=2] [ref=f7e39]
+        - generic [ref=f7e40]:
+          - generic [ref=f7e41]:
+            - img [ref=f7e43]: groups
+            - heading "Who We Are" [level=3] [ref=f7e44]
+            - paragraph [ref=f7e45]: A trusted diagnostic centre serving the Shivamogga region for over a decade. We combine advanced instrumentation with expert pathologists to deliver results physicians and patients both depend on.
+            - generic [ref=f7e47]: Shivamogga, Karnataka
+          - generic [ref=f7e48]:
+            - img [ref=f7e50]: visibility
+            - heading "Our Vision" [level=3] [ref=f7e51]
+            - paragraph [ref=f7e52]: To be the most trusted diagnostic partner across Karnataka — making quality healthcare accessible to every family through innovation, integrity, and relentless excellence.
+            - generic [ref=f7e54]: 12+ Districts
+          - generic [ref=f7e55]:
+            - img [ref=f7e57]: favorite
+            - heading "Our Mission" [level=3] [ref=f7e58]
+            - paragraph [ref=f7e59]: Deliver accurate diagnostic results with speed and care — empowering patients and physicians alike to make confident, informed health decisions every single day.
+            - generic [ref=f7e61]: 24 / 7 Support
+      - region "Key statistics" [ref=f7e62]:
+        - generic [ref=f7e63]:
+          - generic [ref=f7e64]:
+            - generic [ref=f7e65]: 2M+
+            - generic [ref=f7e66]: Tests Conducted
+          - generic [ref=f7e67]:
+            - generic [ref=f7e68]: 12+
+            - generic [ref=f7e69]: Districts Served
+          - generic [ref=f7e70]:
+            - generic [ref=f7e71]: 99.9%
+            - generic [ref=f7e72]: Accuracy Rate
+          - generic [ref=f7e73]:
+            - generic [ref=f7e74]: 24/7
+            - generic [ref=f7e75]: Always Available
+      - generic [ref=f7e77]:
+        - generic [ref=f7e78]:
+          - generic [ref=f7e79]: Accreditations
+          - heading "Certified to the highest standards" [level=2] [ref=f7e80]
+          - paragraph [ref=f7e81]: Every result we deliver is backed by internationally recognised quality certifications. Our accreditations are not just badges — they represent rigorous, ongoing audits of our processes, equipment, and team competency.
+        - generic [ref=f7e82]:
+          - generic [ref=f7e83]:
+            - img [ref=f7e85]: verified
+            - generic [ref=f7e86]:
+              - heading "NABL Accredited" [level=4] [ref=f7e87]
+              - paragraph [ref=f7e88]: National Accreditation Board for Testing and Calibration Laboratories — the gold standard for Indian diagnostics.
+          - generic [ref=f7e89]:
+            - img [ref=f7e91]: workspace_premium
+            - generic [ref=f7e92]:
+              - 'heading "ISO 9001 : 2015" [level=4] [ref=f7e93]'
+              - paragraph [ref=f7e94]: International Quality Management System certification covering every step from sample collection to result delivery.
+          - generic [ref=f7e95]:
+            - img [ref=f7e97]: military_tech
+            - generic [ref=f7e98]:
+              - heading "CAP Certified" [level=4] [ref=f7e99]
+              - paragraph [ref=f7e100]: College of American Pathologists accreditation — recognised globally as the benchmark for laboratory excellence.
+      - generic [ref=f7e102]:
+        - generic [ref=f7e103]:
+          - heading "Ready to book your test?" [level=2] [ref=f7e104]
+          - paragraph [ref=f7e105]: Home collection available across Shivamogga. Results in 24 hrs.
+        - generic [ref=f7e106]:
+          - link "Book a Test" [ref=f7e107] [cursor=pointer]:
+            - /url: /tests
+            - img [ref=f7e108]: science
+            - text: Book a Test
+          - link "Contact Us" [ref=f7e109] [cursor=pointer]:
+            - /url: /contact
+  - contentinfo [ref=f7e110]:
+    - generic [ref=f7e111]:
+      - generic [ref=f7e112]:
+        - generic [ref=f7e113]:
+          - img "Sri Health" [ref=f7e114]
+          - generic [ref=f7e115]: Sri Health
+        - paragraph [ref=f7e116]:
+          - text: Clinical precision.
+          - text: Expert care.
+        - generic [ref=f7e117]:
+          - link "Instagram" [ref=f7e118] [cursor=pointer]:
+            - /url: https://instagram.com
+            - img [ref=f7e119]
+          - link "Facebook" [ref=f7e121] [cursor=pointer]:
+            - /url: https://facebook.com
+            - img [ref=f7e122]
+      - generic [ref=f7e124]:
+        - generic [ref=f7e125]: Services
+        - link "Lab Tests" [ref=f7e126] [cursor=pointer]:
+          - /url: /tests
+        - link "Health Packages" [ref=f7e127] [cursor=pointer]:
+          - /url: /packages
+        - link "Book a Test" [ref=f7e128] [cursor=pointer]:
+          - /url: /booking
+        - link "My Reports" [ref=f7e129] [cursor=pointer]:
+          - /url: /reports
+      - generic [ref=f7e130]:
+        - generic [ref=f7e131]: Company
+        - link "About Us" [ref=f7e132] [cursor=pointer]:
+          - /url: /about
+        - link "Contact" [ref=f7e133] [cursor=pointer]:
+          - /url: /contact
+      - generic [ref=f7e134]:
+        - generic [ref=f7e135]: Account
+        - link "My Profile" [ref=f7e136] [cursor=pointer]:
+          - /url: /profile
+        - link "My Bookings" [ref=f7e137] [cursor=pointer]:
+          - /url: /dashboard
+    - generic [ref=f7e139]:
+      - generic [ref=f7e140]: © 2026 SRI Diagnostic Laboratory & Health Care
+      - generic [ref=f7e141]: All prices in ₹ (Indian Rupees)
+  - navigation [ref=f7e142]:
+    - link "Home" [ref=f7e143] [cursor=pointer]:
+      - /url: /
+      - img [ref=f7e145]: home
+      - generic [ref=f7e146]: Home
+    - link "Tests" [ref=f7e147] [cursor=pointer]:
+      - /url: /tests
+      - img [ref=f7e149]: biotech
+      - generic [ref=f7e150]: Tests
+    - link "Book" [ref=f7e151] [cursor=pointer]:
+      - /url: /booking
+      - img [ref=f7e153]: add
+      - generic [ref=f7e154]: Book
+    - link "Orders" [ref=f7e155] [cursor=pointer]:
+      - /url: /dashboard
+      - img [ref=f7e157]: receipt_long
+      - generic [ref=f7e158]: Orders
+    - link "Profile" [ref=f7e159] [cursor=pointer]:
+      - /url: /profile
+      - img [ref=f7e161]: person
+      - generic [ref=f7e162]: Profile
+  - generic:
+    - generic "Welcome to Sri Diagnostic Lab"
+  - generic:
+    - button "How can we help?" [ref=f7e163] [cursor=pointer]:
+      - img [ref=f7e164]: support_agent
+    - generic "How can we help?"
