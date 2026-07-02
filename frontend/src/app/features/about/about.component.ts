@@ -497,7 +497,7 @@ import { MatIconModule } from '@angular/material/icon';
       display: flex;
       align-items: center;
       justify-content: center;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
       gap: 0;
     }
 
@@ -506,7 +506,7 @@ import { MatIconModule } from '@angular/material/icon';
       flex-direction: column;
       align-items: center;
       gap: 6px;
-      padding: 0 48px;
+      padding: 0 clamp(16px, 3vw, 48px);
     }
 
     .stat-num {
@@ -539,9 +539,14 @@ import { MatIconModule } from '@angular/material/icon';
       flex-shrink: 0;
     }
 
-    @media (max-width: 640px) {
-      .stats-band-inner { gap: 28px; }
-      .stat-item { padding: 0 20px; }
+    @media (max-width: 900px) {
+      .stats-band-inner {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        row-gap: 28px;
+        column-gap: 8px;
+      }
+      .stat-item { padding: 0 12px; }
       .stat-divider { display: none; }
     }
 
