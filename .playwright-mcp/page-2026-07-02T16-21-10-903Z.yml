@@ -1,0 +1,137 @@
+- generic [ref=f8e3]:
+  - main [ref=f8e4]:
+    - generic [ref=f8e77]:
+      - complementary [ref=f8e78]:
+        - generic [ref=f8e79]:
+          - img [ref=f8e81]: local_hospital
+          - generic [ref=f8e82]:
+            - generic [ref=f8e83]: Sri Health
+            - generic [ref=f8e84]: Admin Console
+          - button [ref=f8e85] [cursor=pointer]:
+            - img [ref=f8e86]: chevron_left
+        - navigation [ref=f8e87]:
+          - link "Dashboard" [ref=f8e88] [cursor=pointer]:
+            - /url: /admin/dashboard
+            - img [ref=f8e90]: dashboard
+            - generic [ref=f8e91]: Dashboard
+          - generic [ref=f8e94]: Operations
+          - link "Bookings" [ref=f8e95] [cursor=pointer]:
+            - /url: /admin/bookings
+            - img [ref=f8e97]: calendar_month
+            - generic [ref=f8e98]: Bookings
+          - link "Tests" [ref=f8e99] [cursor=pointer]:
+            - /url: /admin/tests
+            - img [ref=f8e101]: biotech
+            - generic [ref=f8e102]: Tests
+          - link "Packages" [ref=f8e103] [cursor=pointer]:
+            - /url: /admin/packages
+            - img [ref=f8e105]: inventory_2
+            - generic [ref=f8e106]: Packages
+          - link "Health Concerns" [ref=f8e107] [cursor=pointer]:
+            - /url: /admin/health-concerns
+            - img [ref=f8e109]: health_and_safety
+            - generic [ref=f8e110]: Health Concerns
+          - link "Users" [ref=f8e111] [cursor=pointer]:
+            - /url: /admin/users
+            - img [ref=f8e113]: people
+            - generic [ref=f8e114]: Users
+          - link "Technicians" [ref=f8e115] [cursor=pointer]:
+            - /url: /admin/technicians
+            - img [ref=f8e117]: engineering
+            - generic [ref=f8e118]: Technicians
+          - link "Lab Branches" [ref=f8e119] [cursor=pointer]:
+            - /url: /admin/lab-branches
+            - img [ref=f8e121]: location_city
+            - generic [ref=f8e122]: Lab Branches
+          - link "Service Areas" [ref=f8e123] [cursor=pointer]:
+            - /url: /admin/service-areas
+            - img [ref=f8e125]: map
+            - generic [ref=f8e126]: Service Areas
+          - generic [ref=f8e128]: Insights
+          - link "Analytics" [ref=f8e129] [cursor=pointer]:
+            - /url: /admin/analytics
+            - img [ref=f8e131]: bar_chart
+            - generic [ref=f8e132]: Analytics
+          - generic [ref=f8e134]: Settings
+          - link "Cancellation" [ref=f8e135] [cursor=pointer]:
+            - /url: /admin/cancellation-config
+            - img [ref=f8e137]: cancel
+            - generic [ref=f8e138]: Cancellation
+          - link "Payment" [ref=f8e139] [cursor=pointer]:
+            - /url: /admin/payment-config
+            - img [ref=f8e141]: payments
+            - generic [ref=f8e142]: Payment
+          - link "Feature Flags" [ref=f8e143] [cursor=pointer]:
+            - /url: /admin/feature-flags
+            - img [ref=f8e145]: toggle_on
+            - generic [ref=f8e146]: Feature Flags
+        - generic [ref=f8e147]:
+          - generic [ref=f8e148]:
+            - img [ref=f8e150]: admin_panel_settings
+            - generic [ref=f8e151]:
+              - generic [ref=f8e152]: Admin
+              - generic [ref=f8e153]: Administrator
+          - generic [ref=f8e154]:
+            - link "Back to App" [ref=f8e155] [cursor=pointer]:
+              - /url: /tests
+              - img [ref=f8e156]: arrow_back
+              - generic [ref=f8e157]: Back to App
+            - button "Sign Out" [ref=f8e158] [cursor=pointer]:
+              - img [ref=f8e159]: logout
+              - generic [ref=f8e160]: Sign Out
+      - generic [ref=f8e161]:
+        - generic [ref=f8e162]:
+          - generic [ref=f8e164]:
+            - generic [ref=f8e165]: Admin
+            - img [ref=f8e166]: chevron_right
+            - generic [ref=f8e167]: Dashboard
+          - generic [ref=f8e171]: Admin
+        - generic [ref=f8e174]:
+          - generic [ref=f8e175]:
+            - generic [ref=f8e176]:
+              - paragraph [ref=f8e177]: Sri Health Admin Panel
+              - heading "Good evening, Admin" [level=1] [ref=f8e178]
+              - paragraph [ref=f8e179]: Thursday, 2 July 2026
+            - generic [ref=f8e182]: Live
+          - generic [ref=f8e183]:
+            - generic [ref=f8e184]:
+              - generic [ref=f8e185]: "29"
+              - generic [ref=f8e186]: Total Users
+            - generic [ref=f8e187]:
+              - generic [ref=f8e188]: "6"
+              - generic [ref=f8e189]: Bookings Today
+            - generic [ref=f8e190]:
+              - generic [ref=f8e191]: "11"
+              - generic [ref=f8e192]: This Month
+            - generic [ref=f8e193]:
+              - generic [ref=f8e194]: "0"
+              - generic [ref=f8e195]: Pending
+          - generic [ref=f8e196]:
+            - heading "Quick Actions" [level=2] [ref=f8e197]
+            - generic [ref=f8e198]:
+              - link "👥 Users" [ref=f8e199] [cursor=pointer]:
+                - /url: /admin/users
+                - generic [ref=f8e200]: 👥
+                - generic [ref=f8e201]: Users
+              - link "🧪 Tests" [ref=f8e202] [cursor=pointer]:
+                - /url: /admin/tests
+                - generic [ref=f8e203]: 🧪
+                - generic [ref=f8e204]: Tests
+              - link "📦 Packages" [ref=f8e205] [cursor=pointer]:
+                - /url: /admin/packages
+                - generic [ref=f8e206]: 📦
+                - generic [ref=f8e207]: Packages
+              - link "📅 Bookings" [ref=f8e208] [cursor=pointer]:
+                - /url: /admin/bookings
+                - generic [ref=f8e209]: 📅
+                - generic [ref=f8e210]: Bookings
+              - link "👨‍🔬 Technicians" [ref=f8e211] [cursor=pointer]:
+                - /url: /admin/technicians
+                - generic [ref=f8e212]: 👨‍🔬
+                - generic [ref=f8e213]: Technicians
+              - link "📊 Analytics" [ref=f8e214] [cursor=pointer]:
+                - /url: /admin/analytics
+                - generic [ref=f8e215]: 📊
+                - generic [ref=f8e216]: Analytics
+  - generic:
+    - generic "Welcome to Sri Diagnostic Lab"

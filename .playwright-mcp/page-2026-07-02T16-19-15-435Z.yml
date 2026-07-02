@@ -1,0 +1,197 @@
+- generic [ref=f3e3]:
+  - banner [ref=f3e76]:
+    - generic [ref=f3e78]:
+      - link "Sri Health Sri Health Diagnostics" [ref=f3e79] [cursor=pointer]:
+        - /url: /
+        - img "Sri Health" [ref=f3e80]
+        - generic [ref=f3e81]:
+          - generic [ref=f3e82]: Sri Health
+          - generic [ref=f3e83]: Diagnostics
+      - navigation [ref=f3e84]:
+        - link "Home" [ref=f3e85] [cursor=pointer]:
+          - /url: /
+        - link "Tests" [ref=f3e86] [cursor=pointer]:
+          - /url: /tests
+        - link "Packages" [ref=f3e87] [cursor=pointer]:
+          - /url: /packages
+        - link "My Bookings" [ref=f3e88] [cursor=pointer]:
+          - /url: /dashboard
+        - link "Reports" [ref=f3e89] [cursor=pointer]:
+          - /url: /reports
+        - link "About" [ref=f3e90] [cursor=pointer]:
+          - /url: /about
+        - link "Contact" [ref=f3e91] [cursor=pointer]:
+          - /url: /contact
+      - generic [ref=f3e92]:
+        - link "Book Test" [ref=f3e93] [cursor=pointer]:
+          - /url: /booking
+          - img [ref=f3e94]: add_circle_outline
+          - text: Book Test
+        - button "User menu" [ref=f3e96] [cursor=pointer]:
+          - generic [ref=f3e97]: TP
+          - img [ref=f3e98]: expand_more
+  - main [ref=f3e4]:
+    - generic [ref=f3e232]:
+      - generic [ref=f3e234]:
+        - paragraph [ref=f3e235]:
+          - img [ref=f3e236]: verified
+          - text: NABL Certified Labs · Free Home Collection
+        - heading "Find the right test for you" [level=1] [ref=f3e237]:
+          - text: Find the right
+          - text: test for you
+        - paragraph [ref=f3e238]: Trusted by 50,000+ patients · Results within 24 hours
+        - generic [ref=f3e240]:
+          - img [ref=f3e241]: search
+          - textbox "Search CBC, Thyroid, HbA1c, Lipid Panel…" [ref=f3e242]
+      - navigation "Filter by category" [ref=f3e244]:
+        - button "All" [ref=f3e245] [cursor=pointer]:
+          - img [ref=f3e246]: apps
+          - generic [ref=f3e247]: All
+        - button "Diabetes 0" [ref=f3e248] [cursor=pointer]:
+          - img [ref=f3e249]: water_drop
+          - generic [ref=f3e250]: Diabetes
+          - generic [ref=f3e251]: "0"
+        - button "Heart 0" [ref=f3e252] [cursor=pointer]:
+          - img [ref=f3e253]: favorite
+          - generic [ref=f3e254]: Heart
+          - generic [ref=f3e255]: "0"
+        - button "Kidney 0" [ref=f3e256] [cursor=pointer]:
+          - img [ref=f3e257]: opacity
+          - generic [ref=f3e258]: Kidney
+          - generic [ref=f3e259]: "0"
+        - button "Liver 0" [ref=f3e260] [cursor=pointer]:
+          - img [ref=f3e261]: eco
+          - generic [ref=f3e262]: Liver
+          - generic [ref=f3e263]: "0"
+        - button "Thyroid 0" [ref=f3e264] [cursor=pointer]:
+          - img [ref=f3e265]: psychology
+          - generic [ref=f3e266]: Thyroid
+          - generic [ref=f3e267]: "0"
+        - button "Full Body 0" [ref=f3e268] [cursor=pointer]:
+          - img [ref=f3e269]: accessibility_new
+          - generic [ref=f3e270]: Full Body
+          - generic [ref=f3e271]: "0"
+        - button "Women's Health 0" [ref=f3e272] [cursor=pointer]:
+          - img [ref=f3e273]: spa
+          - generic [ref=f3e274]: Women's Health
+          - generic [ref=f3e275]: "0"
+        - button "Vitamin 0" [ref=f3e276] [cursor=pointer]:
+          - img [ref=f3e277]: wb_sunny
+          - generic [ref=f3e278]: Vitamin
+          - generic [ref=f3e279]: "0"
+        - button "test 1" [ref=f3e280] [cursor=pointer]:
+          - img [ref=f3e281]: biotech
+          - generic [ref=f3e282]: test
+          - generic [ref=f3e283]: "1"
+        - button "Cardiac 1" [ref=f3e284] [cursor=pointer]:
+          - img [ref=f3e285]: biotech
+          - generic [ref=f3e286]: Cardiac
+          - generic [ref=f3e287]: "1"
+      - main [ref=f3e288]:
+        - generic [ref=f3e289]:
+          - generic [ref=f3e290]:
+            - heading "Recommended Tests for Diabetes, Heart Health" [level=2] [ref=f3e291]
+            - paragraph [ref=f3e292]: Curated based on the health concern(s) you selected.
+          - button "Clear filter" [ref=f3e293] [cursor=pointer]:
+            - img [ref=f3e294]: close
+            - text: Clear filter
+        - generic [ref=f3e296]: 2 tests
+        - button "Popular test Insulin Fasting tes1 dfgdhfghfghgh 24h results Free home collection NABL Certified ₹4555.00 3.00% off ₹4418.35 Book Now View details" [ref=f3e297] [cursor=pointer]:
+          - generic [ref=f3e299]:
+            - generic [ref=f3e300]:
+              - generic [ref=f3e301]:
+                - generic [ref=f3e302]:
+                  - img [ref=f3e303]: local_fire_department
+                  - text: Popular
+                - generic [ref=f3e304]:
+                  - img [ref=f3e305]: biotech
+                  - text: test
+              - heading "Insulin Fasting tes1" [level=2] [ref=f3e306]
+              - paragraph [ref=f3e307]: dfgdhfghfghgh
+              - generic [ref=f3e308]:
+                - generic [ref=f3e309]:
+                  - img [ref=f3e310]: schedule
+                  - text: 24h results
+                - generic [ref=f3e311]:
+                  - img [ref=f3e312]: home
+                  - text: Free home collection
+                - generic [ref=f3e313]:
+                  - img [ref=f3e314]: verified
+                  - text: NABL Certified
+            - generic [ref=f3e315]:
+              - generic [ref=f3e316]:
+                - generic [ref=f3e317]: ₹4555.00
+                - generic [ref=f3e318]: 3.00% off
+                - generic [ref=f3e319]: ₹4418.35
+              - button "Book Now" [ref=f3e320]:
+                - text: Book Now
+                - img [ref=f3e321]: arrow_forward
+              - link "View details" [ref=f3e322]:
+                - /url: /tests/bb083b0f-41f6-47ba-9237-073d122553be
+        - article [ref=f3e324]:
+          - generic [ref=f3e326]:
+            - generic [ref=f3e327]:
+              - generic [ref=f3e328]:
+                - img [ref=f3e329]: biotech
+                - text: Cardiac
+              - generic [ref=f3e330]: 15.00% off
+            - heading "Lipid Profile" [level=3] [ref=f3e331]
+            - paragraph [ref=f3e332]: "Comprehensive panel: Total cholesterol, LDL, HDL, VLDL and triglycerides. Essential for cardiovascular risk assessment."
+            - generic [ref=f3e333]:
+              - generic [ref=f3e334]:
+                - img [ref=f3e335]: schedule
+                - text: 6h
+              - generic [ref=f3e336]:
+                - img [ref=f3e337]: home
+                - text: Home collection
+            - generic [ref=f3e338]:
+              - generic [ref=f3e339]:
+                - generic [ref=f3e340]: ₹580.00
+                - generic [ref=f3e341]: ₹493
+              - generic [ref=f3e342]:
+                - link "Details" [ref=f3e343] [cursor=pointer]:
+                  - /url: /tests/246ca3d0-9528-4932-b040-2525c9f4732a
+                - button "Book Now" [ref=f3e344] [cursor=pointer]
+  - contentinfo [ref=f3e132]:
+    - generic [ref=f3e133]:
+      - generic [ref=f3e134]:
+        - generic [ref=f3e135]:
+          - img "Sri Health" [ref=f3e136]
+          - generic [ref=f3e137]: Sri Health
+        - paragraph [ref=f3e138]:
+          - text: Clinical precision.
+          - text: Expert care.
+        - generic [ref=f3e139]:
+          - link "Instagram" [ref=f3e140] [cursor=pointer]:
+            - /url: https://instagram.com
+            - img [ref=f3e141]
+          - link "Facebook" [ref=f3e143] [cursor=pointer]:
+            - /url: https://facebook.com
+            - img [ref=f3e144]
+      - generic [ref=f3e146]:
+        - generic [ref=f3e147]: Services
+        - link "Lab Tests" [ref=f3e148] [cursor=pointer]:
+          - /url: /tests
+        - link "Health Packages" [ref=f3e149] [cursor=pointer]:
+          - /url: /packages
+        - link "Book a Test" [ref=f3e150] [cursor=pointer]:
+          - /url: /booking
+        - link "My Reports" [ref=f3e151] [cursor=pointer]:
+          - /url: /reports
+      - generic [ref=f3e152]:
+        - generic [ref=f3e153]: Company
+        - link "About Us" [ref=f3e154] [cursor=pointer]:
+          - /url: /about
+        - link "Contact" [ref=f3e155] [cursor=pointer]:
+          - /url: /contact
+      - generic [ref=f3e156]:
+        - generic [ref=f3e157]: Account
+        - link "My Profile" [ref=f3e158] [cursor=pointer]:
+          - /url: /profile
+        - link "My Bookings" [ref=f3e159] [cursor=pointer]:
+          - /url: /dashboard
+    - generic [ref=f3e161]:
+      - generic [ref=f3e162]: © 2026 SRI Diagnostic Laboratory & Health Care
+      - generic [ref=f3e163]: All prices in ₹ (Indian Rupees)
+  - generic:
+    - generic "Welcome to Sri Diagnostic Lab"

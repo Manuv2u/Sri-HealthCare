@@ -1,0 +1,13 @@
+reference_number,booking_date,status,collection_type,payment_method,payment_status,payment_amount,invoice_number
+SRI-2026-000033,2026-07-02,booked,home,upi,paid,581.74,INV-20260702035345-667B79
+SRI-2026-000032,2026-07-02,report_ready,lab,cash,paid,3999.00,INV-20260702040305-19CEC7
+SRI-2026-000030,2026-07-02,technician_assigned,home,cash,paid,100.00,INV-20260701181459-FA425E
+SRI-2026-000029,2026-07-02,accepted,home,pending,pending,4418.35,
+SRI-2026-000035,2026-07-02,completed,home,upi,paid,690.30,INV-20260702044834-F169F4
+SRI-2026-000031,2026-07-02,on_the_way,home,cash,paid,100.00,INV-20260701180645-6008F6
+SRI-2026-000024,2026-07-01,booked,lab,cash,paid,371.70,INV-20260701044631-09D5DB
+SRI-2026-000027,2026-07-01,cancelled,lab,cash,paid,500.00,INV-20260701170524-E294E3
+SRI-2026-000026,2026-06-30,completed,home,pending,pending,9999.00,
+SRI-2026-000023,2026-06-30,booked,home,pending,pending,912.00,
+SRI-2026-000021,2026-06-30,completed,lab,pending,pending,2198.00,
+SRI-2026-000025,2026-06-30,completed,home,pending,pending,9999.00,

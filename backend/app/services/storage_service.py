@@ -46,12 +46,13 @@ class LocalStorage:
         return key
 
     async def generate_signed_url(
-        self, key: str, report_id: uuid.UUID, user_id: uuid.UUID
+        self, key: str, report_id: uuid.UUID, user_id: uuid.UUID, file_name: str
     ) -> str:
         payload = {
             "report_id": str(report_id),
             "user_id": str(user_id),
             "key": key,
+            "file_name": file_name,
             "exp": datetime.now(timezone.utc) + timedelta(hours=24),
         }
         token = jose_jwt.encode(payload, settings.jwt_secret, algorithm=settings.jwt_algorithm)
@@ -100,12 +101,16 @@ class S3Storage:
         return key
 
     async def generate_signed_url(
-        self, key: str, report_id: uuid.UUID, user_id: uuid.UUID
+        self, key: str, report_id: uuid.UUID, user_id: uuid.UUID, file_name: str
     ) -> str:
         async with self._get_client() as client:
             url = await client.generate_presigned_url(
                 "get_object",
-                Params={"Bucket": self._bucket, "Key": key},
+                Params={
+                    "Bucket": self._bucket,
+                    "Key": key,
+                    "ResponseContentDisposition": f'attachment; filename="{file_name}"',
+                },
                 ExpiresIn=86400,  # 24 hours
             )
         return url

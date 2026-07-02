@@ -1,0 +1,102 @@
+- generic [ref=f7e3]:
+  - banner [ref=f7e4]:
+    - generic [ref=f7e6]:
+      - link "Sri Health Sri Health Diagnostics" [ref=f7e7] [cursor=pointer]:
+        - /url: /
+        - img "Sri Health" [ref=f7e8]
+        - generic [ref=f7e9]:
+          - generic [ref=f7e10]: Sri Health
+          - generic [ref=f7e11]: Diagnostics
+      - navigation [ref=f7e12]:
+        - link "Home" [ref=f7e13] [cursor=pointer]:
+          - /url: /
+        - link "Tests" [ref=f7e14] [cursor=pointer]:
+          - /url: /tests
+        - link "Packages" [ref=f7e15] [cursor=pointer]:
+          - /url: /packages
+        - link "My Bookings" [ref=f7e16] [cursor=pointer]:
+          - /url: /dashboard
+        - link "Reports" [ref=f7e17] [cursor=pointer]:
+          - /url: /reports
+        - link "About" [ref=f7e18] [cursor=pointer]:
+          - /url: /about
+        - link "Contact" [ref=f7e19] [cursor=pointer]:
+          - /url: /contact
+      - generic [ref=f7e20]:
+        - link "Book Test" [ref=f7e21] [cursor=pointer]:
+          - /url: /booking
+          - img [ref=f7e22]: add_circle_outline
+          - text: Book Test
+        - button "User menu" [ref=f7e24] [cursor=pointer]:
+          - generic [ref=f7e25]: TP
+          - img [ref=f7e26]: expand_more
+  - main [ref=f7e27]:
+    - generic [ref=f7e29]:
+      - generic [ref=f7e31]:
+        - generic [ref=f7e32]: Sri Health Packages
+        - heading "Complete health checkups at unbeatable prices" [level=1] [ref=f7e34]:
+          - text: Complete health checkups
+          - text: at unbeatable prices
+        - paragraph [ref=f7e35]:
+          - text: Curated diagnostic panels for early detection, annual wellness and
+          - text: targeted health monitoring — all under one booking.
+        - generic [ref=f7e36]:
+          - generic [ref=f7e37]:
+            - generic [ref=f7e38]: —
+            - generic [ref=f7e39]: Packages
+          - generic [ref=f7e41]:
+            - generic [ref=f7e42]: NABL
+            - generic [ref=f7e43]: Accredited Lab
+          - generic [ref=f7e45]:
+            - generic [ref=f7e46]: 24h
+            - generic [ref=f7e47]: Report Delivery
+      - generic [ref=f7e49]:
+        - generic [ref=f7e50]:
+          - heading "Recommended Packages for Diabetes" [level=2] [ref=f7e51]
+          - paragraph [ref=f7e52]: Curated based on the health concern(s) you selected.
+        - button "Clear filter" [ref=f7e53] [cursor=pointer]:
+          - img [ref=f7e54]: close
+          - text: Clear filter
+  - contentinfo [ref=f7e122]:
+    - generic [ref=f7e123]:
+      - generic [ref=f7e124]:
+        - generic [ref=f7e125]:
+          - img "Sri Health" [ref=f7e126]
+          - generic [ref=f7e127]: Sri Health
+        - paragraph [ref=f7e128]:
+          - text: Clinical precision.
+          - text: Expert care.
+        - generic [ref=f7e129]:
+          - link "Instagram" [ref=f7e130] [cursor=pointer]:
+            - /url: https://instagram.com
+            - img [ref=f7e131]
+          - link "Facebook" [ref=f7e133] [cursor=pointer]:
+            - /url: https://facebook.com
+            - img [ref=f7e134]
+      - generic [ref=f7e136]:
+        - generic [ref=f7e137]: Services
+        - link "Lab Tests" [ref=f7e138] [cursor=pointer]:
+          - /url: /tests
+        - link "Health Packages" [ref=f7e139] [cursor=pointer]:
+          - /url: /packages
+        - link "Book a Test" [ref=f7e140] [cursor=pointer]:
+          - /url: /booking
+        - link "My Reports" [ref=f7e141] [cursor=pointer]:
+          - /url: /reports
+      - generic [ref=f7e142]:
+        - generic [ref=f7e143]: Company
+        - link "About Us" [ref=f7e144] [cursor=pointer]:
+          - /url: /about
+        - link "Contact" [ref=f7e145] [cursor=pointer]:
+          - /url: /contact
+      - generic [ref=f7e146]:
+        - generic [ref=f7e147]: Account
+        - link "My Profile" [ref=f7e148] [cursor=pointer]:
+          - /url: /profile
+        - link "My Bookings" [ref=f7e149] [cursor=pointer]:
+          - /url: /dashboard
+    - generic [ref=f7e151]:
+      - generic [ref=f7e152]: © 2026 SRI Diagnostic Laboratory & Health Care
+      - generic [ref=f7e153]: All prices in ₹ (Indian Rupees)
+  - generic:
+    - generic "Welcome to Sri Diagnostic Lab"

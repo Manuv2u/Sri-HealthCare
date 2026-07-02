@@ -67,7 +67,10 @@ class ReportService:
         report = await self.repo.create(
             booking_id=booking_id,
             storage_key=storage_key,
-            file_name=file.filename or "report.pdf",
+            # File name always tracks the booking's reference number, regardless
+            # of what the uploader named the source file, so it stays consistent
+            # for both admin and the patient.
+            file_name=f"{booking.reference_number}.pdf",
             file_size_bytes=len(file_bytes),
             uploaded_by=uploaded_by,
             uploader_role=uploader_role,
@@ -100,20 +103,28 @@ class ReportService:
                 detail={"error_code": "REPORT_NOT_FOUND", "message": "Report not found"},
             )
 
+        booking = await self.booking_repo.get_by_id(report.booking_id)
+        if booking is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={"error_code": "BOOKING_NOT_FOUND", "message": "Booking not found"},
+            )
+
         # Verify ownership unless admin
-        if requesting_role != "admin":
-            booking = await self.booking_repo.get_by_id(report.booking_id)
-            if booking is None or booking.user_id != requesting_user_id:
-                raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail={"error_code": "ACCESS_DENIED", "message": "Access denied"},
-                )
+        if requesting_role != "admin" and booking.user_id != requesting_user_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail={"error_code": "ACCESS_DENIED", "message": "Access denied"},
+            )
 
         url = await self.storage.generate_signed_url(
             key=report.storage_key,
             report_id=report.id,
             user_id=requesting_user_id,
-            file_name=report.file_name,
+            # Always derive from the booking's *current* reference number, not
+            # the report's stored file_name, so a later reference-number change
+            # is reflected immediately for both admin and the patient.
+            file_name=f"{booking.reference_number}.pdf",
         )
 
         logger.info(
@@ -129,7 +140,7 @@ class ReportService:
     ) -> dict:
         items, total = await self.repo.list_by_user(user_id, page=page, page_size=page_size)
         return {
-            "items": [_report_to_dict(r) for r in items],
+            "items": [_report_to_dict(r, reference_number) for r, reference_number in items],
             "total": total,
             "page": page,
             "page_size": page_size,
@@ -142,7 +153,11 @@ class ReportService:
         # report for a booking — surface just that one.
         if items:
             items = items[:1]
-        return [_report_to_dict(r) for r in items]
+        if not items:
+            return []
+        booking = await self.booking_repo.get_by_id(booking_id)
+        reference_number = booking.reference_number if booking else None
+        return [_report_to_dict(r, reference_number) for r in items]
 
     def validate_download_token(self, token: str) -> dict:
         """Validate JWT download token for local storage; return payload."""
@@ -163,11 +178,14 @@ class ReportService:
             )
 
 
-def _report_to_dict(report) -> dict:  # type: ignore[no-untyped-def]
+def _report_to_dict(report, reference_number: str | None = None) -> dict:  # type: ignore[no-untyped-def]
     return {
         "id": report.id,
         "booking_id": report.booking_id,
-        "file_name": report.file_name,
+        # Always derive from the booking's current reference number rather than
+        # trusting the stored snapshot, so it stays correct even if the
+        # reference number is changed after the report was uploaded.
+        "file_name": f"{reference_number}.pdf" if reference_number else report.file_name,
         "file_size_bytes": report.file_size_bytes,
         "uploaded_by": report.uploaded_by,
         "uploader_role": report.uploader_role,

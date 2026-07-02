@@ -1,0 +1,163 @@
+- generic [ref=f3e3]:
+  - banner [ref=f3e76]:
+    - generic [ref=f3e78]:
+      - link "Sri Health Sri Health Diagnostics" [ref=f3e79] [cursor=pointer]:
+        - /url: /
+        - img "Sri Health" [ref=f3e80]
+        - generic [ref=f3e81]:
+          - generic [ref=f3e82]: Sri Health
+          - generic [ref=f3e83]: Diagnostics
+      - navigation [ref=f3e84]:
+        - link "Home" [ref=f3e85] [cursor=pointer]:
+          - /url: /
+        - link "Tests" [ref=f3e86] [cursor=pointer]:
+          - /url: /tests
+        - link "Packages" [ref=f3e87] [cursor=pointer]:
+          - /url: /packages
+        - link "My Bookings" [ref=f3e88] [cursor=pointer]:
+          - /url: /dashboard
+        - link "Reports" [ref=f3e89] [cursor=pointer]:
+          - /url: /reports
+        - link "About" [ref=f3e90] [cursor=pointer]:
+          - /url: /about
+        - link "Contact" [ref=f3e91] [cursor=pointer]:
+          - /url: /contact
+      - generic [ref=f3e92]:
+        - link "Book Test" [ref=f3e93] [cursor=pointer]:
+          - /url: /booking
+          - img [ref=f3e94]: add_circle_outline
+          - text: Book Test
+        - button "User menu" [ref=f3e96] [cursor=pointer]:
+          - generic [ref=f3e97]: TP
+          - img [ref=f3e98]: expand_more
+  - main [ref=f3e4]:
+    - generic [ref=f3e100]:
+      - generic [ref=f3e101]:
+        - generic [ref=f3e102]:
+          - heading "My Bookings" [level=1] [ref=f3e103]
+          - paragraph [ref=f3e104]: Track and manage all your diagnostic test bookings
+        - button "Book New Test" [ref=f3e106] [cursor=pointer]:
+          - generic [ref=f3e107]:
+            - img [ref=f3e108]
+            - text: Book New Test
+      - generic [ref=f3e109]:
+        - tablist "Filter bookings by status" [ref=f3e110]:
+          - tab "All" [selected] [ref=f3e111] [cursor=pointer]
+          - tab "Pending" [ref=f3e112] [cursor=pointer]
+          - tab "Confirmed" [ref=f3e113] [cursor=pointer]
+          - tab "Completed" [ref=f3e114] [cursor=pointer]
+          - tab "Cancelled" [ref=f3e115] [cursor=pointer]
+        - generic [ref=f3e117]:
+          - img [ref=f3e119]
+          - searchbox "Search reference…" [ref=f3e122]
+      - generic [ref=f3e124]:
+        - heading "No Bookings Yet" [level=3] [ref=f3e126]
+        - paragraph [ref=f3e127]: You haven't made any bookings yet.
+        - button "Book Your First Test" [ref=f3e130] [cursor=pointer]:
+          - generic [ref=f3e131]: Book Your First Test
+  - contentinfo [ref=f3e132]:
+    - generic [ref=f3e133]:
+      - generic [ref=f3e134]:
+        - generic [ref=f3e135]:
+          - img "Sri Health" [ref=f3e136]
+          - generic [ref=f3e137]: Sri Health
+        - paragraph [ref=f3e138]:
+          - text: Clinical precision.
+          - text: Expert care.
+        - generic [ref=f3e139]:
+          - link "Instagram" [ref=f3e140] [cursor=pointer]:
+            - /url: https://instagram.com
+            - img [ref=f3e141]
+          - link "Facebook" [ref=f3e143] [cursor=pointer]:
+            - /url: https://facebook.com
+            - img [ref=f3e144]
+      - generic [ref=f3e146]:
+        - generic [ref=f3e147]: Services
+        - link "Lab Tests" [ref=f3e148] [cursor=pointer]:
+          - /url: /tests
+        - link "Health Packages" [ref=f3e149] [cursor=pointer]:
+          - /url: /packages
+        - link "Book a Test" [ref=f3e150] [cursor=pointer]:
+          - /url: /booking
+        - link "My Reports" [ref=f3e151] [cursor=pointer]:
+          - /url: /reports
+      - generic [ref=f3e152]:
+        - generic [ref=f3e153]: Company
+        - link "About Us" [ref=f3e154] [cursor=pointer]:
+          - /url: /about
+        - link "Contact" [ref=f3e155] [cursor=pointer]:
+          - /url: /contact
+      - generic [ref=f3e156]:
+        - generic [ref=f3e157]: Account
+        - link "My Profile" [ref=f3e158] [cursor=pointer]:
+          - /url: /profile
+        - link "My Bookings" [ref=f3e159] [cursor=pointer]:
+          - /url: /dashboard
+    - generic [ref=f3e161]:
+      - generic [ref=f3e162]: © 2026 SRI Diagnostic Laboratory & Health Care
+      - generic [ref=f3e163]: All prices in ₹ (Indian Rupees)
+  - generic:
+    - generic "Welcome to Sri Diagnostic Lab":
+      - dialog [ref=f3e164]:
+        - document [ref=f3e165]:
+          - banner [ref=f3e166]:
+            - heading "Welcome to Sri Diagnostic Lab" [level=2] [ref=f3e167]
+            - button "Close modal" [ref=f3e168] [cursor=pointer]:
+              - img [ref=f3e169]
+          - generic [ref=f3e173]:
+            - paragraph [ref=f3e174]: Select your health concern to discover the most relevant tests and health packages.
+            - group "Health concerns" [ref=f3e175]:
+              - button "Full Body Checkup" [ref=f3e176] [cursor=pointer]:
+                - img [ref=f3e177]: accessibility_new
+                - generic [ref=f3e178]: Full Body Checkup
+              - button "Diabetes" [ref=f3e179] [cursor=pointer]:
+                - img [ref=f3e180]: water_drop
+                - generic [ref=f3e181]: Diabetes
+              - button "Thyroid" [ref=f3e182] [cursor=pointer]:
+                - img [ref=f3e183]: psychology
+                - generic [ref=f3e184]: Thyroid
+              - button "Heart Health" [ref=f3e185] [cursor=pointer]:
+                - img [ref=f3e186]: favorite
+                - generic [ref=f3e187]: Heart Health
+              - button "Liver" [ref=f3e188] [cursor=pointer]:
+                - img [ref=f3e189]: eco
+                - generic [ref=f3e190]: Liver
+              - button "Kidney" [ref=f3e191] [cursor=pointer]:
+                - img [ref=f3e192]: opacity
+                - generic [ref=f3e193]: Kidney
+              - button "Fever & Infection" [ref=f3e194] [cursor=pointer]:
+                - img [ref=f3e195]: sick
+                - generic [ref=f3e196]: Fever & Infection
+              - button "Vitamin Deficiency" [ref=f3e197] [cursor=pointer]:
+                - img [ref=f3e198]: wb_sunny
+                - generic [ref=f3e199]: Vitamin Deficiency
+              - button "Women's Health" [ref=f3e200] [cursor=pointer]:
+                - img [ref=f3e201]: spa
+                - generic [ref=f3e202]: Women's Health
+              - button "Men's Health" [ref=f3e203] [cursor=pointer]:
+                - img [ref=f3e204]: male
+                - generic [ref=f3e205]: Men's Health
+              - button "Pregnancy" [ref=f3e206] [cursor=pointer]:
+                - img [ref=f3e207]: pregnant_woman
+                - generic [ref=f3e208]: Pregnancy
+              - button "Children's Health" [ref=f3e209] [cursor=pointer]:
+                - img [ref=f3e210]: child_care
+                - generic [ref=f3e211]: Children's Health
+              - button "Senior Citizen" [ref=f3e212] [cursor=pointer]:
+                - img [ref=f3e213]: elderly
+                - generic [ref=f3e214]: Senior Citizen
+              - button "Bone Health" [ref=f3e215] [cursor=pointer]:
+                - img [ref=f3e216]: fitness_center
+                - generic [ref=f3e217]: Bone Health
+              - button "Allergy" [ref=f3e218] [cursor=pointer]:
+                - img [ref=f3e219]: air
+                - generic [ref=f3e220]: Allergy
+              - button "General Health" [ref=f3e221] [cursor=pointer]:
+                - img [ref=f3e222]: health_and_safety
+                - generic [ref=f3e223]: General Health
+          - contentinfo [ref=f3e224]:
+            - generic [ref=f3e225]:
+              - button "Skip for Now" [ref=f3e227] [cursor=pointer]:
+                - generic [ref=f3e228]: Skip for Now
+              - button "Continue" [disabled] [ref=f3e230]:
+                - generic [ref=f3e231]: Continue

@@ -61,12 +61,12 @@ class ReportRepository:
         user_id: uuid.UUID,
         page: int = 1,
         page_size: int = 20,
-    ) -> tuple[list[Report], int]:
+    ) -> tuple[list[tuple[Report, str]], int]:
         from sqlalchemy import func
         from app.models.booking import Booking
 
         base = (
-            select(Report)
+            select(Report, Booking.reference_number)
             .join(Booking, Booking.id == Report.booking_id)
             .where(Booking.user_id == user_id)
         )
@@ -79,4 +79,4 @@ class ReportRepository:
         result = await self.db.execute(
             base.order_by(Report.uploaded_at.desc()).offset(offset).limit(page_size)
         )
-        return list(result.scalars().all()), total
+        return [(r, ref) for r, ref in result.all()], total

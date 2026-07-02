@@ -1,0 +1,100 @@
+- generic [ref=f4e3]:
+  - banner [ref=f4e4]:
+    - generic [ref=f4e6]:
+      - link "Sri Health Sri Health Diagnostics" [ref=f4e7] [cursor=pointer]:
+        - /url: /
+        - img "Sri Health" [ref=f4e8]
+        - generic [ref=f4e9]:
+          - generic [ref=f4e10]: Sri Health
+          - generic [ref=f4e11]: Diagnostics
+      - navigation [ref=f4e12]:
+        - link "Home" [ref=f4e13] [cursor=pointer]:
+          - /url: /
+        - link "Tests" [ref=f4e14] [cursor=pointer]:
+          - /url: /tests
+        - link "Packages" [ref=f4e15] [cursor=pointer]:
+          - /url: /packages
+        - link "My Bookings" [ref=f4e16] [cursor=pointer]:
+          - /url: /dashboard
+        - link "Reports" [ref=f4e17] [cursor=pointer]:
+          - /url: /reports
+        - link "About" [ref=f4e18] [cursor=pointer]:
+          - /url: /about
+        - link "Contact" [ref=f4e19] [cursor=pointer]:
+          - /url: /contact
+      - generic [ref=f4e20]:
+        - link "Book Test" [ref=f4e21] [cursor=pointer]:
+          - /url: /booking
+          - img [ref=f4e22]: add_circle_outline
+          - text: Book Test
+        - button "User menu" [ref=f4e24] [cursor=pointer]:
+          - generic [ref=f4e25]: TP
+          - img [ref=f4e26]: expand_more
+  - main [ref=f4e27]:
+    - generic [ref=f4e29]:
+      - generic [ref=f4e30]:
+        - generic [ref=f4e31]:
+          - heading "My Bookings" [level=1] [ref=f4e32]
+          - paragraph [ref=f4e33]: Track and manage all your diagnostic test bookings
+        - button "Book New Test" [ref=f4e35] [cursor=pointer]:
+          - generic [ref=f4e36]:
+            - img [ref=f4e37]
+            - text: Book New Test
+      - generic [ref=f4e38]:
+        - tablist "Filter bookings by status" [ref=f4e39]:
+          - tab "All" [selected] [ref=f4e40] [cursor=pointer]
+          - tab "Pending" [ref=f4e41] [cursor=pointer]
+          - tab "Confirmed" [ref=f4e42] [cursor=pointer]
+          - tab "Completed" [ref=f4e43] [cursor=pointer]
+          - tab "Cancelled" [ref=f4e44] [cursor=pointer]
+        - generic [ref=f4e46]:
+          - img [ref=f4e48]
+          - searchbox "Search reference…" [ref=f4e51]
+      - generic [ref=f4e53]:
+        - heading "No Bookings Yet" [level=3] [ref=f4e55]
+        - paragraph [ref=f4e56]: You haven't made any bookings yet.
+        - button "Book Your First Test" [ref=f4e59] [cursor=pointer]:
+          - generic [ref=f4e60]: Book Your First Test
+  - contentinfo [ref=f4e61]:
+    - generic [ref=f4e62]:
+      - generic [ref=f4e63]:
+        - generic [ref=f4e64]:
+          - img "Sri Health" [ref=f4e65]
+          - generic [ref=f4e66]: Sri Health
+        - paragraph [ref=f4e67]:
+          - text: Clinical precision.
+          - text: Expert care.
+        - generic [ref=f4e68]:
+          - link "Instagram" [ref=f4e69] [cursor=pointer]:
+            - /url: https://instagram.com
+            - img [ref=f4e70]
+          - link "Facebook" [ref=f4e72] [cursor=pointer]:
+            - /url: https://facebook.com
+            - img [ref=f4e73]
+      - generic [ref=f4e75]:
+        - generic [ref=f4e76]: Services
+        - link "Lab Tests" [ref=f4e77] [cursor=pointer]:
+          - /url: /tests
+        - link "Health Packages" [ref=f4e78] [cursor=pointer]:
+          - /url: /packages
+        - link "Book a Test" [ref=f4e79] [cursor=pointer]:
+          - /url: /booking
+        - link "My Reports" [ref=f4e80] [cursor=pointer]:
+          - /url: /reports
+      - generic [ref=f4e81]:
+        - generic [ref=f4e82]: Company
+        - link "About Us" [ref=f4e83] [cursor=pointer]:
+          - /url: /about
+        - link "Contact" [ref=f4e84] [cursor=pointer]:
+          - /url: /contact
+      - generic [ref=f4e85]:
+        - generic [ref=f4e86]: Account
+        - link "My Profile" [ref=f4e87] [cursor=pointer]:
+          - /url: /profile
+        - link "My Bookings" [ref=f4e88] [cursor=pointer]:
+          - /url: /dashboard
+    - generic [ref=f4e90]:
+      - generic [ref=f4e91]: © 2026 SRI Diagnostic Laboratory & Health Care
+      - generic [ref=f4e92]: All prices in ₹ (Indian Rupees)
+  - generic:
+    - generic "Welcome to Sri Diagnostic Lab"

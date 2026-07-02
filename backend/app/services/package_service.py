@@ -26,6 +26,7 @@ def _package_to_dict(pkg: Package, tests: list[Test]) -> dict:
 
 class PackageService:
     def __init__(self, db: AsyncSession) -> None:
+        self.db = db
         self.repo = PackageRepository(db)
 
     async def create_package(
@@ -57,8 +58,23 @@ class PackageService:
         tests = await self.repo.get_active_tests(package_id)
         return _package_to_dict(pkg, tests)
 
-    async def list_packages(self, page: int, page_size: int, active_only: bool = True) -> dict:
-        items, total = await self.repo.list(active_only=active_only, page=page, page_size=page_size)
+    async def list_packages(
+        self,
+        page: int,
+        page_size: int,
+        active_only: bool = True,
+        health_concern: str | None = None,
+    ) -> dict:
+        package_ids = None
+        if health_concern:
+            from app.repositories.health_concern_repository import HealthConcernRepository
+
+            keys = [k.strip() for k in health_concern.split(",") if k.strip()]
+            package_ids = await HealthConcernRepository(self.db).keys_to_package_ids(keys)
+
+        items, total = await self.repo.list(
+            active_only=active_only, page=page, page_size=page_size, package_ids=package_ids
+        )
         result_items = []
         for pkg in items:
             tests = await self.repo.get_active_tests(pkg.id)

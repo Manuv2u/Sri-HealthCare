@@ -7,10 +7,11 @@ import { PaginatedResponse, Test } from '../api.types';
 export class TestApiService {
   constructor(private http: HttpClient) {}
 
-  list(params: { q?: string; category?: string; page?: number; page_size?: number; include_inactive?: boolean } = {}): Observable<PaginatedResponse<Test>> {
+  list(params: { q?: string; category?: string; health_concern?: string; page?: number; page_size?: number; include_inactive?: boolean } = {}): Observable<PaginatedResponse<Test>> {
     let p = new HttpParams();
     if (params.q) p = p.set('q', params.q);
     if (params.category) p = p.set('category', params.category);
+    if (params.health_concern) p = p.set('health_concern', params.health_concern);
     if (params.page) p = p.set('page', params.page);
     if (params.page_size) p = p.set('page_size', params.page_size);
     if (params.include_inactive) p = p.set('include_inactive', 'true');

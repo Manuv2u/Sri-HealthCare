@@ -1,0 +1,289 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e6]:
+      - link "Sri Health Sri Health Diagnostics" [ref=e7] [cursor=pointer]:
+        - /url: /
+        - img "Sri Health" [ref=e8]
+        - generic [ref=e9]:
+          - generic [ref=e10]: Sri Health
+          - generic [ref=e11]: Diagnostics
+      - navigation [ref=e12]:
+        - link "Home" [ref=e13] [cursor=pointer]:
+          - /url: /
+        - link "Tests" [ref=e14] [cursor=pointer]:
+          - /url: /tests
+        - link "Packages" [ref=e15] [cursor=pointer]:
+          - /url: /packages
+        - link "My Bookings" [ref=e16] [cursor=pointer]:
+          - /url: /dashboard
+        - link "Reports" [ref=e17] [cursor=pointer]:
+          - /url: /reports
+        - link "About" [ref=e18] [cursor=pointer]:
+          - /url: /about
+        - link "Contact" [ref=e19] [cursor=pointer]:
+          - /url: /contact
+        - link "Admin" [ref=e20] [cursor=pointer]:
+          - /url: /admin
+          - img [ref=e21]: admin_panel_settings
+          - text: Admin
+      - generic [ref=e22]:
+        - link "Book Test" [ref=e23] [cursor=pointer]:
+          - /url: /booking
+          - img [ref=e24]: add_circle_outline
+          - text: Book Test
+        - button "User menu" [ref=e26] [cursor=pointer]:
+          - generic [ref=e27]: A
+          - img [ref=e28]: expand_more
+  - main [ref=e29]:
+    - generic [ref=e30]:
+      - region "Hero" [ref=e31]:
+        - generic [ref=e32]:
+          - generic [ref=e33]:
+            - generic [ref=e34]:
+              - generic [ref=e35]: ★★★★★
+              - generic [ref=e36]: 4.8 · Trusted by 50,000+ patients
+            - heading "Book Lab Tests at Home" [level=1] [ref=e37]:
+              - text: Book Lab Tests
+              - text: at Home
+            - paragraph [ref=e38]: Certified phlebotomists, NABL-accredited labs, and same-day reports — all from the comfort of your home across Shivamogga and beyond.
+            - generic [ref=e39]:
+              - link "Book a Test" [ref=e40] [cursor=pointer]:
+                - /url: /booking
+                - img [ref=e41]: calendar_today
+                - text: Book a Test
+              - link "View Tests" [ref=e42] [cursor=pointer]:
+                - /url: /tests
+                - img [ref=e43]: biotech
+                - text: View Tests
+            - generic [ref=e44]:
+              - link "Reports" [ref=e45] [cursor=pointer]:
+                - /url: /reports
+                - img [ref=e46]: download
+                - text: Reports
+              - link "Family" [ref=e47] [cursor=pointer]:
+                - /url: /profile
+                - img [ref=e48]: group
+                - text: Family
+              - link "Packages" [ref=e49] [cursor=pointer]:
+                - /url: /packages
+                - img [ref=e50]: inventory_2
+                - text: Packages
+          - generic [ref=e52]:
+            - generic [ref=e53]:
+              - generic [ref=e54]:
+                - img [ref=e56]: biotech
+                - img [ref=e58]: science
+              - generic [ref=e59]:
+                - img [ref=e61]: vaccines
+                - img [ref=e63]: monitor_heart
+              - generic [ref=e64]: NABL Accredited Lab
+            - generic [ref=e65]:
+              - generic [ref=e66]: 99.9%
+              - generic [ref=e67]: Accuracy Rate
+            - generic [ref=e68]:
+              - img [ref=e69]: task_alt
+              - generic [ref=e70]:
+                - generic [ref=e71]: Report Ready
+                - generic [ref=e72]: Same day delivery
+      - region "Key stats" [ref=e73]:
+        - generic [ref=e74]:
+          - generic [ref=e75]:
+            - img [ref=e77]: people
+            - generic [ref=e78]:
+              - generic [ref=e79]: 50K+
+              - generic [ref=e80]: Patients
+          - generic [ref=e82]:
+            - img [ref=e84]: biotech
+            - generic [ref=e85]:
+              - generic [ref=e86]: 200+
+              - generic [ref=e87]: Tests Available
+          - generic [ref=e89]:
+            - img [ref=e91]: location_on
+            - generic [ref=e92]:
+              - generic [ref=e93]: 15+
+              - generic [ref=e94]: Branches
+          - generic [ref=e96]:
+            - img [ref=e98]: speed
+            - generic [ref=e99]:
+              - generic [ref=e100]: Same Day
+              - generic [ref=e101]: Reports
+      - region "Built around your convenience" [ref=e102]:
+        - generic [ref=e103]:
+          - generic [ref=e104]: Why Sri Health
+          - heading "Built around your convenience" [level=2] [ref=e105]
+          - paragraph [ref=e106]: Every step is designed so getting tested feels effortless, not clinical.
+          - generic [ref=e107]:
+            - generic [ref=e108]:
+              - img [ref=e110]: home
+              - heading "Home Collection" [level=3] [ref=e111]
+              - paragraph [ref=e112]: Certified phlebotomists arrive at your door with sterile, single-use kits. No clinic, no queue.
+            - generic [ref=e113]:
+              - img [ref=e115]: verified
+              - heading "Expert Lab" [level=3] [ref=e116]
+              - paragraph [ref=e117]: Every sample is processed at our NABL-accredited facility and reviewed by MD pathologists.
+            - generic [ref=e118]:
+              - img [ref=e120]: speed
+              - heading "Same Day Reports" [level=3] [ref=e121]
+              - paragraph [ref=e122]: Most results are delivered digitally within hours — no waiting, no follow-up calls.
+            - generic [ref=e123]:
+              - img [ref=e125]: workspace_premium
+              - heading "Certified Results" [level=3] [ref=e126]
+              - paragraph [ref=e127]: ISO 9001:2015 and NABL certified. Every report carries the quality mark your doctor trusts.
+      - region "Popular Tests" [ref=e128]:
+        - generic [ref=e129]:
+          - generic [ref=e130]:
+            - generic [ref=e131]:
+              - generic [ref=e132]: Most Booked
+              - heading "Popular Tests" [level=2] [ref=e133]
+            - link "Browse all tests" [ref=e134] [cursor=pointer]:
+              - /url: /tests
+              - text: Browse all tests
+              - img [ref=e135]: arrow_forward
+          - generic [ref=e136]:
+            - link "CBC Complete Blood Count" [ref=e137] [cursor=pointer]:
+              - /url: /tests
+              - img [ref=e139]: bloodtype
+              - generic [ref=e140]:
+                - generic [ref=e141]: CBC
+                - generic [ref=e142]: Complete Blood Count
+            - link "LFT Liver Function Test" [ref=e143] [cursor=pointer]:
+              - /url: /tests
+              - img [ref=e145]: science
+              - generic [ref=e146]:
+                - generic [ref=e147]: LFT
+                - generic [ref=e148]: Liver Function Test
+            - link "KFT Kidney Function Test" [ref=e149] [cursor=pointer]:
+              - /url: /tests
+              - img [ref=e151]: water_drop
+              - generic [ref=e152]:
+                - generic [ref=e153]: KFT
+                - generic [ref=e154]: Kidney Function Test
+            - link "Thyroid T3 / T4 / TSH Panel" [ref=e155] [cursor=pointer]:
+              - /url: /tests
+              - img [ref=e157]: monitor_heart
+              - generic [ref=e158]:
+                - generic [ref=e159]: Thyroid
+                - generic [ref=e160]: T3 / T4 / TSH Panel
+            - link "Lipid Profile Cholesterol Panel" [ref=e161] [cursor=pointer]:
+              - /url: /tests
+              - img [ref=e163]: favorite
+              - generic [ref=e164]:
+                - generic [ref=e165]: Lipid Profile
+                - generic [ref=e166]: Cholesterol Panel
+            - link "HbA1c Diabetes Marker" [ref=e167] [cursor=pointer]:
+              - /url: /tests
+              - img [ref=e169]: vaccines
+              - generic [ref=e170]:
+                - generic [ref=e171]: HbA1c
+                - generic [ref=e172]: Diabetes Marker
+      - region "How it works" [ref=e173]:
+        - generic [ref=e174]:
+          - generic [ref=e175]: Simple Process
+          - heading "How it works" [level=2] [ref=e176]
+          - paragraph [ref=e177]: From booking to report, everything happens in four steps.
+          - generic [ref=e178]:
+            - generic [ref=e179]:
+              - generic [ref=e180]: "1"
+              - img [ref=e182]: checklist
+              - heading "Choose Tests" [level=4] [ref=e183]
+              - paragraph [ref=e184]: Pick individual tests or a health package that suits your needs.
+            - generic [ref=e186]:
+              - generic [ref=e187]: "2"
+              - img [ref=e189]: calendar_today
+              - heading "Book a Slot" [level=4] [ref=e190]
+              - paragraph [ref=e191]: Select a date and time that works for you — early morning slots available.
+            - generic [ref=e193]:
+              - generic [ref=e194]: "3"
+              - img [ref=e196]: vaccines
+              - heading "Sample Collected" [level=4] [ref=e197]
+              - paragraph [ref=e198]: Our phlebotomist arrives at your door and collects the sample hygienically.
+            - generic [ref=e200]:
+              - generic [ref=e201]: "4"
+              - img [ref=e203]: description
+              - heading "Get Reports" [level=4] [ref=e204]
+              - paragraph [ref=e205]: Reports are sent to your phone and available in your dashboard same day.
+      - region "Call to action" [ref=e206]:
+        - generic [ref=e207]:
+          - generic [ref=e208]:
+            - heading "Get tested from the comfort of your home" [level=2] [ref=e209]:
+              - text: Get tested from the
+              - text: comfort of your home
+            - paragraph [ref=e210]: Shivamogga's most trusted diagnostic lab — now at your doorstep.
+          - link "Book Now" [ref=e211] [cursor=pointer]:
+            - /url: /booking
+            - img [ref=e212]: calendar_today
+            - text: Book Now
+      - generic [ref=e213]:
+        - generic [ref=e214]:
+          - generic [ref=e215]:
+            - img "SRI Diagnostic Laboratory" [ref=e216]
+            - strong [ref=e217]: SRI Diagnostic Laboratory & Health Care
+            - paragraph [ref=e218]: Setting new standards in diagnostic excellence across Shivamogga.
+            - generic [ref=e219]:
+              - generic [ref=e220]:
+                - img [ref=e221]: location_on
+                - text: Shiva jyothi complex, Kuvempu road near Hosmane 2nd cross, Shivamogga 577201
+              - generic [ref=e222]:
+                - img [ref=e223]: phone
+                - text: 7795***207
+            - generic [ref=e224]:
+              - link "Instagram" [ref=e225] [cursor=pointer]:
+                - /url: https://instagram.com
+                - img [ref=e226]
+              - link "Facebook" [ref=e228] [cursor=pointer]:
+                - /url: https://facebook.com
+                - img [ref=e229]
+              - link "Twitter / X" [ref=e231] [cursor=pointer]:
+                - /url: https://twitter.com
+                - img [ref=e232]
+          - generic [ref=e234]:
+            - strong [ref=e235]: Popular Tests
+            - link "Complete Blood Count" [ref=e236] [cursor=pointer]:
+              - /url: /tests
+            - link "Thyroid Profile (T3, T4, TSH)" [ref=e237] [cursor=pointer]:
+              - /url: /tests
+            - link "HbA1c Fasting Panel" [ref=e238] [cursor=pointer]:
+              - /url: /tests
+            - link "Lipid Profile" [ref=e239] [cursor=pointer]:
+              - /url: /tests
+            - link "Kidney Function Test" [ref=e240] [cursor=pointer]:
+              - /url: /tests
+          - generic [ref=e241]:
+            - strong [ref=e242]: Quick Links
+            - link "Browse Tests" [ref=e243] [cursor=pointer]:
+              - /url: /tests
+            - link "Health Packages" [ref=e244] [cursor=pointer]:
+              - /url: /packages
+            - link "Book Now" [ref=e245] [cursor=pointer]:
+              - /url: /booking
+            - link "About Us" [ref=e246] [cursor=pointer]:
+              - /url: /about
+            - link "Contact Us" [ref=e247] [cursor=pointer]:
+              - /url: /contact
+            - link "Sign In" [ref=e248] [cursor=pointer]:
+              - /url: /auth/login
+          - generic [ref=e249]:
+            - strong [ref=e250]: Newsletter
+            - paragraph [ref=e251]: Health tips and package offers, straight to your inbox.
+            - generic [ref=e252]:
+              - textbox "Email address for newsletter" [ref=e253]:
+                - /placeholder: Email address
+              - button "Join" [ref=e254] [cursor=pointer]
+            - generic [ref=e255]:
+              - generic [ref=e256]:
+                - img [ref=e257]: verified
+                - text: NABL
+              - generic [ref=e258]:
+                - img [ref=e259]: workspace_premium
+                - text: ISO 9001
+        - generic [ref=e260]:
+          - generic [ref=e261]: © 2026 SRI Diagnostic Laboratory & Health Care. All rights reserved.
+          - generic [ref=e262]:
+            - generic [ref=e263] [cursor=pointer]: Privacy Policy
+            - generic [ref=e264] [cursor=pointer]: Terms of Service
+  - generic:
+    - generic "Welcome to Sri Diagnostic Lab"
+  - generic:
+    - button "How can we help?" [ref=e265] [cursor=pointer]:
+      - img [ref=e266]: support_agent
+    - generic "How can we help?"

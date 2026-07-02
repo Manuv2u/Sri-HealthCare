@@ -126,6 +126,8 @@ from app.api.v1.feature_flags import router as feature_flags_router  # noqa: E40
 from app.api.v1.health import router as health_router  # noqa: E402
 from app.api.v1.admin_settings import router as admin_settings_router  # noqa: E402
 from app.api.v1.service_areas import router as service_areas_router  # noqa: E402
+from app.api.v1.health_concerns import router as health_concerns_router  # noqa: E402
+from app.api.v1.callback_requests import router as callback_requests_router  # noqa: E402
 
 api_v1 = APIRouter(prefix="/api/v1")
 
@@ -146,5 +148,7 @@ api_v1.include_router(feature_flags_router)
 api_v1.include_router(admin_router)
 api_v1.include_router(admin_settings_router)
 api_v1.include_router(service_areas_router)
+api_v1.include_router(health_concerns_router)
+api_v1.include_router(callback_requests_router)
 
 app.include_router(api_v1)

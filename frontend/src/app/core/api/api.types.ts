@@ -16,6 +16,24 @@ export interface User {
   gender?: string;
   role: string;
   is_active: boolean;
+  health_concerns?: string[] | null;
+  created_at: string;
+}
+
+export interface HealthConcern {
+  id: string;
+  key: string;
+  name: string;
+  icon: string;
+  display_order: number;
+}
+
+export interface CallbackRequest {
+  id: string;
+  name?: string | null;
+  phone: string;
+  status: 'new' | 'contacted' | 'closed';
+  notes?: string | null;
   created_at: string;
 }
 

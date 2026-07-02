@@ -53,6 +53,7 @@ class TestRepository:
         page_size: int = 20,
         include_deleted: bool = False,
         active_only: bool = False,
+        test_ids: list[uuid.UUID] | None = None,
     ) -> tuple[list[Test], int]:
         base_query = select(Test)
         count_query = select(func.count()).select_from(Test)
@@ -65,6 +66,8 @@ class TestRepository:
             filters.append(Test.is_active.is_(True))
         if category:
             filters.append(Test.category == category)
+        if test_ids is not None:
+            filters.append(Test.id.in_(test_ids))
 
         if q:
             tsquery = func.plainto_tsquery("english", q)

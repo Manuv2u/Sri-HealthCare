@@ -1,11 +1,14 @@
-import { Component, OnInit, signal, computed, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit, signal, computed, effect, ElementRef, ViewChild, AfterViewInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { ReactiveFormsModule, FormControl } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { TestApiService } from '../../../core/api/services/test-api.service';
-import { Test } from '../../../core/api/api.types';
+import { HealthConcernApiService } from '../../../core/api/services/health-concern-api.service';
+import { UserApiService } from '../../../core/api/services/user-api.service';
+import { AuthStateService } from '../../../core/auth/auth-state.service';
+import { Test, HealthConcern } from '../../../core/api/api.types';
 
 const CATEGORY_META: Record<string, { icon: string; color: string; light: string; border: string }> = {
   'Diabetes':       { icon: 'water_drop',      color: '#0EA5E9', light: '#E0F2FE', border: '#BAE6FD' },
@@ -84,7 +87,10 @@ const CATEGORY_ICONS = [
          CATEGORY PILLS — sticky below hero
     ════════════════════════════════════════════════ -->
     <div class="cats-bar-wrap">
-      <nav class="cats-bar" aria-label="Filter by category">
+      <div class="cats-fade cats-fade--left" [class.visible]="canScrollLeft()"></div>
+      <div class="cats-fade cats-fade--right" [class.visible]="canScrollRight()"></div>
+      <nav class="cats-bar" #catsBar aria-label="Filter by category"
+           (scroll)="updateCatsFade()" (wheel)="onCatsWheel($event)">
         @for (cat of categoryChips(); track $index) {
           <button
             class="cat-chip"
@@ -108,6 +114,28 @@ const CATEGORY_ICONS = [
          MAIN CONTENT
     ════════════════════════════════════════════════ -->
     <main class="content-wrap">
+
+      @if (selectedConcernKeys().length) {
+        <div class="concern-banner">
+          <div>
+            <h2 class="concern-heading">Recommended Tests for {{ concernNames() }}</h2>
+            <p class="concern-sub">Curated based on the health concern(s) you selected.</p>
+          </div>
+          <button class="btn-clear-filters" (click)="clearConcernFilter()">
+            <mat-icon>close</mat-icon> Clear filter
+          </button>
+        </div>
+      } @else if (savedConcernNames()) {
+        <div class="concern-banner concern-banner--suggestion">
+          <div>
+            <h2 class="concern-heading">Recommended for you</h2>
+            <p class="concern-sub">Based on your saved interest in {{ savedConcernNames() }}.</p>
+          </div>
+          <button class="btn-clear-filters" (click)="applySavedConcerns()">
+            <mat-icon>arrow_forward</mat-icon> Show recommended
+          </button>
+        </div>
+      }
 
       <!-- LOADING SKELETONS -->
       @if (loading()) {
@@ -388,11 +416,30 @@ const CATEGORY_ICONS = [
     }
     .cats-bar {
       display:flex; gap:.5rem; align-items:center;
+      flex-wrap:nowrap;
       overflow-x:auto; padding:.75rem 1.5rem;
       max-width:1280px; margin:0 auto;
       scrollbar-width:none;
+      scroll-behavior:smooth;
+      -webkit-overflow-scrolling:touch;
+      overscroll-behavior-x:contain;
+      touch-action:pan-x;
     }
     .cats-bar::-webkit-scrollbar { display:none; }
+    .cats-fade {
+      position:absolute; top:0; bottom:0; width:2.5rem;
+      pointer-events:none; z-index:1;
+      opacity:0; transition:opacity .2s ease;
+    }
+    .cats-fade--left {
+      left:0;
+      background:linear-gradient(to right, #fff, rgba(255,255,255,0));
+    }
+    .cats-fade--right {
+      right:0;
+      background:linear-gradient(to left, #fff, rgba(255,255,255,0));
+    }
+    .cats-fade.visible { opacity:1; }
 
     .cat-chip {
       display:inline-flex; align-items:center; gap:.35rem;
@@ -446,6 +493,17 @@ const CATEGORY_ICONS = [
     }
     .btn-clear-filters:hover { border-color:#6366F1; color:#6366F1; }
     .btn-clear-filters mat-icon { font-size:.85rem; width:.85rem; height:.85rem; }
+
+    .concern-banner {
+      display:flex; align-items:center; justify-content:space-between; gap:1rem;
+      flex-wrap:wrap;
+      background:#EEF2FF; border:1px solid #C7D2FE; border-radius:14px;
+      padding:1rem 1.25rem; margin-bottom:1.25rem;
+    }
+    .concern-banner--suggestion { background:#F0FDFA; border-color:#99F6E4; }
+    .concern-heading { font-size:1.05rem; font-weight:700; color:#0F172A; margin:0 0 .2rem 0; }
+    .concern-sub { font-size:.8rem; color:#475569; margin:0; }
+    .concern-banner .btn-clear-filters { background:#fff; flex-shrink:0; }
 
     /* ─── FEATURED CARD ──────────────────────────── */
     .featured-card {
@@ -719,7 +777,10 @@ const CATEGORY_ICONS = [
     }
   `],
 })
-export class TestCatalogComponent implements OnInit {
+export class TestCatalogComponent implements OnInit, AfterViewInit {
+  @ViewChild('catsBar') catsBarRef?: ElementRef<HTMLElement>;
+  canScrollLeft = signal(false);
+  canScrollRight = signal(false);
   searchCtrl = new FormControl('');
   allTests = signal<Test[]>([]);
   loading = signal(true);
@@ -729,6 +790,23 @@ export class TestCatalogComponent implements OnInit {
   pageSize = 20;
   selectedCategory = signal<string | null>(null);
   searchFocused = false;
+
+  selectedConcernKeys = signal<string[]>([]);
+  allConcerns = signal<HealthConcern[]>([]);
+  savedConcernKeys = signal<string[]>([]);
+
+  concernNames = computed(() =>
+    this.selectedConcernKeys()
+      .map(k => this.allConcerns().find(c => c.key === k)?.name ?? k)
+      .join(', ')
+  );
+
+  savedConcernNames = computed(() => {
+    if (this.selectedConcernKeys().length || !this.savedConcernKeys().length) return '';
+    return this.savedConcernKeys()
+      .map(k => this.allConcerns().find(c => c.key === k)?.name ?? k)
+      .join(', ');
+  });
 
   categories = computed(() => {
     const map = new Map<string, number>();
@@ -780,22 +858,70 @@ export class TestCatalogComponent implements OnInit {
     return [...CATEGORY_ICONS, ...extra];
   });
 
-  constructor(private testApi: TestApiService, private router: Router, private route: ActivatedRoute) {}
+  constructor(
+    private testApi: TestApiService,
+    private healthConcernApi: HealthConcernApiService,
+    private userApi: UserApiService,
+    private authState: AuthStateService,
+    private router: Router,
+    private route: ActivatedRoute,
+  ) {
+    effect(() => {
+      this.categoryChips();
+      queueMicrotask(() => this.updateCatsFade());
+    });
+  }
+
+  ngAfterViewInit(): void {
+    this.updateCatsFade();
+  }
+
+  @HostListener('window:resize')
+  onWindowResize(): void {
+    this.updateCatsFade();
+  }
+
+  updateCatsFade(): void {
+    const el = this.catsBarRef?.nativeElement;
+    if (!el) return;
+    const maxScroll = el.scrollWidth - el.clientWidth;
+    this.canScrollLeft.set(el.scrollLeft > 4);
+    this.canScrollRight.set(maxScroll > 4 && el.scrollLeft < maxScroll - 4);
+  }
+
+  onCatsWheel(event: WheelEvent): void {
+    const el = this.catsBarRef?.nativeElement;
+    if (!el || el.scrollWidth <= el.clientWidth) return;
+    if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
+    event.preventDefault();
+    el.scrollLeft += event.deltaY;
+  }
 
   ngOnInit(): void {
+    this.healthConcernApi.list().subscribe({ next: (list) => this.allConcerns.set(list) });
+
     this.route.queryParams.subscribe(params => {
       if (params['q']) this.searchCtrl.setValue(params['q']);
+      const concernParam = params['health_concern'];
+      this.selectedConcernKeys.set(concernParam ? concernParam.split(',').filter(Boolean) : []);
+      this.load();
     });
     this.searchCtrl.valueChanges
       .pipe(debounceTime(300), distinctUntilChanged())
       .subscribe(() => this.page.set(1));
-    this.load();
+
+    if (this.authState.isAuthenticated()) {
+      this.userApi.getProfile().subscribe({
+        next: (profile) => this.savedConcernKeys.set(profile.health_concerns ?? []),
+      });
+    }
   }
 
   load(): void {
     this.loading.set(true);
     this.error.set(null);
-    this.testApi.list({ page_size: 500 }).subscribe({
+    const concernKeys = this.selectedConcernKeys();
+    this.testApi.list({ page_size: 500, health_concern: concernKeys.length ? concernKeys.join(',') : undefined }).subscribe({
       next: (res) => {
         const activeOnly = res.items.filter((t: any) => t.is_active);
         this.allTests.set(activeOnly);
@@ -813,6 +939,14 @@ export class TestCatalogComponent implements OnInit {
   changePage(p: number): void { this.page.set(p); window.scrollTo({ top: 0, behavior: 'smooth' }); }
   clearFilters(): void { this.searchCtrl.setValue(''); this.selectedCategory.set(null); this.page.set(1); }
   book(test: Test): void { this.router.navigate(['/booking'], { queryParams: { test_id: test.id } }); }
+
+  clearConcernFilter(): void {
+    this.router.navigate(['/tests'], { queryParams: { q: this.searchCtrl.value || null } });
+  }
+
+  applySavedConcerns(): void {
+    this.router.navigate(['/tests'], { queryParams: { health_concern: this.savedConcernKeys().join(',') } });
+  }
 
   getCatColor(cat: string | null): string { return cat ? (CATEGORY_META[cat]?.color ?? '#6366F1') : '#6366F1'; }
   getCatLight(cat: string | null): string { return cat ? (CATEGORY_META[cat]?.light ?? '#EEF2FF') : '#EEF2FF'; }

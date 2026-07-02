@@ -50,6 +50,7 @@ class PackageRepository:
         active_only: bool = True,
         page: int = 1,
         page_size: int = 20,
+        package_ids: list[uuid.UUID] | None = None,
     ) -> tuple[list[Package], int]:
         base_query = select(Package)
         count_query = select(func.count()).select_from(Package)
@@ -60,6 +61,10 @@ class PackageRepository:
         else:
             base_query = base_query.where(Package.deleted_at.is_(None))
             count_query = count_query.where(Package.deleted_at.is_(None))
+
+        if package_ids is not None:
+            base_query = base_query.where(Package.id.in_(package_ids))
+            count_query = count_query.where(Package.id.in_(package_ids))
 
         base_query = base_query.order_by(Package.created_at.desc())
         offset = (page - 1) * page_size

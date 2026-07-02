@@ -1,7 +1,7 @@
 import uuid
 from datetime import date, datetime
 
-from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Integer, String, text
+from sqlalchemy import ARRAY, Boolean, Date, DateTime, ForeignKey, Integer, String, text
 from sqlalchemy.dialects.postgresql import INET, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -35,6 +35,7 @@ class User(TimestampMixin, Base):
     tokens_invalidated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     failed_login_attempts: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
     locked_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    health_concerns: Mapped[list[str] | None] = mapped_column(ARRAY(String), nullable=True)
 
     # Relationships
     sessions: Mapped[list["Session"]] = relationship("Session", back_populates="user")

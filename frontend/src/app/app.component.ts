@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal, OnInit } from '@angular/core';
+import { Component, computed, effect, inject, signal, OnInit } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
@@ -6,13 +6,16 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import { filter } from 'rxjs/operators';
 import { AuthStateService } from './core/auth/auth-state.service';
+import { UserApiService } from './core/api/services/user-api.service';
+import { HealthConcernModalComponent } from './shared/components/health-concern-modal/health-concern-modal.component';
+import { QuickHelpWidgetComponent } from './shared/components/quick-help-widget/quick-help-widget.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [
     CommonModule, RouterOutlet, RouterLink, RouterLinkActive,
-    MatIconModule, MatMenuModule, MatDividerModule,
+    MatIconModule, MatMenuModule, MatDividerModule, HealthConcernModalComponent, QuickHelpWidgetComponent,
   ],
   template: `
     <div class="app-shell">
@@ -344,6 +347,16 @@ import { AuthStateService } from './core/auth/auth-state.service';
             </a>
           }
         </nav>
+      }
+
+      <app-health-concern-modal
+        [isOpen]="showHealthConcernModal()"
+        (continueWith)="onHealthConcernsContinue($event)"
+        (skip)="onHealthConcernsSkip()"
+      />
+
+      @if (!hideShell()) {
+        <app-quick-help-widget />
       }
 
     </div>
@@ -1284,18 +1297,56 @@ import { AuthStateService } from './core/auth/auth-state.service';
   `],
 })
 export class AppComponent implements OnInit {
-  private auth   = inject(AuthStateService);
-  private router = inject(Router);
+  private auth    = inject(AuthStateService);
+  private router  = inject(Router);
+  private userApi = inject(UserApiService);
 
   mobileOpen   = signal(false);
   userMenuOpen = signal(false);
   currentUrl   = signal(this.router.url);   // reactive URL signal
+
+  showHealthConcernModal = signal(false);
+  private healthConcernChecked = false;
+
+  constructor() {
+    // Show the "what brings you here?" popup once per patient session, the
+    // first time they're authenticated with no saved health concerns yet.
+    effect(() => {
+      const authed = this.auth.isAuthenticated();
+      const currentRole = this.auth.role();
+      if (!authed) {
+        this.healthConcernChecked = false;
+        return;
+      }
+      if (currentRole !== 'user' || this.healthConcernChecked) return;
+      this.healthConcernChecked = true;
+      if (sessionStorage.getItem('hc_popup_skipped') === '1') return;
+      this.userApi.getProfile().subscribe({
+        next: (profile) => {
+          if (!profile.health_concerns || profile.health_concerns.length === 0) {
+            this.showHealthConcernModal.set(true);
+          }
+        },
+      });
+    });
+  }
 
   ngOnInit(): void {
     // Keep currentUrl signal in sync with every navigation
     this.router.events
       .pipe(filter(e => e instanceof NavigationEnd))
       .subscribe((e: any) => this.currentUrl.set(e.urlAfterRedirects));
+  }
+
+  onHealthConcernsContinue(keys: string[]): void {
+    this.showHealthConcernModal.set(false);
+    this.userApi.updateProfile({ health_concerns: keys }).subscribe();
+    this.router.navigateByUrl('/tests?health_concern=' + keys.join(','));
+  }
+
+  onHealthConcernsSkip(): void {
+    this.showHealthConcernModal.set(false);
+    sessionStorage.setItem('hc_popup_skipped', '1');
   }
 
   toggleUserMenu(event: Event): void {

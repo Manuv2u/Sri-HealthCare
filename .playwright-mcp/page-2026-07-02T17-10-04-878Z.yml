@@ -1,0 +1,118 @@
+- generic [ref=f1e3]:
+  - banner [ref=f1e4]:
+    - generic [ref=f1e6]:
+      - link "Sri Health Sri Health Diagnostics" [ref=f1e7] [cursor=pointer]:
+        - /url: /
+        - img "Sri Health" [ref=f1e8]
+        - generic [ref=f1e9]:
+          - generic [ref=f1e10]: Sri Health
+          - generic [ref=f1e11]: Diagnostics
+      - navigation [ref=f1e12]:
+        - link "Home" [ref=f1e13] [cursor=pointer]:
+          - /url: /
+        - link "Tests" [ref=f1e14] [cursor=pointer]:
+          - /url: /tests
+        - link "Packages" [ref=f1e15] [cursor=pointer]:
+          - /url: /packages
+        - link "About" [ref=f1e16] [cursor=pointer]:
+          - /url: /about
+        - link "Contact" [ref=f1e17] [cursor=pointer]:
+          - /url: /contact
+      - generic [ref=f1e18]:
+        - link "Sign In" [ref=f1e19] [cursor=pointer]:
+          - /url: /auth/login
+        - link "Get Started" [ref=f1e20] [cursor=pointer]:
+          - /url: /auth/register
+  - main [ref=f1e21]:
+    - generic [ref=f1e22]:
+      - generic [ref=f1e24]:
+        - paragraph [ref=f1e25]:
+          - img [ref=f1e26]: verified
+          - text: NABL Certified Labs · Free Home Collection
+        - heading "Find the right test for you" [level=1] [ref=f1e27]:
+          - text: Find the right
+          - text: test for you
+        - paragraph [ref=f1e28]: Trusted by 50,000+ patients · Results within 24 hours
+        - generic [ref=f1e30]:
+          - img [ref=f1e31]: search
+          - textbox "Search CBC, Thyroid, HbA1c, Lipid Panel…" [ref=f1e32]
+      - navigation "Filter by category" [ref=f1e34]:
+        - button "All" [ref=f1e35] [cursor=pointer]:
+          - img [ref=f1e36]: apps
+          - generic [ref=f1e37]: All
+        - button "Diabetes 0" [ref=f1e38] [cursor=pointer]:
+          - img [ref=f1e39]: water_drop
+          - generic [ref=f1e40]: Diabetes
+          - generic [ref=f1e41]: "0"
+        - button "Heart 0" [ref=f1e42] [cursor=pointer]:
+          - img [ref=f1e43]: favorite
+          - generic [ref=f1e44]: Heart
+          - generic [ref=f1e45]: "0"
+        - button "Kidney 0" [ref=f1e46] [cursor=pointer]:
+          - img [ref=f1e47]: opacity
+          - generic [ref=f1e48]: Kidney
+          - generic [ref=f1e49]: "0"
+        - button "Liver 0" [ref=f1e50] [cursor=pointer]:
+          - img [ref=f1e51]: eco
+          - generic [ref=f1e52]: Liver
+          - generic [ref=f1e53]: "0"
+        - button "Thyroid 0" [ref=f1e54] [cursor=pointer]:
+          - img [ref=f1e55]: psychology
+          - generic [ref=f1e56]: Thyroid
+          - generic [ref=f1e57]: "0"
+        - button "Full Body 0" [ref=f1e58] [cursor=pointer]:
+          - img [ref=f1e59]: accessibility_new
+          - generic [ref=f1e60]: Full Body
+          - generic [ref=f1e61]: "0"
+        - button "Women's Health 0" [ref=f1e62] [cursor=pointer]:
+          - img [ref=f1e63]: spa
+          - generic [ref=f1e64]: Women's Health
+          - generic [ref=f1e65]: "0"
+        - button "Vitamin 0" [ref=f1e66] [cursor=pointer]:
+          - img [ref=f1e67]: wb_sunny
+          - generic [ref=f1e68]: Vitamin
+          - generic [ref=f1e69]: "0"
+      - main [ref=f1e70]
+  - contentinfo [ref=f1e122]:
+    - generic [ref=f1e123]:
+      - generic [ref=f1e124]:
+        - generic [ref=f1e125]:
+          - img "Sri Health" [ref=f1e126]
+          - generic [ref=f1e127]: Sri Health
+        - paragraph [ref=f1e128]:
+          - text: Clinical precision.
+          - text: Expert care.
+        - generic [ref=f1e129]:
+          - link "Instagram" [ref=f1e130] [cursor=pointer]:
+            - /url: https://instagram.com
+            - img [ref=f1e131]
+          - link "Facebook" [ref=f1e133] [cursor=pointer]:
+            - /url: https://facebook.com
+            - img [ref=f1e134]
+      - generic [ref=f1e136]:
+        - generic [ref=f1e137]: Services
+        - link "Lab Tests" [ref=f1e138] [cursor=pointer]:
+          - /url: /tests
+        - link "Health Packages" [ref=f1e139] [cursor=pointer]:
+          - /url: /packages
+      - generic [ref=f1e140]:
+        - generic [ref=f1e141]: Company
+        - link "About Us" [ref=f1e142] [cursor=pointer]:
+          - /url: /about
+        - link "Contact" [ref=f1e143] [cursor=pointer]:
+          - /url: /contact
+      - generic [ref=f1e144]:
+        - generic [ref=f1e145]: Account
+        - link "Sign In" [ref=f1e146] [cursor=pointer]:
+          - /url: /auth/login
+        - link "Register" [ref=f1e147] [cursor=pointer]:
+          - /url: /auth/register
+    - generic [ref=f1e149]:
+      - generic [ref=f1e150]: © 2026 SRI Diagnostic Laboratory & Health Care
+      - generic [ref=f1e151]: All prices in ₹ (Indian Rupees)
+  - generic:
+    - generic "Welcome to Sri Diagnostic Lab"
+  - generic:
+    - button "How can we help?" [ref=f1e152] [cursor=pointer]:
+      - img [ref=f1e153]: support_agent
+    - generic "How can we help?"

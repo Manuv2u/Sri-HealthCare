@@ -29,7 +29,7 @@ class UserService:
         return user
 
     async def update_profile(self, user_id: uuid.UUID, **fields):
-        allowed = {k: v for k, v in fields.items() if k in ("name", "email", "date_of_birth", "gender") and v is not None}
+        allowed = {k: v for k, v in fields.items() if k in ("name", "email", "date_of_birth", "gender", "health_concerns") and v is not None}
         user = await self.user_repo.update(user_id, **allowed)
         if user is None:
             raise HTTPException(

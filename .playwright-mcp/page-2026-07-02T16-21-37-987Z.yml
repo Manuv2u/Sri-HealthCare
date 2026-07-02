@@ -1,0 +1,300 @@
+- generic [ref=f9e3]:
+  - main [ref=f9e4]:
+    - generic [ref=f9e6]:
+      - complementary [ref=f9e7]:
+        - generic [ref=f9e8]:
+          - img [ref=f9e10]: local_hospital
+          - generic [ref=f9e11]:
+            - generic [ref=f9e12]: Sri Health
+            - generic [ref=f9e13]: Admin Console
+          - button [ref=f9e14] [cursor=pointer]:
+            - img [ref=f9e15]: chevron_left
+        - navigation [ref=f9e16]:
+          - link "Dashboard" [ref=f9e17] [cursor=pointer]:
+            - /url: /admin/dashboard
+            - img [ref=f9e19]: dashboard
+            - generic [ref=f9e20]: Dashboard
+          - generic [ref=f9e22]: Operations
+          - link "Bookings" [ref=f9e23] [cursor=pointer]:
+            - /url: /admin/bookings
+            - img [ref=f9e25]: calendar_month
+            - generic [ref=f9e26]: Bookings
+          - link "Tests" [ref=f9e27] [cursor=pointer]:
+            - /url: /admin/tests
+            - img [ref=f9e29]: biotech
+            - generic [ref=f9e30]: Tests
+          - link "Packages" [ref=f9e31] [cursor=pointer]:
+            - /url: /admin/packages
+            - img [ref=f9e33]: inventory_2
+            - generic [ref=f9e34]: Packages
+          - link "Health Concerns" [ref=f9e35] [cursor=pointer]:
+            - /url: /admin/health-concerns
+            - img [ref=f9e37]: health_and_safety
+            - generic [ref=f9e38]: Health Concerns
+          - link "Users" [ref=f9e40] [cursor=pointer]:
+            - /url: /admin/users
+            - img [ref=f9e42]: people
+            - generic [ref=f9e43]: Users
+          - link "Technicians" [ref=f9e44] [cursor=pointer]:
+            - /url: /admin/technicians
+            - img [ref=f9e46]: engineering
+            - generic [ref=f9e47]: Technicians
+          - link "Lab Branches" [ref=f9e48] [cursor=pointer]:
+            - /url: /admin/lab-branches
+            - img [ref=f9e50]: location_city
+            - generic [ref=f9e51]: Lab Branches
+          - link "Service Areas" [ref=f9e52] [cursor=pointer]:
+            - /url: /admin/service-areas
+            - img [ref=f9e54]: map
+            - generic [ref=f9e55]: Service Areas
+          - generic [ref=f9e57]: Insights
+          - link "Analytics" [ref=f9e58] [cursor=pointer]:
+            - /url: /admin/analytics
+            - img [ref=f9e60]: bar_chart
+            - generic [ref=f9e61]: Analytics
+          - generic [ref=f9e63]: Settings
+          - link "Cancellation" [ref=f9e64] [cursor=pointer]:
+            - /url: /admin/cancellation-config
+            - img [ref=f9e66]: cancel
+            - generic [ref=f9e67]: Cancellation
+          - link "Payment" [ref=f9e68] [cursor=pointer]:
+            - /url: /admin/payment-config
+            - img [ref=f9e70]: payments
+            - generic [ref=f9e71]: Payment
+          - link "Feature Flags" [ref=f9e72] [cursor=pointer]:
+            - /url: /admin/feature-flags
+            - img [ref=f9e74]: toggle_on
+            - generic [ref=f9e75]: Feature Flags
+        - generic [ref=f9e76]:
+          - generic [ref=f9e77]:
+            - img [ref=f9e79]: admin_panel_settings
+            - generic [ref=f9e80]:
+              - generic [ref=f9e81]: Admin
+              - generic [ref=f9e82]: Administrator
+          - generic [ref=f9e83]:
+            - link "Back to App" [ref=f9e84] [cursor=pointer]:
+              - /url: /tests
+              - img [ref=f9e85]: arrow_back
+              - generic [ref=f9e86]: Back to App
+            - button "Sign Out" [ref=f9e87] [cursor=pointer]:
+              - img [ref=f9e88]: logout
+              - generic [ref=f9e89]: Sign Out
+      - generic [ref=f9e90]:
+        - generic [ref=f9e91]:
+          - generic [ref=f9e93]:
+            - generic [ref=f9e94]: Admin
+            - img [ref=f9e95]: chevron_right
+            - generic [ref=f9e96]: Health Concerns
+          - generic [ref=f9e100]: Admin
+        - generic [ref=f9e103]:
+          - generic [ref=f9e105]:
+            - heading "Health Concerns" [level=1] [ref=f9e106]
+            - paragraph [ref=f9e107]: Map each health concern to the tests and packages patients should see when they select it
+          - generic [ref=f9e108]:
+            - generic [ref=f9e109]:
+              - img [ref=f9e111]: accessibility_new
+              - heading "Full Body Checkup" [level=3] [ref=f9e112]
+              - generic [ref=f9e113]:
+                - button "Manage Tests" [ref=f9e114] [cursor=pointer]:
+                  - img [ref=f9e115]: biotech
+                  - text: Manage Tests
+                - button "Manage Packages" [ref=f9e116] [cursor=pointer]:
+                  - img [ref=f9e117]: inventory_2
+                  - text: Manage Packages
+            - generic [ref=f9e118]:
+              - img [ref=f9e120]: water_drop
+              - heading "Diabetes" [level=3] [ref=f9e121]
+              - generic [ref=f9e122]:
+                - button "Manage Tests" [ref=f9e123] [cursor=pointer]:
+                  - img [ref=f9e124]: biotech
+                  - text: Manage Tests
+                - button "Manage Packages" [active] [ref=f9e125] [cursor=pointer]:
+                  - img [ref=f9e126]: inventory_2
+                  - text: Manage Packages
+            - generic [ref=f9e127]:
+              - img [ref=f9e129]: psychology
+              - heading "Thyroid" [level=3] [ref=f9e130]
+              - generic [ref=f9e131]:
+                - button "Manage Tests" [ref=f9e132] [cursor=pointer]:
+                  - img [ref=f9e133]: biotech
+                  - text: Manage Tests
+                - button "Manage Packages" [ref=f9e134] [cursor=pointer]:
+                  - img [ref=f9e135]: inventory_2
+                  - text: Manage Packages
+            - generic [ref=f9e136]:
+              - img [ref=f9e138]: favorite
+              - heading "Heart Health" [level=3] [ref=f9e139]
+              - generic [ref=f9e140]:
+                - button "Manage Tests" [ref=f9e141] [cursor=pointer]:
+                  - img [ref=f9e142]: biotech
+                  - text: Manage Tests
+                - button "Manage Packages" [ref=f9e143] [cursor=pointer]:
+                  - img [ref=f9e144]: inventory_2
+                  - text: Manage Packages
+            - generic [ref=f9e145]:
+              - img [ref=f9e147]: eco
+              - heading "Liver" [level=3] [ref=f9e148]
+              - generic [ref=f9e149]:
+                - button "Manage Tests" [ref=f9e150] [cursor=pointer]:
+                  - img [ref=f9e151]: biotech
+                  - text: Manage Tests
+                - button "Manage Packages" [ref=f9e152] [cursor=pointer]:
+                  - img [ref=f9e153]: inventory_2
+                  - text: Manage Packages
+            - generic [ref=f9e154]:
+              - img [ref=f9e156]: opacity
+              - heading "Kidney" [level=3] [ref=f9e157]
+              - generic [ref=f9e158]:
+                - button "Manage Tests" [ref=f9e159] [cursor=pointer]:
+                  - img [ref=f9e160]: biotech
+                  - text: Manage Tests
+                - button "Manage Packages" [ref=f9e161] [cursor=pointer]:
+                  - img [ref=f9e162]: inventory_2
+                  - text: Manage Packages
+            - generic [ref=f9e163]:
+              - img [ref=f9e165]: sick
+              - heading "Fever & Infection" [level=3] [ref=f9e166]
+              - generic [ref=f9e167]:
+                - button "Manage Tests" [ref=f9e168] [cursor=pointer]:
+                  - img [ref=f9e169]: biotech
+                  - text: Manage Tests
+                - button "Manage Packages" [ref=f9e170] [cursor=pointer]:
+                  - img [ref=f9e171]: inventory_2
+                  - text: Manage Packages
+            - generic [ref=f9e172]:
+              - img [ref=f9e174]: wb_sunny
+              - heading "Vitamin Deficiency" [level=3] [ref=f9e175]
+              - generic [ref=f9e176]:
+                - button "Manage Tests" [ref=f9e177] [cursor=pointer]:
+                  - img [ref=f9e178]: biotech
+                  - text: Manage Tests
+                - button "Manage Packages" [ref=f9e179] [cursor=pointer]:
+                  - img [ref=f9e180]: inventory_2
+                  - text: Manage Packages
+            - generic [ref=f9e181]:
+              - img [ref=f9e183]: spa
+              - heading "Women's Health" [level=3] [ref=f9e184]
+              - generic [ref=f9e185]:
+                - button "Manage Tests" [ref=f9e186] [cursor=pointer]:
+                  - img [ref=f9e187]: biotech
+                  - text: Manage Tests
+                - button "Manage Packages" [ref=f9e188] [cursor=pointer]:
+                  - img [ref=f9e189]: inventory_2
+                  - text: Manage Packages
+            - generic [ref=f9e190]:
+              - img [ref=f9e192]: male
+              - heading "Men's Health" [level=3] [ref=f9e193]
+              - generic [ref=f9e194]:
+                - button "Manage Tests" [ref=f9e195] [cursor=pointer]:
+                  - img [ref=f9e196]: biotech
+                  - text: Manage Tests
+                - button "Manage Packages" [ref=f9e197] [cursor=pointer]:
+                  - img [ref=f9e198]: inventory_2
+                  - text: Manage Packages
+            - generic [ref=f9e199]:
+              - img [ref=f9e201]: pregnant_woman
+              - heading "Pregnancy" [level=3] [ref=f9e202]
+              - generic [ref=f9e203]:
+                - button "Manage Tests" [ref=f9e204] [cursor=pointer]:
+                  - img [ref=f9e205]: biotech
+                  - text: Manage Tests
+                - button "Manage Packages" [ref=f9e206] [cursor=pointer]:
+                  - img [ref=f9e207]: inventory_2
+                  - text: Manage Packages
+            - generic [ref=f9e208]:
+              - img [ref=f9e210]: child_care
+              - heading "Children's Health" [level=3] [ref=f9e211]
+              - generic [ref=f9e212]:
+                - button "Manage Tests" [ref=f9e213] [cursor=pointer]:
+                  - img [ref=f9e214]: biotech
+                  - text: Manage Tests
+                - button "Manage Packages" [ref=f9e215] [cursor=pointer]:
+                  - img [ref=f9e216]: inventory_2
+                  - text: Manage Packages
+            - generic [ref=f9e217]:
+              - img [ref=f9e219]: elderly
+              - heading "Senior Citizen" [level=3] [ref=f9e220]
+              - generic [ref=f9e221]:
+                - button "Manage Tests" [ref=f9e222] [cursor=pointer]:
+                  - img [ref=f9e223]: biotech
+                  - text: Manage Tests
+                - button "Manage Packages" [ref=f9e224] [cursor=pointer]:
+                  - img [ref=f9e225]: inventory_2
+                  - text: Manage Packages
+            - generic [ref=f9e226]:
+              - img [ref=f9e228]: fitness_center
+              - heading "Bone Health" [level=3] [ref=f9e229]
+              - generic [ref=f9e230]:
+                - button "Manage Tests" [ref=f9e231] [cursor=pointer]:
+                  - img [ref=f9e232]: biotech
+                  - text: Manage Tests
+                - button "Manage Packages" [ref=f9e233] [cursor=pointer]:
+                  - img [ref=f9e234]: inventory_2
+                  - text: Manage Packages
+            - generic [ref=f9e235]:
+              - img [ref=f9e237]: air
+              - heading "Allergy" [level=3] [ref=f9e238]
+              - generic [ref=f9e239]:
+                - button "Manage Tests" [ref=f9e240] [cursor=pointer]:
+                  - img [ref=f9e241]: biotech
+                  - text: Manage Tests
+                - button "Manage Packages" [ref=f9e242] [cursor=pointer]:
+                  - img [ref=f9e243]: inventory_2
+                  - text: Manage Packages
+            - generic [ref=f9e244]:
+              - img [ref=f9e246]: health_and_safety
+              - heading "General Health" [level=3] [ref=f9e247]
+              - generic [ref=f9e248]:
+                - button "Manage Tests" [ref=f9e249] [cursor=pointer]:
+                  - img [ref=f9e250]: biotech
+                  - text: Manage Tests
+                - button "Manage Packages" [ref=f9e251] [cursor=pointer]:
+                  - img [ref=f9e252]: inventory_2
+                  - text: Manage Packages
+          - dialog [ref=f9e253]:
+            - document [ref=f9e254]:
+              - generic [ref=f9e255]:
+                - heading "Packages for Diabetes" [level=2] [ref=f9e256]
+                - button "Close modal" [ref=f9e257] [cursor=pointer]:
+                  - img [ref=f9e258]
+              - generic [ref=f9e261]:
+                - generic [ref=f9e262]:
+                  - generic [ref=f9e263]:
+                    - img [ref=f9e264]
+                    - textbox "Search packages…" [ref=f9e267]
+                  - generic [ref=f9e268]:
+                    - generic [ref=f9e269] [cursor=pointer]:
+                      - checkbox "Heart Health Package" [ref=f9e270]
+                      - generic [ref=f9e271]: Heart Health Package
+                    - generic [ref=f9e272] [cursor=pointer]:
+                      - checkbox "Senior Citizen Health Package" [ref=f9e273]
+                      - generic [ref=f9e274]: Senior Citizen Health Package
+                    - generic [ref=f9e275] [cursor=pointer]:
+                      - checkbox "Cardiac Risk Package" [ref=f9e276]
+                      - generic [ref=f9e277]: Cardiac Risk Package
+                    - generic [ref=f9e278] [cursor=pointer]:
+                      - checkbox "Fever & Infection Panel" [ref=f9e279]
+                      - generic [ref=f9e280]: Fever & Infection Panel
+                    - generic [ref=f9e281] [cursor=pointer]:
+                      - checkbox "Diabetes Care Package" [ref=f9e282]
+                      - generic [ref=f9e283]: Diabetes Care Package
+                    - generic [ref=f9e284] [cursor=pointer]:
+                      - checkbox "Basic Health Checkup" [ref=f9e285]
+                      - generic [ref=f9e286]: Basic Health Checkup
+                    - generic [ref=f9e287] [cursor=pointer]:
+                      - checkbox "Thyroid Profile Package" [ref=f9e288]
+                      - generic [ref=f9e289]: Thyroid Profile Package
+                    - generic [ref=f9e290] [cursor=pointer]:
+                      - checkbox "Women Wellness Package" [ref=f9e291]
+                      - generic [ref=f9e292]: Women Wellness Package
+                    - generic [ref=f9e293] [cursor=pointer]:
+                      - checkbox "Advanced Full Body Checkup" [ref=f9e294]
+                      - generic [ref=f9e295]: Advanced Full Body Checkup
+                - paragraph [ref=f9e296]: 0 packages selected
+              - generic [ref=f9e298]:
+                - button "Cancel" [ref=f9e300] [cursor=pointer]:
+                  - generic [ref=f9e301]: Cancel
+                - button "Save" [ref=f9e303] [cursor=pointer]:
+                  - generic [ref=f9e304]: Save
+  - generic:
+    - generic "Welcome to Sri Diagnostic Lab"

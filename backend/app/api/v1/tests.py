@@ -57,6 +57,7 @@ async def create_test(
 async def list_tests(
     q: str | None = Query(default=None),
     category: str | None = Query(default=None),
+    health_concern: str | None = Query(default=None),
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=20, ge=1, le=500),
     include_deleted: bool = Query(default=False),
@@ -74,6 +75,7 @@ async def list_tests(
     result = await svc.list_tests(
         q=q,
         category=category,
+        health_concern=health_concern,
         page=page,
         page_size=page_size,
         include_deleted=include_deleted,

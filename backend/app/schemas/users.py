@@ -23,6 +23,7 @@ class UserProfileOut(BaseModel):
     gender: str | None
     role: str
     is_active: bool
+    health_concerns: list[str] | None
     created_at: datetime
     updated_at: datetime
 
@@ -34,6 +35,7 @@ class UpdateProfileRequest(BaseModel):
     email: str | None = None
     date_of_birth: date | None = None
     gender: str | None = None
+    health_concerns: list[str] | None = None
 
 
 class FamilyMemberOut(BaseModel):

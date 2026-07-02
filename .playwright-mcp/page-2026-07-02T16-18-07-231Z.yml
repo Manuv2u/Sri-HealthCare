@@ -1,0 +1,72 @@
+- generic [ref=f3e3]:
+  - main [ref=f3e4]:
+    - generic [ref=f3e6]:
+      - complementary [ref=f3e7]:
+        - link "Sri Health Care Diagnostic Laboratory" [ref=f3e9] [cursor=pointer]:
+          - /url: /
+          - img [ref=f3e11]
+          - generic [ref=f3e15]:
+            - generic [ref=f3e16]: Sri Health Care
+            - generic [ref=f3e17]: Diagnostic Laboratory
+        - generic [ref=f3e18]:
+          - heading "Fast, Secure & Reliable Laboratory Management" [level=1] [ref=f3e19]:
+            - text: Fast, Secure & Reliable
+            - text: Laboratory Management
+          - paragraph [ref=f3e20]: Access your health records, book tests, and manage appointments from anywhere.
+          - generic [ref=f3e21]:
+            - generic [ref=f3e22]:
+              - generic [ref=f3e23]: 🏠
+              - generic [ref=f3e24]: Home Sample Collection
+            - generic [ref=f3e25]:
+              - generic [ref=f3e26]: ✓
+              - generic [ref=f3e27]: NABL Certified Labs
+            - generic [ref=f3e28]:
+              - generic [ref=f3e29]: ⏰
+              - generic [ref=f3e30]: Reports in 24-48 Hours
+            - generic [ref=f3e31]:
+              - generic [ref=f3e32]: 🔒
+              - generic [ref=f3e33]: Secure & Private
+        - paragraph [ref=f3e35]: © 2026 Sri Diagnostic Laboratory. All rights reserved.
+      - main [ref=f3e36]:
+        - generic [ref=f3e37]:
+          - generic [ref=f3e38]:
+            - heading "Welcome back" [level=2] [ref=f3e39]
+            - paragraph [ref=f3e40]: Sign in to access your health dashboard
+          - tablist "Sign-in method" [ref=f3e41]:
+            - tab "Password" [selected] [ref=f3e42] [cursor=pointer]:
+              - img [ref=f3e43]
+              - text: Password
+            - tab "Phone OTP" [ref=f3e46] [cursor=pointer]:
+              - img [ref=f3e47]
+              - text: Phone OTP
+          - tabpanel [ref=f3e49]:
+            - generic [ref=f3e50]:
+              - generic [ref=f3e51]: Email or Phone
+              - generic [ref=f3e52]:
+                - img
+                - textbox "Email or Phone" [ref=f3e53]:
+                  - /placeholder: Enter your email or phone number
+            - generic [ref=f3e54]:
+              - generic [ref=f3e55]: Password
+              - generic [ref=f3e56]:
+                - img
+                - textbox "Password" [ref=f3e57]:
+                  - /placeholder: Enter your password
+                - button "Show password" [ref=f3e58] [cursor=pointer]:
+                  - img [ref=f3e59]
+            - generic [ref=f3e62]:
+              - generic [ref=f3e63] [cursor=pointer]:
+                - checkbox "Remember me" [ref=f3e64]
+                - generic [ref=f3e65]: Remember me
+              - link "Forgot password?" [ref=f3e66] [cursor=pointer]:
+                - /url: /auth/forgot-password
+            - button "Sign In" [disabled] [ref=f3e67]:
+              - generic [ref=f3e68]: Sign In
+              - img [ref=f3e69]
+          - generic [ref=f3e72]: or
+          - paragraph [ref=f3e74]:
+            - text: Don't have an account?
+            - link "Create account" [ref=f3e75] [cursor=pointer]:
+              - /url: /auth/register
+  - generic:
+    - generic "Welcome to Sri Diagnostic Lab"

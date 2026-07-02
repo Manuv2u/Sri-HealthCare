@@ -1,0 +1,216 @@
+- main [ref=f1e29]:
+  - generic [ref=f1e31]:
+    - complementary [ref=f1e32]:
+      - generic [ref=f1e33]:
+        - img [ref=f1e35]: local_hospital
+        - generic [ref=f1e36]:
+          - generic [ref=f1e37]: Sri Health
+          - generic [ref=f1e38]: Admin Console
+        - button [ref=f1e39] [cursor=pointer]:
+          - img [ref=f1e40]: chevron_left
+      - navigation [ref=f1e41]:
+        - link "Dashboard" [ref=f1e42] [cursor=pointer]:
+          - /url: /admin/dashboard
+          - img [ref=f1e44]: dashboard
+          - generic [ref=f1e45]: Dashboard
+        - generic [ref=f1e47]: Operations
+        - link "Bookings" [ref=f1e48] [cursor=pointer]:
+          - /url: /admin/bookings
+          - img [ref=f1e50]: calendar_month
+          - generic [ref=f1e51]: Bookings
+        - link "Tests" [ref=f1e52] [cursor=pointer]:
+          - /url: /admin/tests
+          - img [ref=f1e54]: biotech
+          - generic [ref=f1e55]: Tests
+        - link "Packages" [ref=f1e56] [cursor=pointer]:
+          - /url: /admin/packages
+          - img [ref=f1e58]: inventory_2
+          - generic [ref=f1e59]: Packages
+        - link "Users" [ref=f1e60] [cursor=pointer]:
+          - /url: /admin/users
+          - img [ref=f1e62]: people
+          - generic [ref=f1e63]: Users
+        - link "Technicians" [ref=f1e64] [cursor=pointer]:
+          - /url: /admin/technicians
+          - img [ref=f1e66]: engineering
+          - generic [ref=f1e67]: Technicians
+        - link "Lab Branches" [ref=f1e68] [cursor=pointer]:
+          - /url: /admin/lab-branches
+          - img [ref=f1e70]: location_city
+          - generic [ref=f1e71]: Lab Branches
+        - link "Service Areas" [ref=f1e72] [cursor=pointer]:
+          - /url: /admin/service-areas
+          - img [ref=f1e74]: map
+          - generic [ref=f1e75]: Service Areas
+        - generic [ref=f1e77]: Insights
+        - link "Analytics" [ref=f1e78] [cursor=pointer]:
+          - /url: /admin/analytics
+          - img [ref=f1e80]: bar_chart
+          - generic [ref=f1e81]: Analytics
+        - generic [ref=f1e84]: Settings
+        - link "Cancellation" [ref=f1e85] [cursor=pointer]:
+          - /url: /admin/cancellation-config
+          - img [ref=f1e87]: cancel
+          - generic [ref=f1e88]: Cancellation
+        - link "Payment" [ref=f1e89] [cursor=pointer]:
+          - /url: /admin/payment-config
+          - img [ref=f1e91]: payments
+          - generic [ref=f1e92]: Payment
+        - link "Feature Flags" [ref=f1e93] [cursor=pointer]:
+          - /url: /admin/feature-flags
+          - img [ref=f1e95]: toggle_on
+          - generic [ref=f1e96]: Feature Flags
+      - generic [ref=f1e97]:
+        - generic [ref=f1e98]:
+          - img [ref=f1e100]: admin_panel_settings
+          - generic [ref=f1e101]:
+            - generic [ref=f1e102]: Admin
+            - generic [ref=f1e103]: Administrator
+        - generic [ref=f1e104]:
+          - link "Back to App" [ref=f1e105] [cursor=pointer]:
+            - /url: /tests
+            - img [ref=f1e106]: arrow_back
+            - generic [ref=f1e107]: Back to App
+          - button "Sign Out" [ref=f1e108] [cursor=pointer]:
+            - img [ref=f1e109]: logout
+            - generic [ref=f1e110]: Sign Out
+    - generic [ref=f1e111]:
+      - generic [ref=f1e112]:
+        - generic [ref=f1e114]:
+          - generic [ref=f1e115]: Admin
+          - img [ref=f1e116]: chevron_right
+          - generic [ref=f1e117]: Analytics
+        - generic [ref=f1e121]: Admin
+      - generic [ref=f1e124]:
+        - generic [ref=f1e125]:
+          - generic [ref=f1e126]:
+            - heading "Analytics & Reports" [level=1] [ref=f1e127]
+            - paragraph [ref=f1e128]: Revenue, bookings, and operational insights
+          - generic [ref=f1e129]:
+            - generic [ref=f1e130]:
+              - textbox [ref=f1e131]: 2026-06-30
+              - generic [ref=f1e132]: to
+              - textbox [ref=f1e133]: 2026-07-02
+            - button "Apply" [ref=f1e134] [cursor=pointer]
+            - button "Export CSV" [ref=f1e135] [cursor=pointer]:
+              - img [ref=f1e136]
+              - text: Export CSV
+        - generic [ref=f1e139]:
+          - generic [ref=f1e140]:
+            - generic [ref=f1e141]: Total Bookings
+            - generic [ref=f1e142]: "12"
+            - generic [ref=f1e143]:
+              - img [ref=f1e144]
+              - generic [ref=f1e147]: +1100%
+              - generic [ref=f1e148]: vs previous period
+          - generic [ref=f1e149]:
+            - generic [ref=f1e150]: Completed
+            - generic [ref=f1e151]: "4"
+          - generic [ref=f1e152]:
+            - generic [ref=f1e153]: Cancelled
+            - generic [ref=f1e154]: "1"
+          - generic [ref=f1e155]:
+            - generic [ref=f1e156]: Revenue
+            - generic [ref=f1e157]: ₹6.3K
+          - generic [ref=f1e158]:
+            - generic [ref=f1e159]: Avg Order Value
+            - generic [ref=f1e160]: ₹528.56
+          - generic [ref=f1e161]:
+            - generic [ref=f1e162]: New Users
+            - generic [ref=f1e163]: "6"
+            - generic [ref=f1e164]:
+              - img [ref=f1e165]
+              - generic [ref=f1e168]: +100%
+              - generic [ref=f1e169]: vs previous period
+        - generic [ref=f1e170]:
+          - heading "Insights & Recommendations" [level=3] [ref=f1e171]
+          - alert [ref=f1e174]:
+            - generic [ref=f1e176]:
+              - heading "Only 33% of bookings completed" [level=4] [ref=f1e177]
+              - paragraph [ref=f1e178]: Many bookings in this range have not reached completion. Check for bottlenecks in sample collection or lab processing.
+        - generic [ref=f1e179]:
+          - generic [ref=f1e180]:
+            - heading "Bookings by Status" [level=3] [ref=f1e181]
+            - generic [ref=f1e182]:
+              - generic [ref=f1e183]:
+                - generic [ref=f1e184]: accepted
+                - generic [ref=f1e187]: "1"
+              - generic [ref=f1e188]:
+                - generic [ref=f1e189]: booked
+                - generic [ref=f1e192]: "3"
+              - generic [ref=f1e193]:
+                - generic [ref=f1e194]: cancelled
+                - generic [ref=f1e197]: "1"
+              - generic [ref=f1e198]:
+                - generic [ref=f1e199]: completed
+                - generic [ref=f1e202]: "4"
+              - generic [ref=f1e203]:
+                - generic [ref=f1e204]: on the way
+                - generic [ref=f1e207]: "1"
+              - generic [ref=f1e208]:
+                - generic [ref=f1e209]: report ready
+                - generic [ref=f1e212]: "1"
+              - generic [ref=f1e213]:
+                - generic [ref=f1e214]: technician assigned
+                - generic [ref=f1e217]: "1"
+          - generic [ref=f1e218]:
+            - heading "Revenue by Payment Method" [level=3] [ref=f1e219]
+            - generic [ref=f1e220]:
+              - generic [ref=f1e221]:
+                - generic [ref=f1e222]: UPI
+                - generic [ref=f1e225]: ₹1.3K
+              - generic [ref=f1e226]:
+                - generic [ref=f1e227]: Cash
+                - generic [ref=f1e230]: ₹5.1K
+          - generic [ref=f1e231]:
+            - heading "Revenue Trend" [level=3] [ref=f1e232]
+            - paragraph [ref=f1e233]: 2 days with revenue in range
+            - generic [ref=f1e234]:
+              - generic [ref=f1e235]:
+                - generic "₹871.7 on 2026-07-01" [ref=f1e237]
+                - generic [ref=f1e238]: Jul 1
+              - generic [ref=f1e239]:
+                - generic "₹5471.04 on 2026-07-02" [ref=f1e241]
+                - generic [ref=f1e242]: Jul 2
+        - generic [ref=f1e243]:
+          - heading "Top Requested Tests" [level=3] [ref=f1e244]
+          - generic [ref=f1e245]:
+            - generic [ref=f1e246]:
+              - generic [ref=f1e247]: "1"
+              - generic [ref=f1e248]: Insulin Fasting
+              - generic [ref=f1e251]: "3"
+            - generic [ref=f1e252]:
+              - generic [ref=f1e253]: "2"
+              - generic [ref=f1e254]: Complete Blood Count (CBC)
+              - generic [ref=f1e257]: "1"
+            - generic [ref=f1e258]:
+              - generic [ref=f1e259]: "3"
+              - generic [ref=f1e260]: HbA1c (Glycated Haemoglobin)
+              - generic [ref=f1e263]: "1"
+            - generic [ref=f1e264]:
+              - generic [ref=f1e265]: "4"
+              - generic [ref=f1e266]: Blood Sugar Fasting (BSF)
+              - generic [ref=f1e269]: "1"
+            - generic [ref=f1e270]:
+              - generic [ref=f1e271]: "5"
+              - generic [ref=f1e272]: Insulin Fasting tes1
+              - generic [ref=f1e275]: "1"
+            - generic [ref=f1e276]:
+              - generic [ref=f1e277]: "6"
+              - generic [ref=f1e278]: Lipid Profile
+              - generic [ref=f1e281]: "1"
+            - generic [ref=f1e282]:
+              - generic [ref=f1e283]: "7"
+              - generic [ref=f1e284]: TSH (Thyroid Stimulating Hormone)
+              - generic [ref=f1e287]: "1"
+        - generic [ref=f1e288]:
+          - generic [ref=f1e289]:
+            - img [ref=f1e291]
+            - generic [ref=f1e293]: Home Collection
+            - generic [ref=f1e294]: "8"
+            - generic [ref=f1e295]: 67%
+          - generic [ref=f1e296]:
+            - img [ref=f1e298]
+            - generic [ref=f1e300]: Lab Visit
+            - generic [ref=f1e301]: "4"
+            - generic [ref=f1e302]: 33%

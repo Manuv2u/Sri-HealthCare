@@ -88,5 +88,5 @@ async def download_file(token: str) -> FileResponse:
     return FileResponse(
         path=str(file_path),
         media_type="application/pdf",
-        filename=file_path.name,
+        filename=payload.get("file_name") or file_path.name,
     )

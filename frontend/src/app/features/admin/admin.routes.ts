@@ -20,6 +20,8 @@ export const ADMIN_ROUTES: Routes = [
       { path: 'cancellation-config',loadComponent: () => import('./cancellation-config/admin-cancellation-config.component').then(m => m.AdminCancellationConfigComponent) },
       { path: 'payment-config',     loadComponent: () => import('./payment-config/admin-payment-config.component').then(m => m.AdminPaymentConfigComponent) },
       { path: 'feature-flags',      loadComponent: () => import('./feature-flags/admin-feature-flags.component').then(m => m.AdminFeatureFlagsComponent) },
+      { path: 'health-concerns',    loadComponent: () => import('./health-concerns/admin-health-concerns.component').then(m => m.AdminHealthConcernsComponent) },
+      { path: 'callback-requests',  loadComponent: () => import('./callback-requests/admin-callback-requests.component').then(m => m.AdminCallbackRequestsComponent) },
     ],
   },
 ];

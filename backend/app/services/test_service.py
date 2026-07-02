@@ -33,6 +33,7 @@ def _test_to_dict(test: Test) -> dict:
 
 class TestService:
     def __init__(self, db: AsyncSession) -> None:
+        self.db = db
         self.repo = TestRepository(db)
 
     async def create_test(
@@ -71,6 +72,7 @@ class TestService:
         page_size: int,
         include_deleted: bool,
         requester_role: str,
+        health_concern: str | None = None,
     ) -> dict:
         # Only admins may request deleted records
         if include_deleted and requester_role != "admin":
@@ -79,6 +81,13 @@ class TestService:
         # Non-admins only see active tests
         active_only = requester_role != "admin"
 
+        test_ids = None
+        if health_concern:
+            from app.repositories.health_concern_repository import HealthConcernRepository
+
+            keys = [k.strip() for k in health_concern.split(",") if k.strip()]
+            test_ids = await HealthConcernRepository(self.db).keys_to_test_ids(keys)
+
         items, total = await self.repo.list(
             q=q,
             category=category,
@@ -86,6 +95,7 @@ class TestService:
             page_size=page_size,
             include_deleted=include_deleted,
             active_only=active_only,
+            test_ids=test_ids,
         )
         return {
             "items": [_test_to_dict(t) for t in items],

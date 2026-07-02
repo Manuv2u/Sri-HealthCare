@@ -26,8 +26,10 @@ const NAV_SECTIONS: NavSection[] = [
     heading: 'Operations',
     items: [
       { label: 'Bookings',      icon: 'calendar_month',  path: '/admin/bookings' },
+      { label: 'Callback Requests', icon: 'support_agent', path: '/admin/callback-requests' },
       { label: 'Tests',         icon: 'biotech',         path: '/admin/tests' },
       { label: 'Packages',      icon: 'inventory_2',     path: '/admin/packages' },
+      { label: 'Health Concerns', icon: 'health_and_safety', path: '/admin/health-concerns' },
       { label: 'Users',         icon: 'people',          path: '/admin/users' },
       { label: 'Technicians',   icon: 'engineering',     path: '/admin/technicians' },
       { label: 'Lab Branches',  icon: 'location_city',   path: '/admin/lab-branches' },

@@ -61,6 +61,7 @@ async def list_packages(
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=20, ge=1, le=100),
     include_inactive: bool = Query(default=False),
+    health_concern: str | None = Query(default=None),
     db: AsyncSession = Depends(get_db_session),
     current_user: dict | None = Depends(_optional_current_user),
 ) -> PackageListResponse:
@@ -68,7 +69,9 @@ async def list_packages(
     requester_role = current_user["role"] if current_user else "user"
     # Only admins can request inactive packages
     active_only = not (include_inactive and requester_role == "admin")
-    result = await svc.list_packages(page=page, page_size=page_size, active_only=active_only)
+    result = await svc.list_packages(
+        page=page, page_size=page_size, active_only=active_only, health_concern=health_concern
+    )
     return PackageListResponse(
         items=[PackageOut.model_validate(i) for i in result["items"]],
         total=result["total"],

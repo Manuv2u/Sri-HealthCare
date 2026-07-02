@@ -1,9 +1,10 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { PackageApiService } from '../../../core/api/services/package-api.service';
-import { Package } from '../../../core/api/api.types';
+import { HealthConcernApiService } from '../../../core/api/services/health-concern-api.service';
+import { Package, HealthConcern } from '../../../core/api/api.types';
 
 @Component({
   selector: 'app-packages-list',
@@ -38,6 +39,18 @@ import { Package } from '../../../core/api/api.types';
 
       <!-- Body -->
       <div class="packages-body">
+
+        @if (selectedConcernKeys().length) {
+          <div class="concern-banner">
+            <div>
+              <h2 class="concern-heading">Recommended Packages for {{ concernNames() }}</h2>
+              <p class="concern-sub">Curated based on the health concern(s) you selected.</p>
+            </div>
+            <button class="btn-clear-filters" (click)="clearConcernFilter()">
+              <mat-icon>close</mat-icon> Clear filter
+            </button>
+          </div>
+        }
 
         @if (loading()) {
           <div class="pkg-grid">
@@ -271,6 +284,23 @@ import { Package } from '../../../core/api/api.types';
       margin: 0 auto;
       padding: 2.5rem 1.5rem 3rem;
     }
+
+    .concern-banner {
+      display:flex; align-items:center; justify-content:space-between; gap:1rem;
+      flex-wrap:wrap;
+      background:#EEF2FF; border:1px solid #C7D2FE; border-radius:14px;
+      padding:1rem 1.25rem; margin-bottom:1.5rem;
+    }
+    .concern-heading { font-size:1.05rem; font-weight:700; color:#0F172A; margin:0 0 .2rem 0; }
+    .concern-sub { font-size:.8rem; color:#475569; margin:0; }
+    .btn-clear-filters {
+      display:inline-flex; align-items:center; gap:.3rem;
+      background:#fff; border:1.5px solid #E2E8F0; border-radius:8px;
+      padding:.3rem .75rem; font-size:.78rem; font-weight:600; color:#475569;
+      transition:all .15s; flex-shrink:0;
+    }
+    .btn-clear-filters:hover { border-color:#6366F1; color:#6366F1; }
+    .btn-clear-filters mat-icon { font-size:.85rem; width:.85rem; height:.85rem; }
 
     /* ── Grid ────────────────────────────────────────────────── */
     .pkg-grid {
@@ -711,17 +741,43 @@ export class PackagesListComponent implements OnInit {
   loading = signal(true);
   error = signal<string | null>(null);
 
+  selectedConcernKeys = signal<string[]>([]);
+  allConcerns = signal<HealthConcern[]>([]);
+
+  concernNames = computed(() =>
+    this.selectedConcernKeys()
+      .map(k => this.allConcerns().find(c => c.key === k)?.name ?? k)
+      .join(', ')
+  );
+
   // Make Number available in template
   Number = Number;
 
-  constructor(private packageApi: PackageApiService, private router: Router) {}
+  constructor(
+    private packageApi: PackageApiService,
+    private healthConcernApi: HealthConcernApiService,
+    private router: Router,
+    private route: ActivatedRoute,
+  ) {}
 
-  ngOnInit(): void { this.load(); }
+  ngOnInit(): void {
+    this.healthConcernApi.list().subscribe({ next: (list) => this.allConcerns.set(list) });
+    this.route.queryParams.subscribe(params => {
+      const concernParam = params['health_concern'];
+      this.selectedConcernKeys.set(concernParam ? concernParam.split(',').filter(Boolean) : []);
+      this.load();
+    });
+  }
+
+  clearConcernFilter(): void {
+    this.router.navigate(['/packages']);
+  }
 
   load(): void {
     this.loading.set(true);
     this.error.set(null);
-    this.packageApi.list().subscribe({
+    const concernKeys = this.selectedConcernKeys();
+    this.packageApi.list({ health_concern: concernKeys.length ? concernKeys.join(',') : undefined }).subscribe({
       next: (res) => {
         // Ensure prices are numbers (backend sends Decimal as strings in JSON)
         const normalized = res.items.map(pkg => ({
