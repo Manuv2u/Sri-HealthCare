@@ -22,6 +22,7 @@ class UserProfileOut(BaseModel):
     date_of_birth: date | None
     gender: str | None
     role: str
+    is_active: bool
     created_at: datetime
     updated_at: datetime
 

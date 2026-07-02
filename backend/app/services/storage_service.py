@@ -17,7 +17,9 @@ class StorageBackend(Protocol):
         """Upload file and return storage key."""
         ...
 
-    async def generate_signed_url(self, key: str, report_id: uuid.UUID, user_id: uuid.UUID) -> str:
+    async def generate_signed_url(
+        self, key: str, report_id: uuid.UUID, user_id: uuid.UUID, file_name: str
+    ) -> str:
         """Return a time-limited download URL."""
         ...
 

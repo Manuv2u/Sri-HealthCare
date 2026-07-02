@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import uuid
 
-from fastapi import APIRouter, Depends, UploadFile
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, status
 from fastapi.responses import FileResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -70,25 +70,7 @@ async def download_file(token: str) -> FileResponse:
     svc = ReportService.__new__(ReportService)  # no DB needed for token validation
     svc.storage = get_storage_backend()
 
-    # Validate token using a lightweight approach
-    import jwt as pyjwt
-    from app.config import settings
-    from fastapi import HTTPException, status
-
-    try:
-        payload = pyjwt.decode(
-            token, settings.jwt_secret, algorithms=[settings.jwt_algorithm]
-        )
-    except pyjwt.ExpiredSignatureError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail={"error_code": "TOKEN_EXPIRED", "message": "Download link has expired"},
-        )
-    except pyjwt.InvalidTokenError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail={"error_code": "INVALID_TOKEN", "message": "Invalid download token"},
-        )
+    payload = svc.validate_download_token(token)
 
     if not isinstance(svc.storage, LocalStorage):
         raise HTTPException(

@@ -113,6 +113,7 @@ class ReportService:
             key=report.storage_key,
             report_id=report.id,
             user_id=requesting_user_id,
+            file_name=report.file_name,
         )
 
         logger.info(
